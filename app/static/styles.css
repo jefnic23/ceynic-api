@@ -1,9 +1,43 @@
+* {
+    font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
 #logo {
     width: 85px;
     height: 85px;
 }
 
-.navbar {
-    min-height: 85px;
-    padding: 15px 0px;
+.navbar-nav.navbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translatex(-50%);
+}
+
+@media (min-width: 768px) {
+    .navbar-toggle {
+        display: none;
+    }
+}
+
+.jumbotron {
+    padding-top: 0;
+}
+
+.header-container {
+    padding: 0;
+    margin: auto 0;
+}
+
+.header-title {
+    text-align: center;
+    letter-spacing: 0.34em;
+}
+
+.about-container {
+    text-align: justify;
+    padding: 0 8rem;
+}
+
+.image-grid {
+    margin-top: 1em;
 }
