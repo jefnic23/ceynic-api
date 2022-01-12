@@ -7,6 +7,7 @@
     <link rel="icon" href="{{ url_for('static', filename='logo.jpg') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='logo.jpg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 {% endblock %}
 
 {% block navbar %}
@@ -50,8 +51,12 @@
     {% block app_content %}{% endblock %}
 
     <div class="social-icons">
-        <a href="https://www.pinterest.com/tnicholas48169/" target="_blank"><img class="hvr-grow" src="static/pinterest.svg"></a>
-        <a href="https://www.instagram.com/traceynicholas_art/" target="_blank"><img class="hvr-grow" src="static/instagram.svg"></a>
+        <a href="https://www.pinterest.com/tnicholas48169/" target="_blank">
+            <i class="hvr-grow fa fa-pinterest" style="font-size: 36px; color: red;"></i>
+        </a>
+        <a href="https://www.instagram.com/traceynicholas_art/" target="_blank">
+            <i class="hvr-grow fa fa-instagram" style="font-size: 36px;"></i>
+        </a>
     </div>
     <div class='copyright'>
         Copyright &copy; 2022, Tracey Nicholas. All rights reserved | 
