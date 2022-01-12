@@ -1,0 +1,1 @@
+web: gunicorn tracey_nicholas_art:app --preload
