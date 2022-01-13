@@ -11,10 +11,6 @@
     margin-bottom: 0;
 }
 
-.jumbotron {
-    padding-top: 0;
-}
-
 .header-container {
     position: relative;
     top: 50px;
@@ -44,7 +40,7 @@
 }
 
 .header-img {
-    opacity: 55%; 
+    opacity: 47%; 
 }
 
 .home-header {
@@ -145,6 +141,7 @@
 
     .header-title h1 {
         font-size: 55px;
+        letter-spacing: 0.47em;
     }
 
     .header-title h3 {
