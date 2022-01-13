@@ -21,9 +21,27 @@
     letter-spacing: 0.34em;
 }
 
+.home-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    height: auto;
+    margin: auto;
+    gap: 13px;
+    align-items: center;
+}
+
+.home-container p {
+    text-align: justify;
+    text-align-last: left;
+    margin: 0 2em;
+}
+
 .about-container {
     text-align: justify;
-    padding: 0 5em;
+    padding: 0 3em;
+    margin: 0 auto;
 }
 
 .image-grid {
@@ -33,7 +51,7 @@
 .social-icons {
     display: flex;
     justify-content: center;
-    gap: 12px;
+    gap: 13px;
     margin-top: 5em;
     margin-bottom: 1em;
 }
@@ -85,8 +103,18 @@
         transform: translatex(-50%);
     }
 
+    .home-container {
+        flex-direction: row;
+    }
+
+    .home-container p {
+        width: 385px;
+        line-height: 2;
+        text-align-last: justify;
+    }
+
     .about-container {
-        padding: 0 13em;
+        width: 750px;
     }
 }
 
