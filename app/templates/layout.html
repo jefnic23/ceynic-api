@@ -11,21 +11,24 @@
 {% endblock %}
 
 {% block navbar %}
-    <nav class="navbar navbar-default navbar-fixed-top navbar-expand-sm">
-        <div class='navbar-header'>
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-        </div>
-        <div class='collapse navbar-collapse'>
-            <ul class="nav navbar-nav navbar-center">
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">{{ ('Home') }}</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('browse') }}">{{ ('Browse art') }}</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('about') }}">{{ ('About') }}</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('contact') }}">{{ ('Contact') }}</a></li>
-            </ul>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class='container-fluid'>
+            <div class='navbar-header'>
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ url_for('home') }}">TraceyNicholasArt</a>
+            </div>
+            <div class='collapse navbar-collapse navbar-center'>
+                <ul class="nav navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">{{ ('Home') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('browse') }}">{{ ('Browse art') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('about') }}">{{ ('About') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('contact') }}">{{ ('Contact') }}</a></li>
+                </ul>
+            </div>
         </div>
     </nav>
 {% endblock %}
