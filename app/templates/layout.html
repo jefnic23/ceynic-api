@@ -35,13 +35,11 @@
 
 {% block content %}
     <div class='header-container'>
-        <div class='jumbotron'>
-            <img class='img-responsive' src="{{ url_for('static', filename='header.jpg') }}">
-            <h1 class="header-title">TRACEY NICHOLAS</h1>
-            <p class='text-center'>
-                Original Abstract Oil Paintings on Canvas and Prints
-            </p>
+        <div class="header-title text-center">
+            <h1>TRACEY NICHOLAS</h1>
+            <h4>Original Abstract Oil Paintings on Canvas and Prints</h4>
         </div>
+        <img class='img-responsive header-img' src="{{ url_for('static', filename='header.jpg') }}">
     </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
