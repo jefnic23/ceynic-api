@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+
+    <div class='container-fluid form-group'>
+        <h3>Login to the Administration System</h3>
+        {{ wtf.quick_form(form) }}
+        <p class='login-link'>Forgot your password? <a href="{{ url_for('reset_password_request') }}">Click to reset</a></p>
+    </div>
+
+{% endblock %}
