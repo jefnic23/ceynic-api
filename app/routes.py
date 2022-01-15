@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_bootstrap import Bootstrap
+from flask_admin import Admin
 from forms import *
 from models import *
 import glob, os
@@ -10,14 +11,17 @@ from app import app
 bootstrap = Bootstrap(app)
 login = LoginManager(app)
 login.init_app(app)
+admin = Admin(app, index_view=AdminView())
+admin.add_view(ProductModelView(Product, db.session))
+admin.add_link(LogoutView(name='Logout', endpoint='logout'))
 
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
 @app.route('/')
-def home():
-    return render_template('home.html')
+def index():
+    return render_template('index.html')
 
 @app.route('/browse')
 def browse():
@@ -40,12 +44,6 @@ def contact():
         return redirect(url_for('contact'))
     return render_template('contact.html', form=contact_form)
 
-@app.route('/admin')
-def admin():
-    if current_user.is_anonymous:
-        return redirect(url_for('login'))
-    return render_template('admin.html')
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     login_form = LoginForm()
@@ -56,7 +54,7 @@ def login():
             return redirect(url_for('login'))
         login_user(user_object, remember=login_form.remember_me.data)
         flash('Login successful', 'success')
-        return redirect(url_for('admin'))
+        return redirect(url_for('admin.index'))
     return render_template("login.html", form=login_form)
 
 @app.route('/logout', methods=['GET'])

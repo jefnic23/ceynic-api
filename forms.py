@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, PasswordField, BooleanField
+from wtforms import StringField, TextAreaField, SubmitField, PasswordField, BooleanField, IntegerField, MultipleFileField
 from wtforms.validators import InputRequired, Email, Length, EqualTo
 
 class ContactForm(FlaskForm):
@@ -27,3 +27,11 @@ class ResetPasswordForm(FlaskForm):
         validators=[InputRequired(message="Password required"), 
         EqualTo("password", message="Passwords must match")])
     submit_button = SubmitField("Submit new password")
+
+class ProductForm(FlaskForm):
+    title = StringField('Title', validators=[InputRequired(message="Please enter a title")], render_kw={'autofocus': True})
+    medium = StringField('Medium', validators=[InputRequired(message="Please enter medium details")])
+    height = IntegerField('Height', validators=[InputRequired(message="Please enter painting height")])
+    width = IntegerField('Height', validators=[InputRequired(message="Please enter painting width")])
+    description = TextAreaField('Description', validators=[InputRequired(message="Please enter painting description")])
+    file_upload = MultipleFileField('Upload photo(s)')
