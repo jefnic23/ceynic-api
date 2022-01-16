@@ -21,24 +21,26 @@
         }
 
         function createGrid() {
-            for (let i = 0; i < images.length; i++) {
-                var col = document.createElement('div');
-                col.className = 'col-xs-6 col-sm-4 col-md-4 col-lg-4';
+            if (image) {
+                for (let i = 0; i < images.length; i++) {
+                    var col = document.createElement('div');
+                    col.className = 'col-xs-6 col-sm-4 col-md-4 col-lg-4';
 
-                var dir = images[i].dir;
-                var filename = images[i].filename;
-                var link = document.createElement('a');
-                var img = document.createElement('img');
-                link.href = '{{ url_for("painting", dir="dir") }}'.replace('dir', dir);
-                img.className = "img-responsive hvr-grow";
-                img.src = `static/images/${dir}/${filename}`;
-                
-                link.append(img);
-                col.append(link);
-                grid.children[row].append(col);
+                    var dir = images[i].dir;
+                    var filename = images[i].filename;
+                    var link = document.createElement('a');
+                    var img = document.createElement('img');
+                    link.href = '{{ url_for("painting", dir="dir") }}'.replace('dir', dir);
+                    img.className = "img-responsive hvr-grow";
+                    img.src = `static/images/${dir}/${filename}`;
+                    
+                    link.append(img);
+                    col.append(link);
+                    grid.children[row].append(col);
 
-                if ((width < 768 && grid.children[row].children.length === 2) || (width >= 768 && grid.children[row].children.length === 3)) {
-                    createRow();
+                    if ((width < 768 && grid.children[row].children.length === 2) || (width >= 768 && grid.children[row].children.length === 3)) {
+                        createRow();
+                    }
                 }
             }
         }
