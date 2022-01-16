@@ -47,9 +47,10 @@
     </div>
 
     <script type="text/javascript">
-        const filename = `{{ filename }}`;
+        const dir = `{{ dir }}`;
+        const filename = `{{ filenames }}`;
         const img = document.getElementById('painting');
-        img.src = "{{ url_for('static', filename='pics/' + filename) }}";
+        img.src = "{{ url_for('static', filename='images/' + dir + '/' + filenames[0]) }}";
     </script>
 
 {% endblock %}

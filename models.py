@@ -1,13 +1,14 @@
 import os, jwt
 from time import time
 from flask import redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, event
 from flask_login import UserMixin, current_user
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
 from passlib.hash import pbkdf2_sha256
 from forms import ProductForm
+from werkzeug.utils import secure_filename
 from paypalpayoutssdk.core import PayPalHttpClient, SandboxEnvironment
 from app import app
 
@@ -44,7 +45,7 @@ class Product(db.Model):
     height = db.Column(db.Integer, nullable=False)
     width = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(), nullable=False)
-    pic_paths = db.Column(db.ARRAY(db.String))
+    images = db.Column(db.ARRAY(db.String()))
 
 class ProductModelView(ModelView):
     def is_accessible(self):
@@ -54,9 +55,30 @@ class ProductModelView(ModelView):
         # redirect to login page if user doesn't have access
         return redirect(url_for('login'))
 
+    # configure to send path to db, file to pics folder
     def create_form(self):
         form = ProductForm()
         return form
+
+    def on_model_change(self, form, model, is_created):
+        new_dir = os.path.join(app.config['UPLOAD_FOLDER'], form.title.data)
+        os.mkdir(new_dir)
+        files = [f for f in form.images.data]
+        model.images = []
+        for f in files:
+            secured_file = secure_filename(f.filename)
+            model.images.append(secured_file)
+            f.save(os.path.join(new_dir, secured_file))
+
+@event.listens_for(Product, 'after_delete')
+def _handle_image_delete(mapper, conn, target):
+    try:
+        if target.images:
+            for image in target.images:
+                os.remove(os.path.join(app.config['UPLOAD_FOLDER'], target.title, image))
+            os.rmdir(os.path.join(app.config['UPLOAD_FOLDER'], target.title))
+    except:
+        pass
 
 class AdminView(AdminIndexView):
     def is_accessible(self):

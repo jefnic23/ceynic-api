@@ -4,7 +4,7 @@ from flask_bootstrap import Bootstrap
 from flask_admin import Admin
 from forms import *
 from models import *
-import glob, os
+import os
 from app.email import send_password_reset_email
 from app import app
 
@@ -25,12 +25,20 @@ def index():
 
 @app.route('/browse')
 def browse():
-    pics = [os.path.basename(f) for f in glob.glob('app/static/pics/*.jpg')]
-    return render_template('browse.html', pics=pics)
+    image_dirs = os.listdir(app.config['UPLOAD_FOLDER'])
+    images = []
+    for dir in image_dirs:
+        paths = {'dir': '', 'image': ''}
+        filename = os.listdir(os.path.join(app.config["UPLOAD_FOLDER"], dir))[0]
+        paths['dir'] = dir
+        paths['filename'] = filename
+        images.append(paths)
+    return render_template('browse.html', images=images)
 
-@app.route('/painting/<filename>')
-def painting(filename):
-    return render_template('painting.html', filename=filename)
+@app.route('/painting/<dir>')
+def painting(dir):
+    filenames = [f for f in os.listdir(os.path.join(app.config['UPLOAD_FOLDER'], dir))]
+    return render_template('painting.html', dir=dir, filenames=filenames)
 
 @app.route('/about')
 def about():
