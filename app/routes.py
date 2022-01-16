@@ -15,6 +15,8 @@ admin = Admin(app, index_view=AdminView())
 admin.add_view(ProductModelView(Product, db.session))
 admin.add_link(LogoutView(name='Logout', endpoint='logout'))
 
+BASE_DIR = os.path.join(os.path.dirname(__file__), app.config['UPLOAD_FOLDER'])
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
@@ -25,11 +27,11 @@ def index():
 
 @app.route('/browse')
 def browse():
-    image_dirs = os.listdir(app.config['UPLOAD_FOLDER'])
+    image_dirs = os.listdir(BASE_DIR)
     images = []
     for dir in image_dirs:
         paths = {'dir': '', 'image': ''}
-        filename = os.listdir(os.path.join(app.config["UPLOAD_FOLDER"], dir))[0]
+        filename = os.listdir(os.path.join(BASE_DIR, dir))[0]
         paths['dir'] = dir
         paths['filename'] = filename
         images.append(paths)
@@ -37,7 +39,7 @@ def browse():
 
 @app.route('/painting/<dir>')
 def painting(dir):
-    filenames = [f for f in os.listdir(os.path.join(app.config['UPLOAD_FOLDER'], dir))]
+    filenames = [f for f in os.listdir(os.path.join(BASE_DIR, dir))]
     return render_template('painting.html', dir=dir, filenames=filenames)
 
 @app.route('/about')
