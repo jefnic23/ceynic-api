@@ -15,7 +15,7 @@ admin = Admin(app, index_view=AdminView())
 admin.add_view(ProductModelView(Product, db.session))
 admin.add_link(LogoutView(name='Logout', endpoint='logout'))
 
-BASE_DIR = os.path.join(os.path.dirname(__file__), app.config['UPLOAD_FOLDER'])
+BASE_DIR = app.config['UPLOAD_FOLDER']
 
 @login.user_loader
 def load_user(id):
