@@ -15,3 +15,5 @@ class Config(object):
     AWS_REGION = os.environ.get('BUCKETEER_AWS_REGION')
     AWS_SECRET_ACCESS_KEY = os.environ.get('BUCKETEER_AWS_SECRET_ACCESS_KEY')
     BUCKET_NAME = os.environ.get('BUCKETEER_BUCKET_NAME')
+    PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
+    PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET')

@@ -1,6 +1,4 @@
-import os
-import boto3
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, jsonify, request
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_bootstrap import Bootstrap
 from flask_admin import Admin
@@ -29,17 +27,31 @@ def browse():
     paths = list({f.key.split('/')[1] for f in resource.Bucket(app.config['BUCKET_NAME']).objects.all()})
     files = []
     for path in paths:
-        d = {'path': '', 'filename': ''}
-        for obj in bucket.objects.filter(Prefix='public/' + path + '/'):  
-            d['path'], d['filename'] = path, obj.key
-            files.append(d)
-            break
+        painting_obj = Product.query.filter_by(title=path).first()
+        if not painting_obj.sold:
+            d = {'path': '', 'filename': ''}
+            for obj in bucket.objects.filter(Prefix='public/' + path + '/'):  
+                d['path'], d['filename'] = path, obj.key
+                files.append(d)
+                break
     return render_template('browse.html', bucket=resource.Bucket(app.config['BUCKET_NAME']), files=files)
 
 @app.route('/painting/<path>')
 def painting(path):
     filenames = [f.key for f in bucket.objects.filter(Prefix='public/' + path + '/')]
-    return render_template('painting.html', path=path, filenames=filenames)
+    price = Product.query.filter_by(title=path).first().price
+    return render_template('painting.html', path=path, filenames=filenames, price=price)
+
+@app.route('/create-payment', methods=['POST'])
+def create_payment():
+    payment = CreatePayout().create_payout(debug=True)
+    return jsonify({'payment_id': payment.result.batch_header.payout_batch_id})
+
+@app.route('/execute-payment/<order_id>', methods=['POST'])
+def execute_payment(order_id):
+    print(f'\n{order_id}\n')
+    payment = ExecutePayout().get_payouts(order_id)
+    return jsonify({'success': 'success!'})
 
 @app.route('/about')
 def about():

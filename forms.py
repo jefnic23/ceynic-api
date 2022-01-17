@@ -30,6 +30,7 @@ class ResetPasswordForm(FlaskForm):
 
 class ProductForm(FlaskForm):
     title = StringField('Title', validators=[InputRequired(message="Please enter a title")], render_kw={'autofocus': True})
+    price = IntegerField('Price', validators=[InputRequired(message="Please enter painting price")])
     medium = StringField('Medium', validators=[InputRequired(message="Please enter medium details")])
     height = IntegerField('Height', validators=[InputRequired(message="Please enter painting height")])
     width = IntegerField('Height', validators=[InputRequired(message="Please enter painting width")])

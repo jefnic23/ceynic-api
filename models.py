@@ -1,5 +1,5 @@
-import os
 import jwt
+import json
 import boto3
 from time import time
 from flask import redirect, url_for
@@ -11,7 +11,11 @@ from flask_admin.menu import MenuLink
 from passlib.hash import pbkdf2_sha256
 from forms import ProductForm
 from werkzeug.utils import secure_filename
-from paypalpayoutssdk.core import PayPalHttpClient, SandboxEnvironment
+from paypal_client import PayPalClient
+from paypalpayoutssdk.payouts import PayoutsPostRequest, PayoutsGetRequest
+from paypalhttp.serializers.json_serializer import Json
+from paypalhttp.http_error import HttpError
+from paypalhttp.encoder import Encoder
 from app import app
 
 db = SQLAlchemy()
@@ -49,11 +53,16 @@ class Product(db.Model):
     __tablename__ = "products"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
     medium = db.Column(db.String(), nullable=False)
     height = db.Column(db.Integer, nullable=False)
     width = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(), nullable=False)
+    sold = db.Column(db.Boolean, default=False)
     images = db.Column(db.ARRAY(db.String()))
+
+    def mark_as_sold(self, sold):
+        self.sold = True
 
 class ProductModelView(ModelView):
     def is_accessible(self):
@@ -100,16 +109,50 @@ class AdminView(AdminIndexView):
 class LogoutView(MenuLink):
     def is_accessible(self):
         return current_user.is_authenticated
-
-class PayPalClient:
-    def __init__(self):
-        self.client_id =  os.environ["PAYPAL-CLIENT-ID"] if 'PAYPAL-CLIENT-ID' in os.environ else "PAYPAL-CLIENT-ID"
-        self.client_secret = os.environ["PAYPAL-CLIENT-SECRET"] if 'PAYPAL_CLIENT_SECRET' in os.environ else "PAYPAL-CLIENT-SECRET"
-        """Set up and return PayPal Python SDK environment with PayPal Access credentials.
-           This sample uses SandboxEnvironment. In production, use
-           LiveEnvironment."""
-        self.environment = SandboxEnvironment(client_id=self.client_id, client_secret=self.client_secret)
-        """ Returns PayPal HTTP client instance in an environment with access credentials. Use this instance to invoke PayPal APIs, provided the
-            credentials have access. """
-        self.client = PayPalHttpClient(self.environment)
     
+class CreatePayout(PayPalClient):
+    @staticmethod
+    def build_request_body(): # pass value
+        return \
+            {
+                "sender_batch_header": {
+                    "recipient_type": "EMAIL",
+                    "email_message": "SDK payouts test txn",
+                    "note": "Enjoy your Payout!!",
+                    "email_subject": "This is a test transaction from SDK"
+                },
+                "items": [{
+                    "note": "Your 1$ Payout!",
+                    "amount": {
+                        "currency": "USD",
+                        "value": '1.00'
+                    },
+                    "receiver": "sb-d2vhd11525660@personal.example.com",
+                    "sender_item_id": "Test_txn_1"
+                }]
+            }
+
+    def create_payout(self, debug=False):
+        request = PayoutsPostRequest()
+        request.request_body(self.build_request_body())
+        response = self.client.execute(request)
+
+        if debug:
+            print("Status Code: ", response.status_code)
+            print("Payout Batch ID: " +
+                  response.result.batch_header.payout_batch_id)
+            print("Payout Batch Status: " +
+                  response.result.batch_header.batch_status)
+            print("Links: ")
+            for link in response.result.links:
+                print('\t{}: {}\tCall Type: {}'.format(
+                    link.rel, link.href, link.method))
+
+        return response
+
+class ExecutePayout(PayPalClient):
+    def get_payouts(self, payout_batch_id):
+        request = PayoutsGetRequest(payout_batch_id)
+        response = self.client.execute(request)
+
+        return response

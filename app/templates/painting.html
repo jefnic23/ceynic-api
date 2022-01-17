@@ -9,38 +9,60 @@
         <div class="painting-desc"></div>
 
         <!-- Include the PayPal JavaScript SDK; replace "test" with your own sandbox Business account app client ID -->
-        <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
+        <script src="https://www.paypal.com/sdk/js?client-id=AV45X6mR_TtngXIq8BM43xWuAxeiklh2LOaskwhHjyNzXrACwn8jFfU9ZFAdHoWcGVzw6jUECGZPWqIs&currency=USD&disable-funding=credit,card,venmo"></script>
 
         <!-- Set up a container element for the button -->
         <div id="paypal-button-container"></div>
 
         <script>
+
             paypal.Buttons({
                 // Sets up the transaction when a payment button is clicked
                 createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                    amount: {
-                        value: '77.44' // Can reference variables or functions. Example: `value: document.getElementById('...').value`
-                    }
-                    }]
-                });
+                    const CREATE_PAYMENT_URL = '{{ url_for("create_payment") }}';
+                    return fetch(CREATE_PAYMENT_URL, {
+                        method: 'POST'
+                    }).then((res) => {
+                        return res.json();
+                    }).then((orderData) => {
+                        console.log(orderData);
+                        return orderData.payment_id;
+                    });
                 },
 
                 // Finalize the transaction after payer approval
                 onApprove: function(data, actions) {
-                return actions.order.capture().then(function(orderData) {
-                    // Successful capture! For dev/demo purposes:
+                    console.log(data);
+                    const EXECUTE_PAYMENT_URL = '{{ url_for("execute_payment", order_id="order_id") }}'.replace('order_id', data.payment_id);
+                    return fetch(EXECUTE_PAYMENT_URL + data.payment_id, {
+                        method: "POST"
+                    }).then((res) => {
+                        return res.json();
+                    }).then((orderData) => {
+                        var errorDetail = Array.isArray(orderData.details) && orderData.details[0];
+
+                        if (errorDetail && errorDetail.issue === 'INSTRUMENT_DECLINED') {
+                            return actions.restart();
+                        }
+
+                        if (errorDetail) {
+                            var msg = 'Sorry, your transaction could not be processed.';
+                            if (errorDetail.description) msg += '\n\n' + errorDetail.description;
+                            if (orderData.debug_id) msg += ' (' + orderData.debug_id + ')';
+                            return alert(msg);
+                        }
+
+                        // Successful capture! For demo purposes:
                         console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
                         var transaction = orderData.purchase_units[0].payments.captures[0];
                         alert('Transaction '+ transaction.status + ': ' + transaction.id + '\n\nSee console for all available details');
 
-                    // When ready to go live, remove the alert and show a success message within this page. For example:
-                    // var element = document.getElementById('paypal-button-container');
-                    // element.innerHTML = '';
-                    // element.innerHTML = '<h3>Thank you for your payment!</h3>';
-                    // Or go to another URL:  actions.redirect('thank_you.html');
-                });
+                        // Replace the above to show a success message within this page, e.g.
+                        // const element = document.getElementById('paypal-button-container');
+                        // element.innerHTML = '';
+                        // element.innerHTML = '<h3>Thank you for your payment!</h3>';
+                        // Or go to another URL:  actions.redirect('thank_you.html');
+                    });
                 }
             }).render('#paypal-button-container');
         </script>

@@ -74,10 +74,11 @@
 
 #image-grid {
     margin-top: 1em;
+    padding: 0 3em;
 }
 
 #paypal-button-container {
-    max-width: 350px;
+    max-width: 250px;
     margin: 1em auto;
 }
 
