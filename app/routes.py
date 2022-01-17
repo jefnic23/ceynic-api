@@ -26,7 +26,7 @@ def index():
 
 @app.route('/browse')
 def browse():
-    paths = list({f.key.split('/')[1] for f in s3.Bucket(app.config['BUCKET_NAME']).objects.all()})
+    paths = list({f.key.split('/')[1] for f in resource.Bucket(app.config['BUCKET_NAME']).objects.all()})
     files = []
     for path in paths:
         d = {'path': '', 'filename': ''}
@@ -34,7 +34,7 @@ def browse():
             d['path'], d['filename'] = path, obj.key
             files.append(d)
             break
-    return render_template('browse.html', bucket=s3.Bucket(app.config['BUCKET_NAME']), files=files)
+    return render_template('browse.html', bucket=resource.Bucket(app.config['BUCKET_NAME']), files=files)
 
 @app.route('/painting/<path>')
 def painting(path):

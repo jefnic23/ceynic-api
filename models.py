@@ -15,8 +15,12 @@ from paypalpayoutssdk.core import PayPalHttpClient, SandboxEnvironment
 from app import app
 
 db = SQLAlchemy()
-s3 = boto3.resource('s3')
-bucket = s3.Bucket(app.config['BUCKET_NAME'])
+s3 = boto3.Session(
+    aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
+    aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY']
+)
+resource = s3.resource('s3', region_name=app.config['AWS_REGION'])
+bucket = resource.Bucket(app.config['BUCKET_NAME'])
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -80,7 +84,7 @@ def _handle_image_delete(mapper, conn, target):
         if target.images:
             for image in target.images:
                 path = 'public/' + target.title + '/' + image
-                s3.Object(app.config['BUCKET_NAME'], path).delete()
+                resource.Object(app.config['BUCKET_NAME'], path).delete()
             bucket.Object('public/' + target.title + '/').delete()
     except:
         pass
