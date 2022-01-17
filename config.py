@@ -11,4 +11,7 @@ class Config(object):
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS')
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER')
+    AWS_ACCESS_KEY_ID = os.environ.get('BUCKETEER_AWS_ACCESS_KEY_ID')
+    AWS_REGION = os.environ.get('BUCKETEER_AWS_REGION')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('BUCKETEER_AWS_SECRET_ACCESS_KEY')
+    BUCKET_NAME = os.environ.get('BUCKETEER_BUCKET_NAME')

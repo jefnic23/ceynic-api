@@ -1,10 +1,11 @@
+import os
+import boto3
 from flask import render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_bootstrap import Bootstrap
 from flask_admin import Admin
 from forms import *
 from models import *
-import os
 from app.email import send_password_reset_email
 from app import app
 
@@ -14,8 +15,6 @@ login.init_app(app)
 admin = Admin(app, index_view=AdminView())
 admin.add_view(ProductModelView(Product, db.session))
 admin.add_link(LogoutView(name='Logout', endpoint='logout'))
-
-BASE_DIR = app.config['UPLOAD_FOLDER']
 
 @login.user_loader
 def load_user(id):
@@ -27,20 +26,20 @@ def index():
 
 @app.route('/browse')
 def browse():
-    image_dirs = os.listdir(BASE_DIR)
-    images = []
-    for dir in image_dirs:
-        paths = {'dir': '', 'image': ''}
-        filename = os.listdir(os.path.join(BASE_DIR, dir))[0]
-        paths['dir'] = dir
-        paths['filename'] = filename
-        images.append(paths)
-    return render_template('browse.html', images=images)
+    paths = list({f.key.split('/')[1] for f in s3.Bucket(app.config['BUCKET_NAME']).objects.all()})
+    files = []
+    for path in paths:
+        d = {'path': '', 'filename': ''}
+        for obj in bucket.objects.filter(Prefix='public/' + path + '/'):  
+            d['path'], d['filename'] = path, obj.key
+            files.append(d)
+            break
+    return render_template('browse.html', bucket=s3.Bucket(app.config['BUCKET_NAME']), files=files)
 
-@app.route('/painting/<dir>')
-def painting(dir):
-    filenames = [f for f in os.listdir(os.path.join(BASE_DIR, dir))]
-    return render_template('painting.html', dir=dir, filenames=filenames)
+@app.route('/painting/<path>')
+def painting(path):
+    filenames = [f.key for f in bucket.objects.filter(Prefix='public/' + path + '/')]
+    return render_template('painting.html', path=path, filenames=filenames)
 
 @app.route('/about')
 def about():

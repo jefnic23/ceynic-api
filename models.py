@@ -1,4 +1,6 @@
-import os, jwt
+import os
+import jwt
+import boto3
 from time import time
 from flask import redirect, url_for
 from flask_sqlalchemy import SQLAlchemy, event
@@ -13,6 +15,8 @@ from paypalpayoutssdk.core import PayPalHttpClient, SandboxEnvironment
 from app import app
 
 db = SQLAlchemy()
+s3 = boto3.resource('s3')
+bucket = s3.Bucket(app.config['BUCKET_NAME'])
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -61,22 +65,23 @@ class ProductModelView(ModelView):
         return form
 
     def on_model_change(self, form, model, is_created):
-        new_dir = os.path.join(app.config['UPLOAD_FOLDER'], form.title.data)
-        os.mkdir(new_dir)
+        file_path = 'public/' + form.title.data + '/'
+        bucket.Object(file_path)
         files = [f for f in form.images.data]
         model.images = []
         for f in files:
             secured_file = secure_filename(f.filename)
             model.images.append(secured_file)
-            f.save(os.path.join(new_dir, secured_file))
+            bucket.Object(file_path + secured_file).put(Body=f)
 
 @event.listens_for(Product, 'after_delete')
 def _handle_image_delete(mapper, conn, target):
     try:
         if target.images:
             for image in target.images:
-                os.remove(os.path.join(app.config['UPLOAD_FOLDER'], target.title, image))
-            os.rmdir(os.path.join(app.config['UPLOAD_FOLDER'], target.title))
+                path = 'public/' + target.title + '/' + image
+                s3.Object(app.config['BUCKET_NAME'], path).delete()
+            bucket.Object('public/' + target.title + '/').delete()
     except:
         pass
 

@@ -48,9 +48,10 @@
 
     <script type="text/javascript">
         const dir = `{{ dir }}`;
-        const filename = `{{ filenames }}`;
+        const filename = {{ filenames | tojson }};
         const img = document.getElementById('painting');
-        img.src = "{{ url_for('static', filename='images/' + dir + '/' + filenames[0]) }}";
+        const url = "https://bucketeer-7ae0b65a-5970-48f0-9da2-89eb2800f810.s3.amazonaws.com/"
+        img.src = `${url}${filename[0]}`;
     </script>
 
 {% endblock %}

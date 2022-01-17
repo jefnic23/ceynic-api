@@ -6,12 +6,13 @@
     <div id="image-grid" class='container-fluid'>
         <div class='row'></div>
     </div>
-
+    
     <script type='text/javascript'>
-        var images = {{ images | tojson }};
+        var files = {{ files | tojson }};
         var row = 0;
         var width = screen.width;
         const grid = document.getElementById('image-grid');
+        const url = "https://bucketeer-7ae0b65a-5970-48f0-9da2-89eb2800f810.s3.amazonaws.com/"
 
         function createRow() {
             var new_row = document.createElement('div');
@@ -21,18 +22,18 @@
         }
 
         function createGrid() {
-            if (images) {
-                for (let i = 0; i < images.length; i++) {
+            if (files) {
+                for (let i = 0; i < files.length; i++) {
                     var col = document.createElement('div');
                     col.className = 'col-xs-6 col-sm-4 col-md-4 col-lg-4';
 
-                    var dir = images[i].dir;
-                    var filename = images[i].filename;
+                    var path = files[i].path;
+                    var filename = files[i].filename;
                     var link = document.createElement('a');
                     var img = document.createElement('img');
-                    link.href = '{{ url_for("painting", dir="dir") }}'.replace('dir', dir);
+                    link.href = '{{ url_for("painting", path="path") }}'.replace('path', path);
                     img.className = "img-responsive hvr-grow";
-                    img.src = `static/images/${dir}/${filename}`;
+                    img.src = `${url}${filename}`;
                     
                     link.append(img);
                     col.append(link);
