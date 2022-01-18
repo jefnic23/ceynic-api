@@ -3,16 +3,30 @@
 {% block app_content %}
 
     <div class='container-fluid'>
-        <div>
-            <img id="painting" class="img-responsive">
+        <div class='row'>
+            <div class='col'>
+                <img id="painting" class="img-responsive">
+            </div>
+            <div class='col'>
+                <div class='row'>
+                    <h1 id="title"></h1>
+                </div>
+                <div class='row'>
+                    <div class='col'>
+                        <h3 id="medium"></h3>
+                    </div>
+                    <div class='col'>
+                        <h3 id='price'></h3>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div id="paypal-button-container"></div>
+                </div>
+            </div>
         </div>
-        <div class="painting-desc"></div>
 
         <!-- Include the PayPal JavaScript SDK; replace "test" with your own sandbox Business account app client ID -->
         <script src="https://www.paypal.com/sdk/js?client-id=AV45X6mR_TtngXIq8BM43xWuAxeiklh2LOaskwhHjyNzXrACwn8jFfU9ZFAdHoWcGVzw6jUECGZPWqIs&currency=USD&disable-funding=credit,card,venmo"></script>
-
-        <!-- Set up a container element for the button -->
-        <div id="paypal-button-container"></div>
 
         <script>
 
@@ -70,10 +84,24 @@
 
     <script type="text/javascript">
         const dir = `{{ dir }}`;
-        const filename = {{ filenames | tojson }};
+        const filenames = {{ filenames | tojson }};
         const img = document.getElementById('painting');
         const url = "https://bucketeer-7ae0b65a-5970-48f0-9da2-89eb2800f810.s3.amazonaws.com/"
-        img.src = `${url}${filename[0]}`;
+        img.src = `${url}${filenames[0]}`;
+
+        const title = `{{ title }}`;
+        const price = `{{ price }}`;
+        const medium = `{{ medium }}`;
+        const height = `{{ height }}`;
+        const width = `{{ width }}`;
+        const description = `{{ description }}`;
+
+        document.getElementById('title').innerHTML = title;
+        document.getElementById('price').innerHTML = price;
+        document.getElementById('medium').innerHTML = medium;
+        {# document.getElementById('height').innerHTML = height; #}
+        {# document.getElementById('width').innerHTML = width; #}
+        {# document.getElementById('description').innerHTML = description; #}
     </script>
 
 {% endblock %}

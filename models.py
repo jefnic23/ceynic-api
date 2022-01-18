@@ -78,12 +78,13 @@ class ProductModelView(ModelView):
         return form
 
     def on_model_change(self, form, model, is_created):
-        file_path = 'public/' + form.title.data + '/'
+        file_title = form.title.data.replace(" ", "_")
+        file_path = 'public/' + file_title + '/'
         bucket.Object(file_path)
         files = [f for f in form.images.data]
         model.images = []
         for f in files:
-            secured_file = secure_filename(f.filename)
+            secured_file = secure_filename(f.filename.replace(" ", "_"))
             model.images.append(secured_file)
             bucket.Object(file_path + secured_file).put(Body=f)
 
