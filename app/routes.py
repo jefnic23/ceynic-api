@@ -40,23 +40,33 @@ def browse():
 def painting(path):
     filenames = [f.key for f in bucket.objects.filter(Prefix='public/' + path + '/')]
     product = Product.query.filter_by(title=path.replace('_', ' ')).first()
-    title = product.title
-    price = product.price
-    medium = product.medium
-    height = product.height
-    width = product.width
-    description = product.description
-    return render_template('painting.html', path=path, filenames=filenames, title=title, price=price, medium=medium, height=height, width=width, description=description)
+    if not product.sold:
+        id = product.id
+        title = product.title
+        price = product.price
+        medium = product.medium
+        height = product.height
+        width = product.width
+        description = product.description
+        return render_template('painting.html', path=path, filenames=filenames, id=id, title=title, price=price, medium=medium, height=height, width=width, description=description)
+    else:
+        return redirect(url_for('browse'))
 
 @app.route('/create-order', methods=['POST'])
 def create_order():
-    order = CreateOrder().create_order()
+    id = request.get_json()['id']
+    product = Product.query.get(id)
+    order = CreateOrder().create_order(product.price)
     return jsonify({'order_id': order.result.id})
 
 @app.route('/capture-order/<order_id>', methods=['POST'])
 def capture_order(order_id):
     order = CaptureOrder().capture_order(order_id)
-    return {'data': order.result}
+    id = request.get_json()['id']
+    product = Product.query.get(id)
+    product.sold = True
+    db.session.commit()
+    return {'data': order.result.status}
 
 @app.route('/about')
 def about():

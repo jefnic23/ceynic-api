@@ -113,7 +113,7 @@ class LogoutView(MenuLink):
     
 class CreateOrder(PayPalClient):
     @staticmethod
-    def build_request_body():
+    def build_request_body(price):
         return \
             {
                 "intent": "CAPTURE",
@@ -121,16 +121,16 @@ class CreateOrder(PayPalClient):
                     {
                         "amount": {
                             "currency_code": "USD",
-                            "value": '123.00'
+                            "value": price
                         }
                     }
                 ]
             }
 
-    def create_order(self):
+    def create_order(self, price):
         request = OrdersCreateRequest()
         request.headers['prefer'] = 'return=representation'
-        request.request_body(self.build_request_body())
+        request.request_body(self.build_request_body(price))
         response = self.client.execute(request)
 
         return response
