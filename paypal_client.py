@@ -1,4 +1,4 @@
-from paypalpayoutssdk.core import PayPalHttpClient, SandboxEnvironment
+from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment
 from app import app
 
 class PayPalClient:

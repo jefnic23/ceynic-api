@@ -4,18 +4,18 @@
 
     <div class='container-fluid'>
         <div class='row'>
-            <div class='col'>
+            <div class='col-md-8'>
                 <img id="painting" class="img-responsive">
             </div>
-            <div class='col'>
-                <div class='row'>
+            <div class='col-md-4'>
+                <div class='row text-center'>
                     <h1 id="title"></h1>
                 </div>
                 <div class='row'>
-                    <div class='col'>
+                    <div class='col-sm-8'>
                         <h3 id="medium"></h3>
                     </div>
-                    <div class='col'>
+                    <div class='col-sm-4'>
                         <h3 id='price'></h3>
                     </div>
                 </div>
@@ -33,22 +33,20 @@
             paypal.Buttons({
                 // Sets up the transaction when a payment button is clicked
                 createOrder: function(data, actions) {
-                    const CREATE_PAYMENT_URL = '{{ url_for("create_payment") }}';
-                    return fetch(CREATE_PAYMENT_URL, {
+                    const CREATE_ORDER_URL = '{{ url_for("create_order") }}';
+                    return fetch(CREATE_ORDER_URL, {
                         method: 'POST'
                     }).then((res) => {
                         return res.json();
                     }).then((orderData) => {
-                        console.log(orderData);
-                        return orderData.payment_id;
+                        return orderData.order_id;
                     });
                 },
 
                 // Finalize the transaction after payer approval
                 onApprove: function(data, actions) {
-                    console.log(data);
-                    const EXECUTE_PAYMENT_URL = '{{ url_for("execute_payment", order_id="order_id") }}'.replace('order_id', data.payment_id);
-                    return fetch(EXECUTE_PAYMENT_URL + data.payment_id, {
+                    const CAPTURE_ORDER_URL = '{{ url_for("capture_order", order_id="order_id") }}'.replace('order_id', data.orderID);
+                    return fetch(CAPTURE_ORDER_URL, {
                         method: "POST"
                     }).then((res) => {
                         return res.json();
@@ -97,7 +95,7 @@
         const description = `{{ description }}`;
 
         document.getElementById('title').innerHTML = title;
-        document.getElementById('price').innerHTML = price;
+        document.getElementById('price').innerHTML = `$${price}.00`;
         document.getElementById('medium').innerHTML = medium;
         {# document.getElementById('height').innerHTML = height; #}
         {# document.getElementById('width').innerHTML = width; #}

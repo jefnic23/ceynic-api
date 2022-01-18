@@ -12,7 +12,7 @@ from passlib.hash import pbkdf2_sha256
 from forms import ProductForm
 from werkzeug.utils import secure_filename
 from paypal_client import PayPalClient
-from paypalpayoutssdk.payouts import PayoutsPostRequest, PayoutsGetRequest
+from paypalcheckoutsdk.orders import OrdersCreateRequest, OrdersCaptureRequest
 from paypalhttp.serializers.json_serializer import Json
 from paypalhttp.http_error import HttpError
 from paypalhttp.encoder import Encoder
@@ -111,49 +111,33 @@ class LogoutView(MenuLink):
     def is_accessible(self):
         return current_user.is_authenticated
     
-class CreatePayout(PayPalClient):
+class CreateOrder(PayPalClient):
     @staticmethod
-    def build_request_body(): # pass value
+    def build_request_body():
         return \
             {
-                "sender_batch_header": {
-                    "recipient_type": "EMAIL",
-                    "email_message": "SDK payouts test txn",
-                    "note": "Enjoy your Payout!!",
-                    "email_subject": "This is a test transaction from SDK"
-                },
-                "items": [{
-                    "note": "Your 1$ Payout!",
-                    "amount": {
-                        "currency": "USD",
-                        "value": '1.00'
-                    },
-                    "receiver": "sb-d2vhd11525660@personal.example.com",
-                    "sender_item_id": "Test_txn_1"
-                }]
+                "intent": "CAPTURE",
+                "purchase_units": [
+                    {
+                        "amount": {
+                            "currency_code": "USD",
+                            "value": '123.00'
+                        }
+                    }
+                ]
             }
 
-    def create_payout(self, debug=False):
-        request = PayoutsPostRequest()
+    def create_order(self):
+        request = OrdersCreateRequest()
+        request.headers['prefer'] = 'return=representation'
         request.request_body(self.build_request_body())
         response = self.client.execute(request)
 
-        if debug:
-            print("Status Code: ", response.status_code)
-            print("Payout Batch ID: " +
-                  response.result.batch_header.payout_batch_id)
-            print("Payout Batch Status: " +
-                  response.result.batch_header.batch_status)
-            print("Links: ")
-            for link in response.result.links:
-                print('\t{}: {}\tCall Type: {}'.format(
-                    link.rel, link.href, link.method))
-
         return response
 
-class ExecutePayout(PayPalClient):
-    def get_payouts(self, payout_batch_id):
-        request = PayoutsGetRequest(payout_batch_id)
+class CaptureOrder(PayPalClient):
+    def capture_order(self, order_id):
+        request = OrdersCaptureRequest(order_id)
         response = self.client.execute(request)
 
         return response

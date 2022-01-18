@@ -48,16 +48,15 @@ def painting(path):
     description = product.description
     return render_template('painting.html', path=path, filenames=filenames, title=title, price=price, medium=medium, height=height, width=width, description=description)
 
-@app.route('/create-payment', methods=['POST'])
-def create_payment():
-    payment = CreatePayout().create_payout(debug=True)
-    return jsonify({'payment_id': payment.result.batch_header.payout_batch_id})
+@app.route('/create-order', methods=['POST'])
+def create_order():
+    order = CreateOrder().create_order()
+    return jsonify({'order_id': order.result.id})
 
-@app.route('/execute-payment/<order_id>', methods=['POST'])
-def execute_payment(order_id):
-    print(f'\n{order_id}\n')
-    payment = ExecutePayout().get_payouts(order_id)
-    return jsonify({'success': 'success!'})
+@app.route('/capture-order/<order_id>', methods=['POST'])
+def capture_order(order_id):
+    order = CaptureOrder().capture_order(order_id)
+    return {'data': order.result}
 
 @app.route('/about')
 def about():
