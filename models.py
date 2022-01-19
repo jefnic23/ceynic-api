@@ -9,7 +9,7 @@ from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
 from passlib.hash import pbkdf2_sha256
-from forms import ProductForm
+from forms import *
 from werkzeug.utils import secure_filename
 from paypal_client import PayPalClient
 from paypalcheckoutsdk.orders import OrdersCreateRequest, OrdersCaptureRequest
@@ -60,11 +60,14 @@ class Product(db.Model):
     description = db.Column(db.String(), nullable=False)
     sold = db.Column(db.Boolean, default=False)
     images = db.Column(db.ARRAY(db.String()))
+    purchase_id = db.Column(db.String())
 
-    def mark_as_sold(self, sold):
+    def mark_as_sold(self):
         self.sold = True
 
 class ProductModelView(ModelView):
+    column_exclude_list = ('purchase_id')
+
     def is_accessible(self):
         return current_user.is_authenticated
     
@@ -72,12 +75,16 @@ class ProductModelView(ModelView):
         # redirect to login page if user doesn't have access
         return redirect(url_for('login'))
 
-    # configure to send path to db, file to pics folder
     def create_form(self):
         form = ProductForm()
         return form
 
-    def on_model_change(self, form, model, is_created):
+    def get_edit_form(self):
+        form = super(ProductModelView, self).get_edit_form()
+        form.images = MultipleFileField('Upload image(s)')
+        return form
+
+    def on_model_change(self, form, model, is_created=False):
         file_title = form.title.data.replace(" ", "_")
         file_path = 'public/' + file_title + '/'
         bucket.Object(file_path)
@@ -93,9 +100,9 @@ def _handle_image_delete(mapper, conn, target):
     try:
         if target.images:
             for image in target.images:
-                path = 'public/' + target.title + '/' + image
+                path = 'public/' + target.title.replace(" ", "_") + '/' + image
                 resource.Object(app.config['BUCKET_NAME'], path).delete()
-            bucket.Object('public/' + target.title + '/').delete()
+            bucket.Object('public/' + target.title.replace(" ", "_") + '/').delete()
     except:
         pass
 
@@ -113,31 +120,32 @@ class LogoutView(MenuLink):
     
 class CreateOrder(PayPalClient):
     @staticmethod
-    def build_request_body(price):
+    def build_request_body(description, value):
         return \
             {
                 "intent": "CAPTURE",
                 "purchase_units": [
                     {
+                        "description": description,
                         "amount": {
                             "currency_code": "USD",
-                            "value": price
+                            "value": value
                         }
                     }
                 ]
             }
 
-    def create_order(self, price):
+    def create_order(self, description, value):
         request = OrdersCreateRequest()
         request.headers['prefer'] = 'return=representation'
-        request.request_body(self.build_request_body(price))
+        request.request_body(self.build_request_body(description, value))
         response = self.client.execute(request)
-
+        # print(response.result.__dict__)
         return response
 
 class CaptureOrder(PayPalClient):
     def capture_order(self, order_id):
         request = OrdersCaptureRequest(order_id)
         response = self.client.execute(request)
-
+        # print(response.result.__dict__)
         return response

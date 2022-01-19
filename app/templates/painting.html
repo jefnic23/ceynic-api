@@ -4,20 +4,20 @@
 
     <div class='container-fluid'>
         <div class='row'>
-            <div class='col-md-8'>
-                <img id="painting" class="img-responsive">
-            </div>
-            <div class='col-md-4'>
+            <img id="painting" class="img-responsive">
+        </div>
+        <div class='row'>
+            <div class='col-md-6'>
                 <div class='row text-center'>
                     <h1 id="title"></h1>
                 </div>
-                <div class='row'>
-                    <div class='col-sm-8'>
-                        <h3 id="medium"></h3>
-                    </div>
-                    <div class='col-sm-4'>
-                        <h3 id='price'></h3>
-                    </div>
+                <div class='row text-center'>
+                    <h3 id="medium"></h3>
+                </div>
+            </div>
+            <div class='col-md-6'>
+                <div class='row text-center'>
+                    <h3 id='price'></h3>
                 </div>
                 <div class='row'>
                     <div id="paypal-button-container"></div>
@@ -99,16 +99,7 @@
                         return alert(msg);
                     }
 
-                    // Successful capture! For demo purposes:
-                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-                    var transaction = orderData.purchase_units[0].payments.captures[0];
-                    alert('Transaction '+ transaction.status + ': ' + transaction.id + '\n\nSee console for all available details');
-
-                    // Replace the above to show a success message within this page, e.g.
-                    // const element = document.getElementById('paypal-button-container');
-                    // element.innerHTML = '';
-                    // element.innerHTML = '<h3>Thank you for your payment!</h3>';
-                    // Or go to another URL:  actions.redirect('thank_you.html');
+                    actions.redirect('{{ url_for("order_confirmation", purchase_id="purchase_id", _external=True) }}'.replace('purchase_id', orderData.purchase_id));
                 });
             }
         }).render('#paypal-button-container');

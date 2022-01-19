@@ -38,7 +38,6 @@ def browse():
 
 @app.route('/painting/<path>')
 def painting(path):
-    filenames = [f.key for f in bucket.objects.filter(Prefix='public/' + path + '/')]
     product = Product.query.filter_by(title=path.replace('_', ' ')).first()
     if not product.sold:
         id = product.id
@@ -48,6 +47,7 @@ def painting(path):
         height = product.height
         width = product.width
         description = product.description
+        filenames = [f.key for f in bucket.objects.filter(Prefix='public/' + path + '/')]
         return render_template('painting.html', path=path, filenames=filenames, id=id, title=title, price=price, medium=medium, height=height, width=width, description=description)
     else:
         return redirect(url_for('browse'))
@@ -56,17 +56,28 @@ def painting(path):
 def create_order():
     id = request.get_json()['id']
     product = Product.query.get(id)
-    order = CreateOrder().create_order(product.price)
+    title = product.title
+    medium = product.medium
+    description = f'{title}, {medium}'
+    value = product.price
+    order = CreateOrder().create_order(description, value)
     return jsonify({'order_id': order.result.id})
 
 @app.route('/capture-order/<order_id>', methods=['POST'])
 def capture_order(order_id):
     order = CaptureOrder().capture_order(order_id)
+    status = order.result.status
+    purchase_id = order.result.purchase_units[0].payments.captures[0].id
     id = request.get_json()['id']
-    product = Product.query.get(id)
-    product.sold = True
-    db.session.commit()
-    return {'data': order.result.status}
+    # product = Product.query.get(id)
+    # product.sold = True
+    # product.purchase_id = purchase_id
+    # db.session.commit()
+    return jsonify({'status': status, 'purchase_id': purchase_id})
+
+@app.route('/orderconfirmation/<purchase_id>')
+def order_confirmation(purchase_id):
+    return render_template('orderconfirmation.html')
 
 @app.route('/about')
 def about():
