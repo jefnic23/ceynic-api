@@ -2,8 +2,8 @@ from flask import render_template, redirect, url_for, flash, jsonify, request
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_bootstrap import Bootstrap
 from flask_admin import Admin
-from forms import *
-from models import *
+from app.forms import *
+from app.models import *
 from app.email import send_password_reset_email
 from app import app
 
@@ -34,7 +34,7 @@ def browse():
                 d['path'], d['filename'] = path, obj.key
                 files.append(d)
                 break
-    db.session.remove()
+    # db.session.remove()
     return render_template('browse.html', bucket=resource.Bucket(app.config['BUCKET_NAME']), files=files)
 
 @app.route('/painting/<path>')
@@ -49,7 +49,7 @@ def painting(path):
         width = product.width
         description = product.description
         filenames = [f.key for f in bucket.objects.filter(Prefix='public/' + path + '/')]
-        db.session.remove()
+        # db.session.remove()
         return render_template('painting.html', path=path, filenames=filenames, id=id, title=title, price=price, medium=medium, height=height, width=width, description=description)
     else:
         return redirect(url_for('browse'))
@@ -63,7 +63,7 @@ def create_order():
     description = f'{title}, {medium}'
     value = product.price
     order = CreateOrder().create_order(description, value)
-    db.session.remove()
+    # db.session.remove()
     return jsonify({'order_id': order.result.id})
 
 @app.route('/capture-order/<order_id>', methods=['POST'])
@@ -101,7 +101,7 @@ def login():
     if login_form.validate_on_submit():
         user_object = User.query.filter_by(email=login_form.email.data).first()
         if not user_object or not user_object.check_password(login_form.password.data):
-            db.session.remove()
+            # db.session.remove()
             flash('Invalid username or password', 'danger')
             return redirect(url_for('login'))
         login_user(user_object, remember=login_form.remember_me.data)
@@ -126,7 +126,7 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-        db.session.remove()
+        # db.session.remove()
         flash("Check your email for instructions on how to reset your password", 'info')
         return redirect(url_for('login'))
     return render_template("reset_password_request.html", form=form)
@@ -144,10 +144,14 @@ def reset_password(token):
         hashed_pswd = pbkdf2_sha256.hash(password)
         user.set_password(hashed_pswd)
         db.session.commit()
-        db.session.remove()
+        # db.session.remove()
         flash('Your password has been reset', "success")
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db.session.remove()
 
 if __name__ == "__main__":
     app.run()

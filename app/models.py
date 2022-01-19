@@ -1,24 +1,18 @@
 import jwt
-import boto3
 from time import time
 from flask import redirect, url_for
-from flask_sqlalchemy import SQLAlchemy, event
+from flask_sqlalchemy import event
 from flask_login import UserMixin, current_user
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
 from passlib.hash import pbkdf2_sha256
-from forms import *
+from app.forms import *
 from werkzeug.utils import secure_filename
-from paypal_client import PayPalClient
+from app.paypal_client import PayPalClient
 from paypalcheckoutsdk.orders import OrdersCreateRequest, OrdersCaptureRequest
-from app import app
+from app import app, db, s3
 
-db = SQLAlchemy()
-s3 = boto3.Session(
-    aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
-    aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY']
-)
 resource = s3.resource('s3', region_name=app.config['AWS_REGION'])
 bucket = resource.Bucket(app.config['BUCKET_NAME'])
 
