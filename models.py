@@ -1,5 +1,4 @@
 import jwt
-import json
 import boto3
 from time import time
 from flask import redirect, url_for
@@ -13,9 +12,6 @@ from forms import *
 from werkzeug.utils import secure_filename
 from paypal_client import PayPalClient
 from paypalcheckoutsdk.orders import OrdersCreateRequest, OrdersCaptureRequest
-from paypalhttp.serializers.json_serializer import Json
-from paypalhttp.http_error import HttpError
-from paypalhttp.encoder import Encoder
 from app import app
 
 db = SQLAlchemy()
