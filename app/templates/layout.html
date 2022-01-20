@@ -64,4 +64,14 @@
         <a href="{{ url_for('login') }}" style="color: #666666;">Administration</a> | 
         Site by <a href="https://github.com/jefnic23" target="_blank">Jeff Nicholas</a>
     </div>    
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-217723164-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-217723164-1');
+    </script>
 {% endblock %}
