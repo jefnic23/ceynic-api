@@ -1,11 +1,13 @@
 from flask import Flask
 from config import Config
+from flask_talisman import Talisman
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 import boto3
 
 app=Flask(__name__)
 app.config.from_object(Config)
+Talisman(app)
 db = SQLAlchemy(app)
 mail = Mail(app)
 s3 = boto3.Session(
