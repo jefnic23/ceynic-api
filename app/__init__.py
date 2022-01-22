@@ -7,7 +7,7 @@ import boto3
 
 app=Flask(__name__)
 app.config.from_object(Config)
-Talisman(app)
+Talisman(app, content_security_policy=None)
 db = SQLAlchemy(app)
 mail = Mail(app)
 s3 = boto3.Session(
