@@ -1,4 +1,4 @@
-from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment
+from paypalcheckoutsdk.core import PayPalHttpClient, LiveEnvironment
 from app import app
 
 class PayPalClient:
@@ -8,7 +8,7 @@ class PayPalClient:
         """Set up and return PayPal Python SDK environment with PayPal Access credentials.
            This sample uses SandboxEnvironment. In production, use
            LiveEnvironment."""
-        self.environment = SandboxEnvironment(client_id=self.client_id, client_secret=self.client_secret)
+        self.environment = LiveEnvironment(client_id=self.client_id, client_secret=self.client_secret)
         """ Returns PayPal HTTP client instance in an environment with access credentials. Use this instance to invoke PayPal APIs, provided the
             credentials have access. """
         self.client = PayPalHttpClient(self.environment)
