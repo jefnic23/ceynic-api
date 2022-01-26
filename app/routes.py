@@ -72,10 +72,10 @@ def capture_order(order_id):
     status = order.result.status
     purchase_id = order.result.purchase_units[0].payments.captures[0].id
     id = request.get_json()['id']
-    # product = Product.query.get(id)
-    # product.sold = True
-    # product.purchase_id = purchase_id
-    # db.session.commit()
+    product = Product.query.get(id)
+    product.sold = True
+    product.purchase_id = purchase_id
+    db.session.commit()
     # db.session.remove()
     return jsonify({'status': status, 'purchase_id': purchase_id})
 

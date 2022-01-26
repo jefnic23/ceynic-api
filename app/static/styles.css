@@ -100,6 +100,7 @@
 .social-icons {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 13px;
     margin-top: 5em;
     margin-bottom: 1em;
@@ -110,6 +111,18 @@
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+.fa-etsy {
+    border: #fd7e14 solid 1px;
+    border-radius: 50%;
+    background-color: #fd7e14;
+    padding: 5px;
+    color: white;
+}
+
+.fa-pinterest {
+    color: red;
 }
 
 .copyright {
