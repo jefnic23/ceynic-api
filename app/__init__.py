@@ -7,7 +7,6 @@ import boto3
 
 app=Flask(__name__)
 app.config.from_object(Config)
-# disable Talisman when testing locally
 Talisman(app, content_security_policy=None)
 db = SQLAlchemy(app)
 mail = Mail(app)

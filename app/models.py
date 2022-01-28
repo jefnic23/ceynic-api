@@ -56,7 +56,9 @@ class Product(db.Model):
         self.sold = True
 
 class ProductModelView(ModelView):
-    column_exclude_list = ('purchase_id')
+
+    column_exclude_list = ('purchase_id') # does this need to be visible?
+    form_excluded_columns = ('purchase_id')
 
     def is_accessible(self):
         return current_user.is_authenticated
@@ -69,21 +71,33 @@ class ProductModelView(ModelView):
         form = ProductForm()
         return form
 
+    # add extra column that displays current images?
     def get_edit_form(self):
-        form = super(ProductModelView, self).get_edit_form()
+        form = super(ProductModelView, self).get_edit_form() 
         form.images = MultipleFileField('Upload image(s)')
         return form
 
+    def edit_form(self, obj=None):
+        form = super(ProductModelView, self).edit_form(obj) 
+        form.images.data = obj.images
+        return form
+
     def on_model_change(self, form, model, is_created=False):
+        # check if images added, skip duplicates
         file_title = form.title.data.replace(" ", "_")
         file_path = 'public/' + file_title + '/'
         bucket.Object(file_path)
         files = [f for f in form.images.data]
-        model.images = []
-        for f in files:
-            secured_file = secure_filename(f.filename.replace(" ", "_"))
-            model.images.append(secured_file)
-            bucket.Object(file_path + secured_file).put(Body=f)
+        if files:
+            model.images = []
+            for f in files:
+                if f:
+                    try:
+                        secured_file = secure_filename(f.filename.replace(" ", "_"))
+                        model.images.append(secured_file)
+                        bucket.Object(file_path + secured_file).put(Body=f)
+                    except AttributeError:
+                        model.images.append(f)
 
 @event.listens_for(Product, 'after_delete')
 def _handle_image_delete(mapper, conn, target):
