@@ -17,3 +17,5 @@ class Config(object):
     BUCKET_NAME = os.environ.get('BUCKETEER_BUCKET_NAME')
     PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
     PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET')
+    FLASK_ADMIN_SWATCH = os.environ.get('FLASK_ADMIN_SWATCH')
+    DROPZONE_ALLOWED_FILE_TYPE = os.environ.get('DROPZONE_ALLOWED_FILE_TYPE')

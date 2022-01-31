@@ -1,16 +1,15 @@
 from flask import render_template, redirect, url_for, flash, jsonify, request
-from flask_login import LoginManager, login_user, current_user, logout_user
-from flask_bootstrap import Bootstrap
+from flask_login import login_user, current_user, logout_user
 from flask_admin import Admin
 from app.forms import *
 from app.models import *
+from app.views import *
+from app.paypal import *
+from app.views import *
 from app.email import send_password_reset_email
-from app import app
+from app import app, login
 
-bootstrap = Bootstrap(app)
-login = LoginManager(app)
-login.init_app(app)
-admin = Admin(app, index_view=AdminView())
+admin = Admin(app, name="TraceyNicholasArt", index_view=AdminView(), template_mode='bootstrap4')
 admin.add_view(ProductModelView(Product, db.session))
 admin.add_link(LogoutView(name='Logout', endpoint='logout'))
 
@@ -24,7 +23,7 @@ def index():
 
 @app.route('/browse')
 def browse():
-    paths = list({f.key.split('/')[1] for f in resource.Bucket(app.config['BUCKET_NAME']).objects.all()})
+    paths = list({f.key.split('/')[1] for f in bucket.objects.all()})
     files = []
     for path in paths:
         painting_obj = Product.query.filter_by(title=path.replace('_', ' ')).first()
@@ -35,7 +34,7 @@ def browse():
                 files.append(d)
                 break
     # db.session.remove()
-    return render_template('browse.html', bucket=resource.Bucket(app.config['BUCKET_NAME']), files=files)
+    return render_template('browse.html', bucket=bucket, files=files)
 
 @app.route('/painting/<path>')
 def painting(path):
@@ -155,3 +154,4 @@ def shutdown_session(exception=None):
 
 if __name__ == "__main__":
     app.run()
+    
