@@ -90,7 +90,7 @@ def about():
 def contact():
     contact_form = ContactForm()
     if contact_form.validate_on_submit():
-        send_email(sender=(contact_form.name, contact_form.email), recipients=['info@traceynicholas.com'], text_body=contact_form.msg, html_body=contact_form.msg)
+        send_email((contact_form.name, contact_form.email), ['info@traceynicholas.com'], contact_form.msg, contact_form.msg)
         flash('Thank you for the message!', 'success')
         return redirect(url_for('contact'))
     return render_template('contact.html', form=contact_form)
