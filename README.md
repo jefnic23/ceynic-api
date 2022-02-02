@@ -1,3 +1,3 @@
 ## TODO
-- [ ] create Jinja macro for Dropzone
+- [ ] create admin page from scratch to enable Dropzone
 - [ ] finish setting up email

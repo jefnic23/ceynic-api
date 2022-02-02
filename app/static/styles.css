@@ -81,6 +81,12 @@
     margin: auto;
 }
 
+.painting-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 #paypal-button-container {
     max-width: 250px;
     margin: 1em auto;
@@ -190,11 +196,9 @@
     .about-container {
         width: 750px;
     }
-}
 
-@media (orientation: landscape) {
-    #painting {
-        max-width: 55%;
-        margin: 0 auto;
+    .painting-details {
+        flex-direction: row;
+        justify-content: space-evenly;
     }
 }

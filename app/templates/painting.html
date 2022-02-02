@@ -6,16 +6,19 @@
         <div class='row'>
             <img id="painting" class="img-responsive">
         </div>
-        <div class='row'>
-            <div class='col-md-6'>
+        <div class='painting-details'>
+            <div class='info-container'>
                 <div class='row text-center'>
                     <h1 id="title"></h1>
                 </div>
                 <div class='row text-center'>
                     <h3 id="medium"></h3>
                 </div>
+                <div class='row text-justify'>
+                    <p id="description"></p>
+                </div>
             </div>
-            <div class='col-md-6'>
+            <div class='payment-container'>
                 <div class='row text-center'>
                     <h3 id='price'></h3>
                 </div>
@@ -41,12 +44,10 @@
         const width = `{{ width }}`;
         const description = `{{ description }}`;
 
-        document.getElementById('title').innerHTML = title;
+        document.getElementById('title').innerHTML = `<u>${title}</u>`;
         document.getElementById('price').innerHTML = `$${price}.00`;
-        document.getElementById('medium').innerHTML = medium;
-        {# document.getElementById('height').innerHTML = height; #}
-        {# document.getElementById('width').innerHTML = width; #}
-        {# document.getElementById('description').innerHTML = description; #}
+        document.getElementById('medium').innerHTML = `${medium}, ${width} x ${height}`;
+        document.getElementById('description').innerHTML = description;
     </script>
     <script src="https://www.paypal.com/sdk/js?client-id=Acg6JnsBC_s4BVVnB7oNqF83hK2-kqVD-vAnziK8EhF_c3-SRuZPxgvy-EhnHXnBGFlkvr5hhloYtBZA&currency=USD&disable-funding=venmo"></script>
     <script>
