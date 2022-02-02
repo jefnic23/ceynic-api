@@ -5,7 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
-from flask_dropzone import Dropzone
 import boto3
 
 app=Flask(__name__)
@@ -14,7 +13,6 @@ Talisman(app, content_security_policy=None)
 db = SQLAlchemy(app)
 mail = Mail(app)
 bootstrap = Bootstrap(app)
-dropzone = Dropzone(app)
 login = LoginManager(app)
 login.init_app(app)
 

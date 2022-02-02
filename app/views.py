@@ -1,9 +1,8 @@
 from flask import redirect, url_for
 from flask_login import current_user
-from flask_admin import AdminIndexView, expose
+from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
-from flask_admin.form.rules import Macro
 from app.forms import *
 from app.models import *
 from werkzeug.utils import secure_filename
@@ -25,7 +24,6 @@ class ProductModelView(ModelView):
 
     column_exclude_list = ('purchase_id') # does this need to be visible?
     form_excluded_columns = ('purchase_id')
-    form_edit_rules = ('title', 'price', 'medium', 'height', 'width', 'description', 'sold', Macro('images'))
     # edit_template = 'admin/edit_product.html'
 
     def is_accessible(self):
@@ -39,15 +37,13 @@ class ProductModelView(ModelView):
         form = ProductForm()
         return form
 
-    # add extra column that displays current images?
     def get_edit_form(self):
         form = super(ProductModelView, self).get_edit_form() 
-        # form.images = MultipleFileField('Upload image(s)')
+        form.images = MultipleFileField('Upload image(s)')
         return form
 
     def edit_form(self, obj=None):
         form = super(ProductModelView, self).edit_form(obj) 
-        # form.images.data = obj.images
         return form
 
     def on_model_change(self, form, model, is_created=False):
