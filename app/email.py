@@ -8,7 +8,6 @@ def send_async_email(app, msg):
         mail.send(msg)
 
 def send_email(sender, recipients, text_body, html_body):
-    print(f'\n{sender, recipients, text_body}\n')
     msg = Message(sender=sender, recipients=recipients)
     msg.body = text_body
     msg.html = html_body
@@ -21,3 +20,9 @@ def send_password_reset_email(user):
         recipients=[user.email],
         text_body=render_template('email/reset_password.txt', token=token),
         html_body=render_template('email/reset_password.html', token=token))
+
+def send_contact_email(form):
+    send_email(sender=(form.name.data, form.email.data),
+        recipients=['info@traceynicholas.com'],
+        text_body=render_template('email/contact_me.txt', msg=form.msg.data),
+        html_body=render_template('email/contact_me.html', msg=form.msg.data))

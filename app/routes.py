@@ -6,7 +6,7 @@ from app.models import *
 from app.views import *
 from app.paypal import *
 from app.views import *
-from app.email import send_email, send_password_reset_email
+from app.email import *
 from app import app, login
 
 admin = Admin(app, name="TraceyNicholasArt", index_view=AdminView(), template_mode='bootstrap4')
@@ -90,7 +90,7 @@ def about():
 def contact():
     contact_form = ContactForm()
     if contact_form.validate_on_submit():
-        send_email((contact_form.name.data, contact_form.email.data), ['info@traceynicholas.com'], contact_form.msg.data, contact_form.msg.data)
+        send_contact_email(contact_form)
         flash('Thank you for the message!', 'success')
         return redirect(url_for('contact'))
     return render_template('contact.html', form=contact_form)
