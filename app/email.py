@@ -22,7 +22,8 @@ def send_password_reset_email(user):
         html_body=render_template('email/reset_password.html', token=token))
 
 def send_contact_email(form):
-    send_email(sender=(form.name.data, form.email.data),
+    send_email(f'[TraceyNicholasArt] Message from {form.name.data}',
+        sender=(form.name.data, form.email.data),
         recipients=['info@traceynicholas.com'],
         text_body=render_template('email/contact_me.txt', msg=form.msg.data),
         html_body=render_template('email/contact_me.html', msg=form.msg.data))

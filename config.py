@@ -17,4 +17,6 @@ class Config(object):
     BUCKET_NAME = os.environ.get('BUCKETEER_BUCKET_NAME')
     PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
     PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET')
+    RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY')
+    RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY')
     FLASK_ADMIN_SWATCH = os.environ.get('FLASK_ADMIN_SWATCH')
