@@ -8,7 +8,7 @@ def send_async_email(app, msg):
         mail.send(msg)
 
 def send_email(sender, recipients, text_body, html_body):
-    msg = Message(sender=(sender[0], sender[1]), recipients=recipients)
+    msg = Message(sender=sender, recipients=recipients)
     msg.body = text_body
     msg.html = html_body
     Thread(target=send_async_email, args=(app, msg)).start()
