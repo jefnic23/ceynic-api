@@ -11,7 +11,7 @@ import boto3
 app=Flask(__name__)
 app.config.from_object(Config)
 Talisman(app, content_security_policy=None)
-csrf = SeaSurf(app)
+# csrf = SeaSurf(app)
 db = SQLAlchemy(app)
 mail = Mail(app)
 bootstrap = Bootstrap(app)
