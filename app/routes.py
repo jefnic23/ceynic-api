@@ -5,7 +5,6 @@ from app.forms import *
 from app.models import *
 from app.views import *
 from app.paypal import *
-from app.views import *
 from app.email import *
 from app import app, login
 

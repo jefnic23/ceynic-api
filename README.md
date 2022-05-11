@@ -1,3 +1,3 @@
 ## TODO
 - [ ] create admin page from scratch to enable Dropzone
-- [ ] finish setting up email
+- [x] finish setting up email
