@@ -81,6 +81,10 @@
     margin: auto;
 }
 
+.row {
+    margin: 5px -15px;
+}
+
 .painting-details {
     display: flex;
     flex-direction: column;
