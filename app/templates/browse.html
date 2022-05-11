@@ -32,7 +32,7 @@
                     var link = document.createElement('a');
                     var img = document.createElement('img');
                     link.href = '{{ url_for("painting", path="path") }}'.replace('path', path);
-                    img.className = "img-responsive hvr-grow";
+                    img.className = "img-responsive hvr-glow";
                     img.src = `${url}${filename}`;
                     
                     link.append(img);
