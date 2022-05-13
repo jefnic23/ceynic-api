@@ -46,17 +46,9 @@
         document.getElementById('title').innerHTML = `<u>${data.title}</u>`;
         document.getElementById('price').innerHTML = `$${data.price}.00`;
         document.getElementById('medium').innerHTML = `${data.medium}, ${data.width}'' x ${data.height}''`;
-        document.getElementById('description').innerHTML = data.description;
-        if (data.prev && data.next) {      
-            document.getElementById('prev-painting').href = `/painting/${data.prev}`;
-            document.getElementById('next-painting').href = `/painting/${data.next}`;
-        } else if (data.prev && !data.next) {
-            document.getElementById('prev-painting').href = `/painting/${data.prev}`;
-            document.getElementById('next-painting').hidden = true;
-        } else {
-            document.getElementById('prev-painting').hidden = true;
-            document.getElementById('next-painting').href = `/painting/${data.next}`;
-        }
+        document.getElementById('description').innerHTML = data.description;  
+        document.getElementById('prev-painting').href = `/painting/${data.prev}`;
+        document.getElementById('next-painting').href = `/painting/${data.next}`;
     </script>
     <script src="https://www.paypal.com/sdk/js?client-id=Acg6JnsBC_s4BVVnB7oNqF83hK2-kqVD-vAnziK8EhF_c3-SRuZPxgvy-EhnHXnBGFlkvr5hhloYtBZA&currency=USD&disable-funding=venmo"></script>
     <script>
