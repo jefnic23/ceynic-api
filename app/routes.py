@@ -53,16 +53,6 @@ def painting(path):
             "prev": Product.query.order_by(Product.id.desc()).filter(Product.id < product.id).first().title.replace(' ', '_') if product.id > low_id else Product.query.get(hi_id).title.replace(' ', '_'),
             "next": Product.query.order_by(Product.id.asc()).filter(Product.id > product.id).first().title.replace(' ', '_') if product.id < hi_id else Product.query.get(low_id).title.replace(' ', '_')
         }
-        # get previous painting id, if it exists
-        # try:
-        #     data['prev'] = Product.query.order_by(Product.id.desc()).filter(Product.id < data['id']).first().title.replace(' ', '_')
-        # except:
-        #     pass
-        # # get next painting id, if it exists
-        # try:
-        #     data['next'] = Product.query.order_by(Product.id.asc()).filter(Product.id > data['id']).first().title.replace(' ', '_')
-        # except:
-        #     pass
         return render_template('painting.html', path=path, data=data)
     else:
         return redirect(url_for('browse'))

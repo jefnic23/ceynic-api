@@ -39,6 +39,7 @@
 
     <script type="text/javascript">
         const data = {{ data | tojson }};
+        const id = data.id;
         const img = document.getElementById('painting');
         const url = "https://bucketeer-7ae0b65a-5970-48f0-9da2-89eb2800f810.s3.amazonaws.com/"
         img.src = `${url}${data.filenames[0]}`;
@@ -69,7 +70,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        'id': `{{ id }}`
+                        'id': id
                     })
                 }).then((res) => {
                     return res.json();
@@ -87,7 +88,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        'id': `{{ id }}`
+                        'id': id
                     })
                 }).then((res) => {
                     return res.json();
