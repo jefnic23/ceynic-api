@@ -21,7 +21,6 @@ class LogoutView(MenuLink):
         return current_user.is_authenticated
 
 class ProductModelView(ModelView):
-
     column_exclude_list = ('purchase_id') # does this need to be visible?
     form_excluded_columns = ('purchase_id')
     # edit_template = 'admin/edit_product.html'
@@ -62,13 +61,16 @@ class ProductModelView(ModelView):
                     except AttributeError:
                         model.images.append(f)
 
-@event.listens_for(Product, 'after_delete')
-def _handle_image_delete(mapper, conn, target):
-    try:
-        if target.images:
-            for image in target.images:
-                path = 'public/' + target.title.replace(" ", "_") + '/' + image
-                resource.Object(app.config['BUCKET_NAME'], path).delete()
-            bucket.Object('public/' + target.title.replace(" ", "_") + '/').delete()
-    except:
-        pass
+
+# keep images in bucket so they can be sold as prints?
+
+# @event.listens_for(Product, 'after_delete')
+# def _handle_image_delete(mapper, conn, target):
+#     try:
+#         if target.images:
+#             for image in target.images:
+#                 path = 'public/' + target.title.replace(" ", "_") + '/' + image
+#                 resource.Object(app.config['BUCKET_NAME'], path).delete()
+#             bucket.Object('public/' + target.title.replace(" ", "_") + '/').delete()
+#     except:
+#         pass

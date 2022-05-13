@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, flash, jsonify, request
 from flask_login import login_user, current_user, logout_user
 from flask_admin import Admin
+from sqlalchemy import func
 from app.forms import *
 from app.models import *
 from app.views import *
@@ -27,28 +28,42 @@ def browse():
     for path in paths:
         painting_obj = Product.query.filter_by(title=path.replace('_', ' ')).first()
         if not painting_obj.sold:
-            d = {'path': '', 'filename': ''}
+            d = {'id': painting_obj.id, 'path': '', 'filename': ''}
             for obj in bucket.objects.filter(Prefix='public/' + path + '/'):  
                 d['path'], d['filename'] = path, obj.key
                 files.append(d)
                 break
-    # db.session.remove()
-    return render_template('browse.html', bucket=bucket, files=files)
+    return render_template('browse.html', bucket=bucket, files=sorted(files, key=lambda x: x['id']))
 
 @app.route('/painting/<path>')
 def painting(path):
     product = Product.query.filter_by(title=path.replace('_', ' ')).first()
     if not product.sold:
-        id = product.id
-        title = product.title
-        price = product.price
-        medium = product.medium
-        height = product.height
-        width = product.width
-        description = product.description
-        filenames = [f.key for f in bucket.objects.filter(Prefix='public/' + path + '/')]
-        # db.session.remove()
-        return render_template('painting.html', path=path, filenames=filenames, id=id, title=title, price=price, medium=medium, height=height, width=width, description=description)
+        low_id = db.session.query(func.min(Product.id)).first()[0]
+        hi_id = db.session.query(func.max(Product.id)).first()[0]
+        data = {
+            "id": product.id,
+            "title": product.title,
+            "price": product.price,
+            "medium": product.medium,
+            "height": product.height,
+            "width": product.width,
+            "description": product.description,
+            "filenames": [f.key for f in bucket.objects.filter(Prefix='public/' + path + '/')],
+            "prev": Product.query.order_by(Product.id.desc()).filter(Product.id < product.id).first().title.replace(' ', '_') if product.id > low_id else Product.query.get(hi_id).title.replace(' ', '_'),
+            "next": Product.query.order_by(Product.id.asc()).filter(Product.id > product.id).first().title.replace(' ', '_') if product.id < hi_id else Product.query.get(low_id).title.replace(' ', '_')
+        }
+        # get previous painting id, if it exists
+        # try:
+        #     data['prev'] = Product.query.order_by(Product.id.desc()).filter(Product.id < data['id']).first().title.replace(' ', '_')
+        # except:
+        #     pass
+        # # get next painting id, if it exists
+        # try:
+        #     data['next'] = Product.query.order_by(Product.id.asc()).filter(Product.id > data['id']).first().title.replace(' ', '_')
+        # except:
+        #     pass
+        return render_template('painting.html', path=path, data=data)
     else:
         return redirect(url_for('browse'))
 
@@ -61,7 +76,6 @@ def create_order():
     description = f'{title}, {medium}'
     value = product.price
     order = CreateOrder().create_order(description, value)
-    # db.session.remove()
     return jsonify({'order_id': order.result.id})
 
 @app.route('/capture-order/<order_id>', methods=['POST'])
@@ -74,7 +88,6 @@ def capture_order(order_id):
     product.sold = True
     product.purchase_id = purchase_id
     db.session.commit()
-    # db.session.remove()
     return jsonify({'status': status, 'purchase_id': purchase_id})
 
 @app.route('/orderconfirmation/<purchase_id>')
@@ -100,7 +113,6 @@ def login():
     if login_form.validate_on_submit():
         user_object = User.query.filter_by(email=login_form.email.data).first()
         if not user_object or not user_object.check_password(login_form.password.data):
-            # db.session.remove()
             flash('Invalid username or password', 'danger')
             return redirect(url_for('login'))
         login_user(user_object, remember=login_form.remember_me.data)
@@ -125,7 +137,6 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-        # db.session.remove()
         flash("Check your email for instructions on how to reset your password", 'info')
         return redirect(url_for('login'))
     return render_template("reset_password_request.html", form=form)
@@ -143,7 +154,6 @@ def reset_password(token):
         hashed_pswd = pbkdf2_sha256.hash(password)
         user.set_password(hashed_pswd)
         db.session.commit()
-        # db.session.remove()
         flash('Your password has been reset', "success")
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)

@@ -4,7 +4,15 @@
 
     <div class='container-fluid'>
         <div class='row'>
-            <img id="painting" class="img-responsive">
+            <a href="" id="prev-painting" class="hvr-icon-back">
+                <i class="fa fa-chevron-left hvr-icon"></i>
+                Previous
+            </a>
+            <a href="" id="next-painting" class="hvr-icon-forward">
+                Next
+                <i class="fa fa-chevron-right hvr-icon"></i>
+            </a>
+            <img id="painting" class="img-responsive">   
         </div>
         <div class='painting-details'>
             <div class='info-container'>
@@ -30,24 +38,24 @@
     </div>
 
     <script type="text/javascript">
-        const dir = `{{ dir }}`;
-        const filenames = {{ filenames | tojson }};
+        const data = {{ data | tojson }};
         const img = document.getElementById('painting');
         const url = "https://bucketeer-7ae0b65a-5970-48f0-9da2-89eb2800f810.s3.amazonaws.com/"
-        img.src = `${url}${filenames[0]}`;
-
-        const id = `{{ id }}`;
-        const title = `{{ title }}`;
-        const price = `{{ price }}`;
-        const medium = `{{ medium }}`;
-        const height = `{{ height }}`;
-        const width = `{{ width }}`;
-        const description = `{{ description }}`;
-
-        document.getElementById('title').innerHTML = `<u>${title}</u>`;
-        document.getElementById('price').innerHTML = `$${price}.00`;
-        document.getElementById('medium').innerHTML = `${medium}, ${width} x ${height}`;
-        document.getElementById('description').innerHTML = description;
+        img.src = `${url}${data.filenames[0]}`;
+        document.getElementById('title').innerHTML = `<u>${data.title}</u>`;
+        document.getElementById('price').innerHTML = `$${data.price}.00`;
+        document.getElementById('medium').innerHTML = `${data.medium}, ${data.width}'' x ${data.height}''`;
+        document.getElementById('description').innerHTML = data.description;
+        if (data.prev && data.next) {      
+            document.getElementById('prev-painting').href = `/painting/${data.prev}`;
+            document.getElementById('next-painting').href = `/painting/${data.next}`;
+        } else if (data.prev && !data.next) {
+            document.getElementById('prev-painting').href = `/painting/${data.prev}`;
+            document.getElementById('next-painting').hidden = true;
+        } else {
+            document.getElementById('prev-painting').hidden = true;
+            document.getElementById('next-painting').href = `/painting/${data.next}`;
+        }
     </script>
     <script src="https://www.paypal.com/sdk/js?client-id=Acg6JnsBC_s4BVVnB7oNqF83hK2-kqVD-vAnziK8EhF_c3-SRuZPxgvy-EhnHXnBGFlkvr5hhloYtBZA&currency=USD&disable-funding=venmo"></script>
     <script>
