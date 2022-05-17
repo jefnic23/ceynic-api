@@ -17,32 +17,6 @@
     margin-bottom: 5em;
 }
 
-.header-title {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 100%;
-    z-index: 1;
-}
-
-.header-title h1 {
-    font-size: 6vw;
-    font-weight: bolder;
-    color: #101010;
-    letter-spacing: 0.34em;
-    margin-bottom: 8px;
-}
-
-.header-title h3 {
-    font-size: 3vw;
-    font-weight: bold;
-    margin-top: 8px;
-}
-
-.header-img {
-    opacity: 47%; 
-}
-
 .home-header {
     font-size: 5vw;
     text-align: center; 

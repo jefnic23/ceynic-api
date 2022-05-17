@@ -35,11 +35,7 @@
 
 {% block content %}
     <div class='header-container'>
-        <div class="header-title text-center">
-            <h1>TRACEY NICHOLAS</h1>
-            <h3>Original Abstract Oil Paintings on Canvas and Prints</h4>
-        </div>
-        <img class='img-responsive header-img' src="{{ url_for('static', filename='header.jpg') }}">
+        <img class='img-responsive header-img' src="{{ url_for('static', filename='header.png') }}">
     </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
