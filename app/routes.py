@@ -45,7 +45,7 @@ def painting(path):
             "id": product.id,
             "title": product.title,
             "price": product.price,
-            "medium": product.medium,
+            "medium": product.medium.value,
             "height": product.height,
             "width": product.width,
             "description": product.description,

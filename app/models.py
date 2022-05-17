@@ -1,6 +1,7 @@
 import jwt
+from enum import Enum
 from time import time
-from flask_sqlalchemy import event
+# from flask_sqlalchemy import event
 from flask_login import UserMixin
 from passlib.hash import pbkdf2_sha256
 from app.forms import *
@@ -29,12 +30,16 @@ class User(UserMixin, db.Model):
             return
         return User.query.get(id)
 
+class Medium(Enum):
+    PAINTING = "painting"
+    PRINT = "print"
+
 class Product(db.Model):
     __tablename__ = "products"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(), nullable=False)
     price = db.Column(db.Integer, nullable=False)
-    medium = db.Column(db.String(), nullable=False)
+    medium = db.Column(db.Enum(Medium), default=Medium.PAINTING, nullable=False)
     height = db.Column(db.Integer, nullable=False)
     width = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(), nullable=False)

@@ -23,7 +23,9 @@ class LogoutView(MenuLink):
 class ProductModelView(ModelView):
     column_exclude_list = ('purchase_id') # does this need to be visible?
     form_excluded_columns = ('purchase_id')
-    # edit_template = 'admin/edit_product.html'
+    # edit_template = 'admin/edit.html'
+    extra_css = ["https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css"]
+    extra_js = ["https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"]
 
     def is_accessible(self):
         return current_user.is_authenticated
@@ -36,6 +38,9 @@ class ProductModelView(ModelView):
         form = ProductForm()
         return form
 
+    def edit_form(self, obj=None):
+        return super(ProductModelView, self).edit_form(obj)
+
     def get_edit_form(self):
         form = super(ProductModelView, self).get_edit_form() 
         form.images = MultipleFileField('Upload image(s)')
@@ -43,6 +48,8 @@ class ProductModelView(ModelView):
 
     def edit_form(self, obj=None):
         form = super(ProductModelView, self).edit_form(obj) 
+        images = Product.query.filter_by(id=obj.id).first()
+        form.images.data = images.images
         return form
 
     def on_model_change(self, form, model, is_created=False):

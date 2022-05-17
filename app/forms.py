@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, TextAreaField, SubmitField, PasswordField, BooleanField, IntegerField, MultipleFileField
+from wtforms import StringField, TextAreaField, SubmitField, PasswordField, BooleanField, IntegerField, SelectField, MultipleFileField
 from wtforms.validators import InputRequired, Email, Length, EqualTo
 
 class ContactForm(FlaskForm):
@@ -30,10 +30,10 @@ class ResetPasswordForm(FlaskForm):
     submit_button = SubmitField("Submit new password")
 
 class ProductForm(FlaskForm):
-    title = StringField('Title', validators=[InputRequired(message="Please enter a title")], render_kw={'autofocus': True})
-    price = IntegerField('Price', validators=[InputRequired(message="Please enter painting price")])
-    medium = StringField('Medium', validators=[InputRequired(message="Please enter medium details")])
-    height = IntegerField('Height', validators=[InputRequired(message="Please enter painting height")])
-    width = IntegerField('Height', validators=[InputRequired(message="Please enter painting width")])
-    description = TextAreaField('Description', validators=[InputRequired(message="Please enter painting description")])
-    images = MultipleFileField('Upload image(s)')
+    title = StringField('Title', validators=[InputRequired(message="Enter a title")], render_kw={'autofocus': True})
+    price = IntegerField('Price', validators=[InputRequired(message="Enter the price")])
+    medium = SelectField('Medium', choices=[('painting', 'PAINTING'), ('print', 'PRINT')])
+    height = IntegerField('Height', validators=[InputRequired(message="Enter painting height")])
+    width = IntegerField('Height', validators=[InputRequired(message="Enter painting width")])
+    description = TextAreaField('Description', validators=[InputRequired(message="Enter painting description")])
+    images = MultipleFileField('Upload image(s)', validators=[InputRequired(message="Upload at least one image")])

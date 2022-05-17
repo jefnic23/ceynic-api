@@ -2,6 +2,12 @@
     font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
 #logo {
     width: 85px;
     height: 85px;
@@ -14,7 +20,7 @@
 .header-container {
     position: relative;
     top: 50px;
-    margin-bottom: 5em;
+    margin-bottom: 50px;
 }
 
 .home-header {
@@ -146,6 +152,20 @@
     max-width: 800px;
 }
 
+.page {
+    display: flex;
+    flex-direction: column;
+}
+
+.app-content {
+    flex: 1;
+    margin-top: 50px;
+}
+
+.footer {
+    margin-top: auto;
+}
+
 .login-link {
     position: relative;
     display: block;
@@ -158,8 +178,6 @@
     justify-content: center;
     align-items: center;
     gap: 13px;
-    margin-top: 5em;
-    margin-bottom: 1em;
 }
 
 .fa-instagram {
@@ -182,7 +200,7 @@
 }
 
 .copyright {
-    margin: 1em 2em;
+    margin: 13px 21px;
     text-align: center;
     font-size: 89%;
 }

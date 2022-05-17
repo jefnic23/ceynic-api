@@ -2,7 +2,7 @@
 
 {% block app_content %}
 
-    <div class='container-fluid'>
+    <div class='container-fluid app-content'>
         <div class='row'>
             <a href="" id="prev-painting" class="hvr-icon-back">
                 <i class="fa fa-chevron-left hvr-icon"></i>
@@ -42,10 +42,11 @@
         const id = data.id;
         const img = document.getElementById('painting');
         const url = "https://bucketeer-7ae0b65a-5970-48f0-9da2-89eb2800f810.s3.amazonaws.com/"
+        const medium = data.medium === 'painting' ? 'oil painting on canvas' : 'fine art print';
         img.src = `${url}${data.filenames[0]}`;
         document.getElementById('title').innerHTML = `<u>${data.title}</u>`;
         document.getElementById('price').innerHTML = `$${data.price}.00`;
-        document.getElementById('medium').innerHTML = `${data.medium}, ${data.width}'' x ${data.height}''`;
+        document.getElementById('medium').innerHTML = `${medium}, ${data.width}'' x ${data.height}''`;
         document.getElementById('description').innerHTML = data.description;  
         document.getElementById('prev-painting').href = `/painting/${data.prev}`;
         document.getElementById('next-painting').href = `/painting/${data.next}`;
