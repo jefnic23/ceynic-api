@@ -36,4 +36,5 @@ class ProductForm(FlaskForm):
     height = IntegerField('Height', validators=[InputRequired(message="Enter painting height")])
     width = IntegerField('Height', validators=[InputRequired(message="Enter painting width")])
     description = TextAreaField('Description', validators=[InputRequired(message="Enter painting description")])
+    slideshow = BooleanField('Slideshow')
     images = MultipleFileField('Upload image(s)', validators=[InputRequired(message="Upload at least one image")])

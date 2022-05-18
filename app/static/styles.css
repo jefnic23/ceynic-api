@@ -29,21 +29,8 @@ body {
     margin: 1em;
 }
 
-.home-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 100%;
-    height: auto;
-    margin: auto;
-    gap: 13px;
-    align-items: center;
-}
-
-.home-container p {
-    text-align: justify;
-    text-align-last: left;
-    margin: 0 2em;
+.carousel, .carousel-img  {
+    max-height: 340px;
 }
 
 .about-container {
@@ -271,14 +258,8 @@ body {
         font-size: 24px;
     }
 
-    .home-container {
-        flex-direction: row;
-    }
-
-    .home-container p {
-        width: 385px;
-        line-height: 2;
-        text-align-last: justify;
+    .carousel, .carousel-img {
+        max-height: 510px;
     }
 
     .about-container {

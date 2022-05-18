@@ -1,18 +1,33 @@
 {% extends "layout.html" %}
 
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
+{% endblock %}
+
 {% block app_content %}
 
+    <script type="text/javascript">
+        const slideshow = {{ slideshow | tojson }};
+    </script>
+
     <div class='container-fluid app-content'>
-        <h3 class='home-header'>Cloudy Modern Abstract Landscape and Sky Paintings in Oil on Canvas</h3>
-        <div class='home-container'>
-            <img src="{{ url_for('static', filename='logo.jpg') }}">
-            <p>
-                I live in a small town in southeast Michigan where there are many cloudy, rainy, foggy and snowy days to inspire me.
-                I love to paint clouds; big or small, soft and warm, in every color combination I can think of. I paint with the canvas 
-                flat on my kitchen table using a palette knife to layer and blend the paint in warm and cool colors for a contrast 
-                between light and shadows. I work from memory and imagination, using color and light to convey mood and atmosphere.
-            </p>
+        <h3 class='home-header'>Original Abstract Oil Paintings on Canvas and Prints</h3>
+        <div class='carousel'>
+            {% for image in slideshow %}
+                <div class="carousel-cell">
+                    <img src={{ image }} class="carousel-img">
+                </div>
+            {% endfor %}
         </div>
     </div>
+
+    <script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
+    <script type="text/javascript">
+        const flkty = new Flickity('.carousel', {
+            wrapAround: true,
+            autoPlay: 5000
+        });
+    </script>
 
 {% endblock %}

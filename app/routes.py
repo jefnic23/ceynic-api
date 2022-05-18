@@ -13,13 +13,19 @@ admin = Admin(app, name="TraceyNicholasArt", index_view=AdminView(), template_mo
 admin.add_view(ProductModelView(Product, db.session))
 admin.add_link(LogoutView(name='Logout', endpoint='logout'))
 
+AWS_URL = "https://bucketeer-7ae0b65a-5970-48f0-9da2-89eb2800f810.s3.amazonaws.com/"
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    images = Product.query.filter_by(slideshow=True).all()
+    slideshow = []
+    for image in images:
+        slideshow.append([f'{AWS_URL}{f.key}' for f in bucket.objects.filter(Prefix='public/' + image.title.replace(' ', '_') + '/')][0])
+    return render_template('index.html', slideshow=slideshow)
 
 @app.route('/browse')
 def browse():
@@ -49,7 +55,7 @@ def painting(path):
             "height": product.height,
             "width": product.width,
             "description": product.description,
-            "filenames": [f.key for f in bucket.objects.filter(Prefix='public/' + path + '/')],
+            "filenames": [f'{AWS_URL}{f.key}' for f in bucket.objects.filter(Prefix='public/' + path + '/')],
             "prev": Product.query.order_by(Product.id.desc()).filter(Product.id < product.id).first().title.replace(' ', '_') if product.id > low_id else Product.query.get(hi_id).title.replace(' ', '_'),
             "next": Product.query.order_by(Product.id.asc()).filter(Product.id > product.id).first().title.replace(' ', '_') if product.id < hi_id else Product.query.get(low_id).title.replace(' ', '_')
         }

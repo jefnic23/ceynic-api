@@ -1,3 +1,4 @@
+from email.policy import default
 import jwt
 from enum import Enum
 from time import time
@@ -44,6 +45,7 @@ class Product(db.Model):
     width = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(), nullable=False)
     sold = db.Column(db.Boolean, default=False)
+    slideshow = db.Column(db.Boolean, default=False)
     images = db.Column(db.ARRAY(db.String()))
     purchase_id = db.Column(db.String())
 
