@@ -29,6 +29,10 @@ body {
     margin: 1em;
 }
 
+.header-img {
+    border-bottom: 1px solid black;
+}
+
 .carousel, .carousel-img  {
     max-height: 340px;
 }
