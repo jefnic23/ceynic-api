@@ -1,0 +1,11 @@
+{% extends 'admin/model/edit.html' %}
+
+{% block edit_form %}
+    {{ super() }}
+    {{ dropzone.create() }}
+  {% endblock %}
+
+{% block tail %}
+    {{ super() }}
+    {{ dropzone.config() }}
+{% endblock %}
