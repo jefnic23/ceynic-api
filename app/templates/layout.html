@@ -8,6 +8,15 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-217723164-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-217723164-1');
+    </script>
 {% endblock %}
 
 {% block navbar %}
@@ -34,7 +43,6 @@
 {% endblock %}
 
 {% block content %}
-
     <div class='header-container'>
         <img class='img-responsive header-img' src="{{ url_for('static', filename='header.jpg') }}">
     </div>
@@ -66,14 +74,4 @@
             Site by <a href="https://github.com/jefnic23" target="_blank">Jeff Nicholas</a>
         </div>   
     </div>
-
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-217723164-1"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'UA-217723164-1');
-    </script>
 {% endblock %}
