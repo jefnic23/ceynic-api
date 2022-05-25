@@ -1,54 +1,20 @@
 {% extends "layout.html" %}
 
 {% block app_content %}
-
     <div class="app-content">
-        <h5 style="text-align: center;">Click on an image to view details</h5>
+        <p style="text-align: center;">Click on an image to view details</p>
         <div id="image-grid" class='container-fluid'>
-            <div class='row'></div>
+            {% for row in files|batch(3) %}
+                <div class='row'>
+                    {% for col in row %}
+                        <div class="col-md-4">
+                            <a href="{{ url_for('painting', path=col.path) }}">
+                                <img src={{ col.filename }} class="img-fluid hvr-glow">
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
         </div>
     </div>
-    
-    <script type='text/javascript'>
-        var files = {{ files | tojson }};
-        var row = 0;
-        var width = screen.width;
-        const grid = document.getElementById('image-grid');
-        const url = "https://bucketeer-7ae0b65a-5970-48f0-9da2-89eb2800f810.s3.amazonaws.com/"
-
-        function createRow() {
-            var new_row = document.createElement('div');
-            new_row.className = 'row';
-            grid.append(new_row);
-            row++;
-        }
-
-        function createGrid() {
-            if (files) {
-                for (let i = 0; i < files.length; i++) {
-                    var col = document.createElement('div');
-                    col.className = 'col-xs-6 col-sm-4 col-md-4 col-lg-4';
-
-                    var path = files[i].path;
-                    var filename = files[i].filename;
-                    var link = document.createElement('a');
-                    var img = document.createElement('img');
-                    link.href = '{{ url_for("painting", path="path") }}'.replace('path', path);
-                    img.className = "img-responsive hvr-glow";
-                    img.src = `${url}${filename}`;
-                    
-                    link.append(img);
-                    col.append(link);
-                    grid.children[row].append(col);
-
-                    if ((width < 768 && grid.children[row].children.length === 2) || (width >= 768 && grid.children[row].children.length === 3)) {
-                        createRow();
-                    }
-                }
-            }
-        }
-
-        createGrid();
-    </script>
-
 {% endblock %}

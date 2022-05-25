@@ -3,7 +3,7 @@ from config import Config
 from flask_talisman import Talisman
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap5
 from flask_dropzone import Dropzone
 from flask_login import LoginManager
 import boto3
@@ -13,7 +13,7 @@ app.config.from_object(Config)
 Talisman(app, content_security_policy=None)
 db = SQLAlchemy(app)
 mail = Mail(app)
-bootstrap = Bootstrap(app)
+bootstrap = Bootstrap5(app)
 dropzone = Dropzone(app)
 login = LoginManager(app)
 login.init_app(app)

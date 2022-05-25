@@ -8,19 +8,38 @@ body {
     flex-direction: column;
 }
 
+a {
+    text-decoration: none;
+}
+
 #logo {
     width: 85px;
     height: 85px;
 }
 
-.navbar {
-    margin-bottom: 0;
+.navbar-light {
+    min-height: 52px;
+    background-color: #f8f8f8;
+    border: 1px solid #e7e7e7;
+}
+
+.navbar-nav {
+    column-gap: 8px;
+}
+
+.nav-link {
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.navbar-toggler {
+    font-size: 1rem;
 }
 
 .header-container {
     position: relative;
-    top: 50px;
-    margin-bottom: 50px;
+    top: 52px;
+    margin-bottom: 48px;
 }
 
 .home-header {
@@ -52,26 +71,28 @@ body {
     border-radius: 8px;
 }
 
+.col-md-4 {
+    margin-bottom: 13px;
+}
+
 #painting {
     margin: auto;
 }
 
-#prev-painting {
+.paint-nav {
     font-size: 18px;
     text-decoration: none;
     color: #101010;
-    position: absolute;
+}
+
+#prev-painting {
     float: left;
-    left: 5%;
+    margin-left: 3%;
 }
 
 #next-painting {
-    font-size: 18px;
-    text-decoration: none;
-    color: #101010;
-    position: absolute;
     float: right;
-    right: 5%;
+    margin-right: 3%;
 }
 
 /* Icon Back */
@@ -146,16 +167,6 @@ body {
     transform: scale(1.1);
 }
 
-.row {
-    margin: 5px -15px;
-}
-
-.painting-details {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
 #paypal-button-container {
     max-width: 250px;
     margin: 1em auto;
@@ -181,6 +192,7 @@ body {
 
 .footer {
     margin-top: 50px;
+    font-size: 11px;
 }
 
 .login-link {
@@ -219,7 +231,6 @@ body {
 .copyright {
     margin: 13px 21px;
     text-align: center;
-    font-size: 89%;
 }
 
 .hvr-glow {
@@ -239,14 +250,6 @@ body {
 }
 
 @media (min-width: 768px) {
-    .navbar-toggle {
-        display: none;
-    }
-
-    .navbar-brand {
-        display: none;
-    }
-
     .navbar-center {
         position: absolute;
         left: 50%;
@@ -272,10 +275,5 @@ body {
 
     .about-container {
         width: 750px;
-    }
-
-    .painting-details {
-        flex-direction: row;
-        justify-content: space-evenly;
     }
 }

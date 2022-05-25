@@ -1,11 +1,11 @@
 {% extends "layout.html" %}
-{% import 'bootstrap/wtf.html' as wtf %}
+{% from 'bootstrap5/form.html' import render_form %}
 
 {% block app_content %}
 
     <div class="container-fluid form-group app-content">
         <h3>Please contact me if you have any questions or comments</h3>
-        {{ wtf.quick_form(form) }}
+        {{ render_form(form) }}
     </div>
 
 {% endblock %}

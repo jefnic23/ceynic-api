@@ -1,21 +1,24 @@
 {% extends "layout.html" %}
 
 {% block app_content %}
-
     <div class='container-fluid app-content'>
         <div class='row'>
-            <a href="" id="prev-painting" class="hvr-icon-back">
-                <i class="fa fa-chevron-left hvr-icon"></i>
-                Previous
-            </a>
-            <a href="" id="next-painting" class="hvr-icon-forward">
-                Next
-                <i class="fa fa-chevron-right hvr-icon"></i>
-            </a>
-            <img id="painting" class="img-responsive">   
+            <div class="col">
+                <a href="" id="prev-painting" class="hvr-icon-back paint-nav">
+                    <i class="fa fa-chevron-left hvr-icon"></i>
+                    Previous
+                </a>
+                <a href="" id="next-painting" class="hvr-icon-forward paint-nav">
+                    Next
+                    <i class="fa fa-chevron-right hvr-icon"></i>
+                </a>
+            </div>
         </div>
-        <div class='painting-details'>
-            <div class='info-container'>
+        <div class="row">
+            <img id="painting" class="img-responsive"> 
+        </div>
+        <div class='row'>
+            <div class='col-md-8'>
                 <div class='row text-center'>
                     <h1 id="title"></h1>
                 </div>
@@ -26,7 +29,7 @@
                     <p id="description"></p>
                 </div>
             </div>
-            <div class='payment-container'>
+            <div class='col-md-4'>
                 <div class='row text-center'>
                     <h3 id='price'></h3>
                 </div>
@@ -36,8 +39,11 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <script type="text/javascript">
+{% block scripts %}
+    {{ super () }}
+    <script type="text/javascript"> 
         const data = {{ data | tojson }};
         const id = data.id;
         const img = document.getElementById('painting');
@@ -103,5 +109,4 @@
             }
         }).render('#paypal-button-container');
     </script>
-
 {% endblock %}

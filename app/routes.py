@@ -36,7 +36,7 @@ def browse():
         if not painting_obj.sold:
             d = {'id': painting_obj.id, 'path': '', 'filename': ''}
             for obj in bucket.objects.filter(Prefix='public/' + path + '/'):  
-                d['path'], d['filename'] = path, obj.key
+                d['path'], d['filename'] = path, AWS_URL + obj.key
                 files.append(d)
                 break
     return render_template('browse.html', bucket=bucket, files=sorted(files, key=lambda x: x['id']))
