@@ -4,17 +4,15 @@
     <div class="app-content">
         <p style="text-align: center;">Click on an image to view details</p>
         <div id="image-grid" class='container-fluid'>
-            {% for row in files|batch(3) %}
-                <div class='row'>
-                    {% for col in row %}
-                        <div class="col-md-4">
-                            <a href="{{ url_for('painting', path=col.path) }}">
-                                <img src={{ col.filename }} class="img-fluid hvr-glow">
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
+            <div class='row'>
+                {% for img in files %}
+                    <div class="col-sm-6 col-md-4">
+                        <a href="{{ url_for('painting', path=img.path) }}">
+                            <img src={{ img.filename }} class="img-fluid hvr-glow">
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 {% endblock %}
