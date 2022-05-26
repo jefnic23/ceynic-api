@@ -32,13 +32,16 @@ def browse():
     paths = list({f.key.split('/')[1] for f in bucket.objects.all()})
     files = []
     for path in paths:
-        painting_obj = Product.query.filter_by(title=path.replace('_', ' ')).first()
-        if not painting_obj.sold:
-            d = {'id': painting_obj.id, 'path': '', 'filename': ''}
-            for obj in bucket.objects.filter(Prefix='public/' + path + '/'):  
-                d['path'], d['filename'] = path, AWS_URL + obj.key
-                files.append(d)
-                break
+        try:
+            painting_obj = Product.query.filter_by(title=path.replace('_', ' ')).first()
+            if not painting_obj.sold:
+                d = {'id': painting_obj.id, 'path': '', 'filename': ''}
+                for obj in bucket.objects.filter(Prefix='public/' + path + '/'):  
+                    d['path'], d['filename'] = path, AWS_URL + obj.key
+                    files.append(d)
+                    break
+        except:
+            pass
     return render_template('browse.html', bucket=bucket, files=sorted(files, key=lambda x: x['id']))
 
 @app.route('/painting/<path>')
