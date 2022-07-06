@@ -6,7 +6,7 @@
     <div class='container-fluid form-group app-content'>
         <h3>Login to the Administration System</h3>
         {{ render_form(form) }}
-        <p class='login-link'>Forgot your password? <a href="{{ url_for('reset_password_request') }}">Click to reset</a></p>
+        <p class='login-link'>Forgot your password? <a href="{{ url_for('auth.reset_password_request') }}">Click to reset</a></p>
     </div>
 
 {% endblock %}

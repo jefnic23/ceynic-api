@@ -1,11 +1,11 @@
 from paypalcheckoutsdk.core import PayPalHttpClient, LiveEnvironment
 from paypalcheckoutsdk.orders import OrdersCreateRequest, OrdersCaptureRequest
-from app import app
+from flask import current_app
 
 class PayPalClient:
     def __init__(self):
-        self.client_id = app.config['PAYPAL_CLIENT_ID']
-        self.client_secret = app.config['PAYPAL_CLIENT_SECRET']
+        self.client_id = current_app.config['PAYPAL_CLIENT_ID']
+        self.client_secret = current_app.config['PAYPAL_CLIENT_SECRET']
         """Set up and return PayPal Python SDK environment with PayPal Access credentials.
            This sample uses SandboxEnvironment. In production, use
            LiveEnvironment."""

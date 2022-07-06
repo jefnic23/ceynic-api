@@ -62,7 +62,7 @@
         paypal.Buttons({
             // Sets up the transaction when a payment button is clicked
             createOrder: function(data, actions) {
-                const CREATE_ORDER_URL = '{{ url_for("create_order") }}';
+                const CREATE_ORDER_URL = '{{ url_for("main.create_order") }}';
                 return fetch(CREATE_ORDER_URL, {
                     method: 'POST',
                     headers: {
@@ -80,7 +80,7 @@
 
             // Finalize the transaction after payer approval
             onApprove: function(data, actions) {
-                const CAPTURE_ORDER_URL = '{{ url_for("capture_order", order_id="order_id") }}'.replace('order_id', data.orderID);
+                const CAPTURE_ORDER_URL = '{{ url_for("main.capture_order", order_id="order_id") }}'.replace('order_id', data.orderID);
                 return fetch(CAPTURE_ORDER_URL, {
                     method: "POST",
                     headers: {
@@ -105,7 +105,7 @@
                         return alert(msg);
                     }
 
-                    actions.redirect('{{ url_for("order_confirmation", purchase_id="purchase_id", _external=True) }}'.replace('purchase_id', orderData.purchase_id));
+                    actions.redirect('{{ url_for("main.order_confirmation", purchase_id="purchase_id", _external=True) }}'.replace('purchase_id', orderData.purchase_id));
                 });
             }
         }).render('#paypal-button-container');

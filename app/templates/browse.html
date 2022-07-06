@@ -7,7 +7,7 @@
             <div class='row'>
                 {% for img in files %}
                     <div class="col-sm-6 col-md-4">
-                        <a href="{{ url_for('painting', path=img.path) }}">
+                        <a href="{{ url_for('main.painting', path=img.path) }}">
                             <img src={{ img.filename }} class="img-fluid hvr-glow">
                         </a>
                     </div>
