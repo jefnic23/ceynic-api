@@ -1,0 +1,60 @@
+{% from 'bootstrap5/utils.html' import render_messages %}
+
+<!doctype html>
+<html lang="en">
+    <head>
+        {% block head %}
+            <title>Tracey Nicholas Art</title>
+
+            {% block metas %}
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+            {% endblock %}
+
+            {% block styles %}
+                <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+                <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+                {{ bootstrap.load_css() }}
+                <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+            {% endblock %}
+        {% endblock %}
+    </head>
+    <body>
+        {% block navbar %}
+            <nav class="navbar navbar-expand-md navbar-light mb-3">
+                <div class='container-fluid'>
+                    <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".collapse">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class='collapse navbar-collapse'>
+                        <a class="navbar-brand" href="{{ url_for('main.index') }}" target="_blank">TraceyNicholasArt</a>
+                        <ul class="nav navbar-nav me-auto">
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.index') }}">{{ ('Home') }}</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.product') }}">{{ ('Product') }}</a></li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('auth.logout') }}">{{ ('Logout') }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        {% endblock %}
+
+        <div class="container-fluid">
+            {% block content %}
+                
+                {{ render_messages(container=true, dismissible=true) }}
+
+                {% block app_content %}{% endblock %}
+
+            {% endblock %}
+
+            {% block scripts %}
+                {{ bootstrap.load_js() }}
+            {% endblock %}
+        </div>
+    </body>
+</html>

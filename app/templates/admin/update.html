@@ -1,0 +1,49 @@
+{% extends 'admin/layout.html' %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css" integrity="sha512-WvVX1YO12zmsvTpUQV8s7ZU98DnkaAokcciMZJfnNWyNzm7//QRV61t4aEr0WdIa4pe854QHLTV302vH92FSMw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{% endblock %}
+
+{% block app_content %}
+  <form id="dropzone-update" class="dropzone">
+    <div class="mb-3">
+      <label for="title" class="form-label">Title<strong style="color: red">*</strong></label>
+      <input id="title" class="form-control" type="text" value={{ product[title] }}>
+    </div>
+    <div class="mb-3">
+      <label for="price" class="form-label">Price<strong style="color: red">*</strong></label>
+      <input id="price" class="form-control" type="text" value={{ product[price] }}>
+    </div>
+    <div class="mb-3">
+      <label for="medium" class="form-label">Medium</label>
+      <input id="medium" class="form-control" type="text" value={{ product[medium] }}>
+    </div>
+    <div class="mb-3">
+      <label for="height" class="form-label">Height<strong style="color: red">*</strong></label>
+      <input id="height" class="form-control" type="text" value={{ product[height] }}>
+    </div>
+    <div class="mb-3">
+      <label for="width" class="form-label">Width<strong style="color: red">*</strong></label>
+      <input id="width" class="form-control" type="text" value={{ product[width] }}>
+    </div>
+    <div class="mb-3">
+      <label for="description" class="form-label">Description<strong style="color: red">*</strong></label>
+      <input id="description" class="form-control" type="text" value={{ product[description] }}>
+    </div>
+    <div class="mb-3">
+      <label for="slideshow" class="form-label">Slideshow</label>
+      <input id="slideshow" class="form-control" type="text" value={{ product[slideshow] }}>
+    </div>
+    <div class="mb-3">
+      <label for="images" class="form-label">Images<strong style="color: red">*</strong></label>
+      <div id="images" class="dropzone-previews">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js" integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock %}

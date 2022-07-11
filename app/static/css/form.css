@@ -1,0 +1,39 @@
+#dropzone {
+    border: 2px dashed #ccc;
+    border-radius: 20px;
+    font-family: sans-serif;
+    margin: auto;
+    padding: 80px;
+}
+
+#dropzone.highlight {
+    border-color: blue;
+}
+
+#dz-previews > div {
+    border: 1px solid transparent;
+    border-radius: 21px;
+    object-fit: cover;
+    width: 144px;
+    height: 144px;
+    user-drag: none;
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+#dz-previews > div:hover {
+    box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+}
+
+.dropzone-label {
+    display: block;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* #images {
+    display: none;
+} */
