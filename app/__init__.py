@@ -4,35 +4,14 @@ from flask_talisman import Talisman
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap5
-from flask_dropzone import Dropzone
 from flask_login import LoginManager
 import boto3
 
-# app=Flask(__name__)
-# app.config.from_object(Config)
-# Talisman(app, content_security_policy=None)
-# db = SQLAlchemy(app)
-# mail = Mail(app)
-# bootstrap = Bootstrap5(app)
-# dropzone = Dropzone(app)
-# login = LoginManager(app)
-# login.init_app(app)
-
-
-# s3 = boto3.Session(
-#     aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
-#     aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY']
-# )
-# resource = s3.resource('s3', region_name=app.config['AWS_REGION'])
-# bucket = resource.Bucket(app.config['BUCKET_NAME'])
-
-# from app import routes, models, errors, views
 
 talisman = Talisman()
 db = SQLAlchemy()
 mail = Mail()
 bootstrap = Bootstrap5()
-dropzone = Dropzone()
 login = LoginManager()
 login.login_view = 'auth.login'
 
@@ -45,10 +24,9 @@ def create_app(config_class=Config):
     db.init_app(app)
     mail.init_app(app)
     bootstrap.init_app(app)
-    dropzone.init_app(app)
     login.init_app(app)
 
-    # create AWS S3 session
+    # create AWS S3 session, resource, and bucket
     app.s3 = boto3.Session(
         aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
         aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY']
@@ -65,6 +43,9 @@ def create_app(config_class=Config):
 
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
+
+    from app.admin import bp as admin_bp
+    app.register_blueprint(admin_bp, url_prefix="/admin")
 
     return app
 

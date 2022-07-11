@@ -1,12 +1,10 @@
-from email.policy import default
+# from email.policy import default
 import jwt
 from enum import Enum
 from time import time
-# from flask_sqlalchemy import event
 from flask import current_app
 from flask_login import UserMixin
 from passlib.hash import pbkdf2_sha256
-from app.forms import *
 from app import db, login
 
 
@@ -39,6 +37,7 @@ def load_user(id):
     return User.query.get(int(id))
 
 
+# delete once column gets changed to string
 class Medium(Enum):
     PAINTING = "painting"
     PRINT = "print"
@@ -49,7 +48,7 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(), nullable=False)
     price = db.Column(db.Integer, nullable=False)
-    medium = db.Column(db.Enum(Medium), default=Medium.PAINTING, nullable=False)
+    medium = db.Column(db.Enum(Medium), default=Medium.PAINTING, nullable=False) # change to string, add options in form
     height = db.Column(db.Integer, nullable=False)
     width = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(), nullable=False)

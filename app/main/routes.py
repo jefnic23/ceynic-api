@@ -1,19 +1,11 @@
 from flask import render_template, redirect, url_for, flash, jsonify, request, current_app
-# from flask_admin import Admin
 from sqlalchemy import func
 from app import db
-from app.models import *
-from app.views import *
-from app.paypal import *
-from app.main.forms import *
+from app.models import Product
+from app.paypal import CreateOrder, CaptureOrder
+from app.main.forms import ContactForm
 from app.main.email import send_contact_email
 from app.main import bp
-
-# admin = Admin(app, name="TraceyNicholasArt", index_view=AdminView(), template_mode='bootstrap4')
-# admin.add_view(ProductModelView(Product, db.session))
-# admin.add_link(LogoutView(name='Logout', endpoint='logout'))
-
-AWS_URL = "https://bucketeer-7ae0b65a-5970-48f0-9da2-89eb2800f810.s3.amazonaws.com/"
 
 
 @bp.route('/')
@@ -21,7 +13,7 @@ def index():
     images = Product.query.filter_by(slideshow=True).all()
     slideshow = []
     for image in images:
-        slideshow.append([f'{AWS_URL}{f.key}' for f in current_app.bucket.objects.filter(Prefix='public/' + image.title.replace(' ', '_') + '/')][0])
+        slideshow.append([f'{current_app.config["AWS_URL"]}{f.key}' for f in current_app.bucket.objects.filter(Prefix='public/' + image.title.replace(' ', '_') + '/')][0])
     return render_template('index.html', slideshow=slideshow)
 
 
@@ -35,7 +27,7 @@ def browse():
             if not painting_obj.sold:
                 d = {'id': painting_obj.id, 'path': '', 'filename': ''}
                 for obj in current_app.bucket.objects.filter(Prefix='public/' + path + '/'):  
-                    d['path'], d['filename'] = path, AWS_URL + obj.key
+                    d['path'], d['filename'] = path, current_app.config['AWS_URL'] + obj.key
                     files.append(d)
                     break
         except:
@@ -57,7 +49,7 @@ def painting(path):
             "height": product.height,
             "width": product.width,
             "description": product.description,
-            "filenames": [f'{AWS_URL}{f.key}' for f in current_app.bucket.objects.filter(Prefix='public/' + path + '/')],
+            "filenames": [f'{current_app.config["AWS_URL"]}{f.key}' for f in current_app.bucket.objects.filter(Prefix='public/' + path + '/')],
             "prev": Product.query.order_by(Product.id.desc()).filter(Product.id < product.id).first().title.replace(' ', '_') if product.id > low_id else Product.query.get(hi_id).title.replace(' ', '_'),
             "next": Product.query.order_by(Product.id.asc()).filter(Product.id > product.id).first().title.replace(' ', '_') if product.id < hi_id else Product.query.get(low_id).title.replace(' ', '_')
         }
