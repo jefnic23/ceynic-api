@@ -1,3 +1,4 @@
+const price = document.getElementById('price');
 const dropzone = document.getElementById('dropzone');
 const images = document.getElementById('images');
 const previews = document.getElementById('dz-previews');
@@ -39,10 +40,14 @@ function previewFile(file) {
         let div = document.createElement('div');
         let icon = document.createElement('i');
         let img = document.createElement('img');
-        icon.className = "fa fa-times";
+        div.className = "preview";
+        icon.className = "fa fa-times-circle-o close";
+        icon.ariaHidden = "true";
+        icon.setAttribute('onclick', 'removeImage(this)');
         img.src = reader.result;
         img.id = file.name;
         img.draggable = false;
+        img.className = "dz-img";
         img.ondragstart = 'return false';
         div.appendChild(icon);
         div.appendChild(img);
@@ -72,4 +77,9 @@ function handleDrop(e) {
         let files = e.dataTransfer.files;
         handleFiles(files)
     }
+}
+
+function removeImage(e) {
+    console.log(e.parentNode);
+    console.log(e.nextElementSibling.id);
 }
