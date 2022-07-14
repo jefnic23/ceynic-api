@@ -1,21 +1,19 @@
 {% extends 'admin/layout.html' %}
 
 {% block styles%}
-
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js" integrity="sha512-Eezs+g9Lq4TCCq0wae01s9PuNWzHYoCMkE97e2qdkYthpI0pzC3UGB03lgEHn2XM85hDOUF6qgqqszs+iXU4UA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %}
 
 
 {% block app_content %}
-
     <div class="container-fluid form-group">
-        <form class="mb-3 form" action="{{ url_for('admin.create') }}" method="POST">
+        <form class="mb-3 form" action="{{ url_for('admin.create') }}" enctype="multipart/form-data" method="POST">
             <div class="mb-3 row">
                 <div class="col">
                     <label for="title" class="form-label">Title <strong style="color: red">*</strong></label>
-                    <input id="title" class="form-control" type="text" required />
+                    <input id="title" name="title" value="{{ request.form['title'] }}" class="form-control" type="text" required />
                 </div>
             </div>
             <div class="mb-3 row">
@@ -23,12 +21,12 @@
                     <label for="price" class="form-label">Price <strong style="color: red">*</strong></label>
                     <div class="currency">
                         <span>$</span>
-                        <input id="price" type="number" min="0" placeholder="0" required />
+                        <input id="price" name="price" value="{{ request.form['price'] }}" type="number" min="0" placeholder="0" required />
                     </div>
                 </div>
                 <div class="col">
                     <label for="medium" class="form-label">Medium</label>
-                    <select id="medium" class="form-select">
+                    <select id="medium" name="medium" value="{{ request.form['medium'] }}" class="form-select">
                         <option>Painting</option>
                         <option>Print</option>
                     </select>
@@ -37,23 +35,23 @@
             <div class="mb-3 row">
                 <div class="col">
                     <label for="height" class="form-label">Height (inches) <strong style="color: red">*</strong></label>
-                    <input id="height" class="form-control" type="number" min="0" placeholder='0"' required />
+                    <input id="height" name="height" value="{{ request.form['height'] }}" class="form-control" type="number" min="0" placeholder='0"' required />
                 </div>
                 <div class="col">
                     <label for="width" class="form-label">Width (inches) <strong style="color: red">*</strong></label>
-                    <input id="width" class="form-control" type="number" min="0" placeholder='0"' required />
+                    <input id="width" name="width" value="{{ request.form['width'] }}" class="form-control" type="number" min="0" placeholder='0"' required />
                 </div>
             </div>
             <div class="mb-3 row">
                 <div class="col">
                     <label for="description" class="form-label">Description <strong style="color: red">*</strong></label>
-                    <textarea id="description" class="form-control" required></textarea>
+                    <textarea id="description" name="description" value="{{ request.form['description'] }}" class="form-control" rows="5" required></textarea>
                 </div>
             </div>
             <div class="mb-3 row form-check">
                 <div class="col">
                     <label for="slideshow" class="form-check-label">Include in Homepage Slideshow</label>
-                    <input id="slideshow" class="form-check-input" type="checkbox">
+                    <input id="slideshow" name="slideshow" class="form-check-input" type="checkbox">
                 </div>
             </div>
             <div class="mb-3 row">
@@ -61,20 +59,17 @@
                     <label for="images" class="mb-3 dropzone-label">
                         Drag and drop, or click to upload images <strong style="color: red">*</strong>
                     </label>
-                    <input id="images" type="file" multiple accept="image/*" onchange="handleFiles(this.files)" autocomplete="off" required />
+                    <input id="images" name="images" value="{{ request.form['images'] }}" type="file" multiple accept="image/*" onchange="handleFiles(this.files)" autocomplete="off" required />
                     <div id="dz-previews"></div>
                 </div>
             </div>
             <button type="submit" class="mb-3 btn btn-primary">Submit</button>
         </form>
     </div>
-
 {% endblock %}
 
 
 {% block scripts %}
-
     {{ super() }}
     <script src="{{ url_for('static', filename='js/form.js') }}"></script>
-
 {% endblock %}

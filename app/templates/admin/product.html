@@ -24,8 +24,8 @@
                 {% for row in products %}
                     <tr>
                         <td>
-                            <button type="button" class="btn btn-primary">Edit</button>
-                            <button type="button" class="btn btn-danger">Delete</button>
+                            <a class="btn btn-primary" href="{{ url_for('admin.update', id=row.id) }}">Edit</a>
+                            <a class="btn btn-danger" href="{{ url_for('admin.delete', id=row.id) }}">Delete</a>
                         </td>
                         {% for col in headers %}
                             <td>{{ row[col] }}</td>

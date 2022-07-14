@@ -1,49 +1,81 @@
 {% extends 'admin/layout.html' %}
 
-{% block styles %}
+{% block styles%}
     {{ super() }}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css" integrity="sha512-WvVX1YO12zmsvTpUQV8s7ZU98DnkaAokcciMZJfnNWyNzm7//QRV61t4aEr0WdIa4pe854QHLTV302vH92FSMw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js" integrity="sha512-Eezs+g9Lq4TCCq0wae01s9PuNWzHYoCMkE97e2qdkYthpI0pzC3UGB03lgEHn2XM85hDOUF6qgqqszs+iXU4UA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %}
 
 {% block app_content %}
-  <form id="dropzone-update" class="dropzone">
-    <div class="mb-3">
-      <label for="title" class="form-label">Title<strong style="color: red">*</strong></label>
-      <input id="title" class="form-control" type="text" value={{ product[title] }}>
-    </div>
-    <div class="mb-3">
-      <label for="price" class="form-label">Price<strong style="color: red">*</strong></label>
-      <input id="price" class="form-control" type="text" value={{ product[price] }}>
-    </div>
-    <div class="mb-3">
-      <label for="medium" class="form-label">Medium</label>
-      <input id="medium" class="form-control" type="text" value={{ product[medium] }}>
-    </div>
-    <div class="mb-3">
-      <label for="height" class="form-label">Height<strong style="color: red">*</strong></label>
-      <input id="height" class="form-control" type="text" value={{ product[height] }}>
-    </div>
-    <div class="mb-3">
-      <label for="width" class="form-label">Width<strong style="color: red">*</strong></label>
-      <input id="width" class="form-control" type="text" value={{ product[width] }}>
-    </div>
-    <div class="mb-3">
-      <label for="description" class="form-label">Description<strong style="color: red">*</strong></label>
-      <input id="description" class="form-control" type="text" value={{ product[description] }}>
-    </div>
-    <div class="mb-3">
-      <label for="slideshow" class="form-label">Slideshow</label>
-      <input id="slideshow" class="form-control" type="text" value={{ product[slideshow] }}>
-    </div>
-    <div class="mb-3">
-      <label for="images" class="form-label">Images<strong style="color: red">*</strong></label>
-      <div id="images" class="dropzone-previews">
-    </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
+	<div class="container-fluid form-group">
+		<form class="mb-3 form" action="{{ url_for('admin.update', id=listing['id']) }}" enctype="multipart/form-data" method="POST">
+			<div class="mb-3 row">
+				<div class="col">
+					<label for="title" class="form-label">Title <strong style="color: red">*</strong></label>
+					<input id="title" name="title" value="{{ listing['title'] }}" class="form-control" type="text" required />
+				</div>
+			</div>
+			<div class="mb-3 row">
+				<div class="col">
+					<label for="price" class="form-label">Price <strong style="color: red">*</strong></label>
+					<div class="currency">
+						<span>$</span>
+						<input id="price" name="price" value="{{ listing['price'] }}" type="number" min="0" placeholder="0" required />
+					</div>
+				</div>
+				<div class="col">
+					<label for="medium" class="form-label">Medium</label>
+					<select id="medium" name="medium" value="{{ listing['medium'] }}" class="form-select">
+						<option>Painting</option>
+						<option>Print</option>
+					</select>
+				</div>
+			</div>
+			<div class="mb-3 row">
+				<div class="col">
+					<label for="height" class="form-label">Height (inches) <strong style="color: red">*</strong></label>
+					<input id="height" name="height" value="{{ listing['height'] }}" class="form-control" type="number" min="0" placeholder='0"' required />
+				</div>
+				<div class="col">
+					<label for="width" class="form-label">Width (inches) <strong style="color: red">*</strong></label>
+					<input id="width" name="width" value="{{ listing['width'] }}" class="form-control" type="number" min="0" placeholder='0"' required />
+				</div>
+			</div>
+			<div class="mb-3 row">
+				<div class="col">
+					<label for="description" class="form-label">Description <strong style="color: red">*</strong></label>
+					<textarea id="description" name="description" class="form-control" rows="5" required>{{ listing['description'] }}</textarea>
+				</div>
+			</div>
+			<div class="mb-3 row form-check">
+				<div class="col">
+					<label for="slideshow" class="form-check-label">Include in Homepage Slideshow</label>
+					<input id="slideshow" name="slideshow" class="form-check-input" type="checkbox" {{ "checked" if listing['slideshow'] }}>
+				</div>
+				<div class="col">
+					<label for="sold" class="form-check-label">Sold</label>
+					<input id="sold" name="sold" class="form-check-input" type="checkbox" {{ "checked" if listing['sold'] }}>
+				</div>
+			</div>
+			<div class="mb-3 row">
+				<div id="dropzone" class="col">
+					<label for="images" class="dropzone-label">
+						Drag and drop, or click to upload images <strong style="color: red">*</strong>
+					</label>
+					<input id="images" name="images" value="" type="file" multiple accept="image/*" onchange="handleFiles(this.files)" autocomplete="off" required />
+					<div id="dz-previews"></div>
+				</div>
+			</div>
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+	</div>
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js" integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+	<script type="text/javascript">
+		const files = {{ files | tojson }};
+		prefill(files);
+	</script>
 {% endblock %}
