@@ -87,11 +87,11 @@ function setImages() {
 }
 
 function prefill(files) {
-    [...files].forEach((f) => {
-        createFile(f).then((res) => {
-            if (!img_files.some(img => img.name === res.name)) {
-                uploadFile(res);
-                previewFile(res);
+    [...files].forEach((file) => {
+        createFile(file).then((f) => {
+            if (!img_files.some(img => img.name === f.name)) {
+                uploadFile(f);
+                previewFile(f);
                 setImages();
             }
         });

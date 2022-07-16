@@ -51,10 +51,10 @@
                 {% block app_content %}{% endblock %}
 
             {% endblock %}
-
-            {% block scripts %}
-                {{ bootstrap.load_js() }}
-            {% endblock %}
         </div>
+
+        {% block scripts %}
+            {{ bootstrap.load_js() }}
+        {% endblock %}
     </body>
 </html>

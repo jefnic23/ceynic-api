@@ -228,6 +228,18 @@ a {
     color: red;
 }
 
+.edit-delete {
+    text-align: center;
+}
+
+.fa-trash {
+    color: red;
+}
+
+.fa-trash:hover {
+    color: #B22222;
+}
+
 .copyright {
     margin: 13px 21px;
     text-align: center;

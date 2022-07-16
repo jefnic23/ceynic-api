@@ -62,11 +62,15 @@
 					<label for="images" class="dropzone-label">
 						Drag and drop, or click to upload images <strong style="color: red">*</strong>
 					</label>
-					<input id="images" name="images" value="" type="file" multiple accept="image/*" onchange="handleFiles(this.files)" autocomplete="off" required />
+					<input id="images" name="images" type="file" multiple accept="image/*" onchange="handleFiles(this.files)" autocomplete="off" required />
 					<div id="dz-previews"></div>
 				</div>
 			</div>
-			<button type="submit" class="btn btn-primary">Submit</button>
+			<div class="form-group">
+                <button type="submit" class="btn btn-primary">Submit</button>
+				<a class="btn btn-danger" href="{{ url_for('admin.delete', id=listing['id']) }}">Delete</a>
+                <a class="btn btn-secondary" href="{{ url_for('admin.product') }}">Cancel</a>
+            </div>
 		</form>
 	</div>
 {% endblock %}

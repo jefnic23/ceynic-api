@@ -54,7 +54,7 @@ class Product(db.Model):
     description = db.Column(db.String(), nullable=False)
     sold = db.Column(db.Boolean, default=False)
     slideshow = db.Column(db.Boolean, default=False)
-    images = db.Column(db.ARRAY(db.String()))
+    images = db.Column(db.ARRAY(db.String())) # no need for this
     purchase_id = db.Column(db.String())
 
     def mark_as_sold(self):
