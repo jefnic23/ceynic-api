@@ -73,6 +73,17 @@ def create():
 def update(id):
     listing = Product.query.get(id)
     if request.method == 'POST':
+        # update database with new info
+        listing.title = request.form['title']
+        listing.price = request.form['price']
+        listing.medium = request.form['medium']
+        listing.height = request.form['height']
+        listing.width = request.form['width']
+        listing.description = request.form['description']
+        listing.slideshow = request.form.get('slideshow')
+        listing.sold = request.form.get('sold')
+        db.session.commit()
+
         # remove images from S3 bucket
         prefix = f"public/{listing.title.replace(' ', '_')}/"
         current_app.bucket.objects.filter(Prefix=prefix).delete()
