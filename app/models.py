@@ -37,24 +37,17 @@ def load_user(id):
     return User.query.get(int(id))
 
 
-# delete once column gets changed to string
-class Medium(Enum):
-    PAINTING = "painting"
-    PRINT = "print"
-
-
 class Product(db.Model):
     __tablename__ = "products"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(), nullable=False)
     price = db.Column(db.Integer, nullable=False)
-    medium = db.Column(db.Enum(Medium), default=Medium.PAINTING, nullable=False) # change to string, add options in form
+    medium = db.Column(db.String(), default='Painting', nullable=False)
     height = db.Column(db.Integer, nullable=False)
     width = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(), nullable=False)
     sold = db.Column(db.Boolean, default=False)
     slideshow = db.Column(db.Boolean, default=False)
-    images = db.Column(db.ARRAY(db.String())) # no need for this
     purchase_id = db.Column(db.String())
 
     def mark_as_sold(self):

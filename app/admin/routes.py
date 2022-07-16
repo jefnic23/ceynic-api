@@ -43,22 +43,20 @@ def create():
         width = request.form['width']
         description = request.form['description']
         slideshow = request.form.get('slideshow')
-        images = request.files.getlist('images')
         new_listing = Product(
             title=title,
             price=price,
-            # medium=medium,
+            medium=medium,
             height=height,
             width=width,
             description=description,
             slideshow=slideshow,
-            images=[f.filename for f in images] # delete later
         )
         db.session.add(new_listing)
         db.session.commit()
 
         # add images to S3 bucket
-        # images = request.files.getlist('images')
+        images = request.files.getlist('images')
         path = f"public/{title.replace(' ', '_')}/"
         for image in images:
             secured_file = secure_filename(image.filename.replace(" ", "_"))
