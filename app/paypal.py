@@ -2,6 +2,7 @@ from paypalcheckoutsdk.core import PayPalHttpClient, LiveEnvironment
 from paypalcheckoutsdk.orders import OrdersCreateRequest, OrdersCaptureRequest
 from flask import current_app
 
+
 class PayPalClient:
     def __init__(self):
         self.client_id = current_app.config['PAYPAL_CLIENT_ID']
@@ -13,6 +14,7 @@ class PayPalClient:
         """ Returns PayPal HTTP client instance in an environment with access credentials. Use this instance to invoke PayPal APIs, provided the
             credentials have access. """
         self.client = PayPalHttpClient(self.environment)
+
 
 class CreateOrder(PayPalClient):
     @staticmethod
@@ -38,6 +40,7 @@ class CreateOrder(PayPalClient):
         response = self.client.execute(request)
         # print(response.result.__dict__)
         return response
+
 
 class CaptureOrder(PayPalClient):
     def capture_order(self, order_id):

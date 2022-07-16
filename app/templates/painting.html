@@ -4,29 +4,31 @@
     <div class='container-fluid app-content'>
         <div class='row'>
             <div class="col">
-                <a href="" id="prev-painting" class="hvr-icon-back paint-nav">
+                <a href="/painting/{{ data.prev }}" id="prev-painting" class="hvr-icon-back paint-nav">
                     <i class="fa fa-chevron-left hvr-icon"></i>
                     Previous
                 </a>
-                <a href="" id="next-painting" class="hvr-icon-forward paint-nav">
+                <a href="/painting/{{ data.next }}" id="next-painting" class="hvr-icon-forward paint-nav">
                     Next
                     <i class="fa fa-chevron-right hvr-icon"></i>
                 </a>
             </div>
         </div>
         <div class="row">
-            <img id="painting" class="img-responsive"> 
+            <img id="painting" class="img-responsive" src="{{ data.filenames[0] }}"> 
         </div>
         <div class='row'>
             <div class='col-md-8'>
                 <div class='row text-center'>
-                    <h1 id="title"></h1>
+                    <h1 id="title"><u>{{data.title}}</u></h1>
                 </div>
                 <div class='row text-center'>
-                    <h3 id="medium"></h3>
+                    <h3 id="medium">
+                        {{"oil painting on canvas" if data.medium == "Painting" else "fine art print"}}, {{data.width}}", {{data.height}}"
+                    </h3>
                 </div>
                 <div class='row text-center'>
-                    <p id="description"></p>
+                    <p id="description">{{data.description}}</p>
                 </div>
             </div>
             <div class='col-md-4'>
@@ -44,19 +46,6 @@
 
 {% block scripts %}
     {{ super () }}
-    <script type="text/javascript"> 
-        const data = {{ data | tojson }};
-        const id = data.id;
-        const img = document.getElementById('painting');
-        const medium = data.medium === 'painting' ? 'oil painting on canvas' : 'fine art print';
-        img.src = data.filenames[0];
-        document.getElementById('title').innerHTML = `<u>${data.title}</u>`;
-        document.getElementById('price').innerHTML = `$${data.price}.00`;
-        document.getElementById('medium').innerHTML = `${medium}, ${data.width}'' x ${data.height}''`;
-        document.getElementById('description').innerHTML = data.description;  
-        document.getElementById('prev-painting').href = `/painting/${data.prev}`;
-        document.getElementById('next-painting').href = `/painting/${data.next}`;
-    </script>
     <script src="https://www.paypal.com/sdk/js?client-id=Acg6JnsBC_s4BVVnB7oNqF83hK2-kqVD-vAnziK8EhF_c3-SRuZPxgvy-EhnHXnBGFlkvr5hhloYtBZA&currency=USD&disable-funding=venmo"></script>
     <script>
         paypal.Buttons({
@@ -69,7 +58,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        'id': id
+                        'id': {{data.id}}
                     })
                 }).then((res) => {
                     return res.json();
@@ -87,7 +76,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        'id': id
+                        'id': {{data.id}}
                     })
                 }).then((res) => {
                     return res.json();
