@@ -17,9 +17,12 @@
 				</div>
 			</div>
 			<div class="mb-3 row">
-				<div class="col">
-					<label for="price" class="form-label">Price ($) <strong style="color: red">*</strong></label>
-					<input id="price" name="price" value="{{ listing['price'] }}" class="form-control" type="number" min="0" placeholder="0" required />
+				<div class="col input-group">
+					<label for="price" class="form-label">Price <strong style="color: red">*</strong></label>
+					<div class="input-group">
+						<span class="input-group-text">$</span>
+						<input id="price" name="price" value="{{ listing['price'] }}" class="form-control" type="number" min="0" placeholder="0" required />
+					</div>
 					<div class="invalid-feedback">Please enter a price.</div>
 				</div>
 				<div class="col">
@@ -32,13 +35,19 @@
 			</div>
 			<div class="mb-3 row">
 				<div class="col">
-					<label for="height" class="form-label">Height (inches) <strong style="color: red">*</strong></label>
-					<input id="height" name="height" value="{{ listing['height'] }}" class="form-control" type="number" min="0" placeholder='0"' required />
+					<label for="height" class="form-label">Height <strong style="color: red">*</strong></label>
+					<div class="input-group">
+						<input id="height" name="height" value="{{ listing['height'] }}" class="form-control" type="number" min="0" placeholder='0"' required />
+						<span class="input-group-text">inches</span>
+                    </div>
 					<div class="invalid-feedback">Please enter a height.</div>
 				</div>
 				<div class="col">
-					<label for="width" class="form-label">Width (inches) <strong style="color: red">*</strong></label>
-					<input id="width" name="width" value="{{ listing['width'] }}" class="form-control" type="number" min="0" placeholder='0"' required />
+					<label for="width" class="form-label">Width <strong style="color: red">*</strong></label>
+					<div class="input-group">
+						<input id="width" name="width" value="{{ listing['width'] }}" class="form-control" type="number" min="0" placeholder='0"' required />
+						<span class="input-group-text">inches</span>
+                    </div>
 					<div class="invalid-feedback">Please enter a width.</div>
 				</div>
 			</div>
