@@ -109,25 +109,17 @@ async function createFile(e) {
     return file = new File([data], fname, metadata);
 }
 
-function mapOrder (array, order, key) {
-    array.sort( function (a, b) {
-      var A = a[key], B = b[key];
-      if (order.indexOf(A) > order.indexOf(B)) {
-        return 1;
-      } else {
-        return -1;
-      }
-    });
-    return array;
-};
-
-Sortable.create(previews, {
-    onEnd: function() {
-        let sorted = [];
-        [...previews.children].forEach((e) => {
-            sorted = [...sorted, e.lastChild.id];
+(function () {
+    'use strict';
+    let forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms)
+        .forEach((form) => {
+            form.addEventListener('submit', (event) => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
         });
-        img_files = mapOrder(img_files, sorted, 'name');
-        setImages();
-    }
-});
+})()
