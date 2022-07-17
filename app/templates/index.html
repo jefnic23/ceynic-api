@@ -1,10 +1,5 @@
 {% extends "layout.html" %}
 
-{% block styles %}
-    {{ super() }}
-    <link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
-{% endblock %}
-
 {% block app_content %}
     <script type="text/javascript">
         const slideshow = {{ slideshow | tojson }};
@@ -12,24 +7,34 @@
 
     <div class='container-fluid app-content carousel-container'>
         <h3 class='home-header'>Original Abstract Oil Paintings on Canvas and Prints</h3>
-        <div class='carousel'>
-            {% for image in slideshow %}
-                <div class="carousel-cell">
-                    <img src="{{ image }}" class="carousel-img">
-                </div>
-            {% endfor %}
+        <div id="homeCarousel" class='carousel carousel-dark slide'  data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                {% for image in slideshow %}
+                    <button 
+                        type="button" 
+                        data-bs-target="#homeCarousel" 
+                        data-bs-slide-to="{{loop.index0}}" 
+                        class="{{'active' if loop.index0 == 0 else ''}}"
+                        aria-current="{{'true' if loop.index0 == 0 else 'false'}}" 
+                        aria-label="{{'Slide ' ~ loop.index | string }}"
+                    ></button>
+                {% endfor %}
+            </div>
+            <div class="carousel-inner">
+                {% for image in slideshow %}
+                    <div class="carousel-item {{'active' if loop.index0 == 0}}">
+                        <img src="{{ image }}" class="d-block">
+                    </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
         </div>
     </div>
-{% endblock %}
-
-{% block scripts %}
-    {{ super() }}
-    <script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
-    <script type="text/javascript">
-        const flkty = new Flickity('.carousel', {
-            wrapAround: true,
-            autoPlay: 5000,
-            imagesLoaded: true
-        });
-    </script>
 {% endblock %}

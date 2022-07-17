@@ -52,8 +52,9 @@ a {
     border-bottom: 1px solid #e7e7e7;
 }
 
-.carousel, .carousel-img  {
+.carousel-item img {
     max-height: 340px;
+    margin: auto;
 }
 
 .about-container {
@@ -281,7 +282,7 @@ a {
         font-size: 24px;
     }
 
-    .carousel, .carousel-img {
+    .carousel-item img {
         max-height: 510px;
     }
 
