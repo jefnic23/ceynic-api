@@ -76,6 +76,9 @@ function removeImage(e) {
     img_files = img_files.filter(img => img.name !== e.nextElementSibling.id);
     e.parentNode.remove();
     setImages();
+    if (img_files.length === 0) {
+        dzInvalid();
+    }
 }
 
 function setImages() {
@@ -109,6 +112,16 @@ async function createFile(e) {
     return file = new File([data], fname, metadata);
 }
 
+function dzValid() {
+    dropzone.classList.remove('dz-invalid');
+    dropzone.classList.add('dz-valid');
+}
+
+function dzInvalid() {
+    dropzone.classList.remove('dz-valid');
+    dropzone.classList.add('dz-invalid');
+}
+
 (function () {
     'use strict';
     let forms = document.querySelectorAll('.needs-validation');
@@ -118,8 +131,19 @@ async function createFile(e) {
                 if (!form.checkValidity()) {
                     event.preventDefault();
                     event.stopPropagation();
+                    if (!images.validity.valid) {
+                        dzInvalid();
+                    } else {
+                        dzValid();
+                    }
                 }
                 form.classList.add('was-validated');
             }, false);
         });
 })()
+
+images.addEventListener('input', (e) => {
+    if (e.target.validity.valid) {
+        dzValid();
+    }
+});

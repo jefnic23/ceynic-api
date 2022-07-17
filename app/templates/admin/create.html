@@ -57,13 +57,13 @@
                 </div>
             </div>
             <div class="mb-3 row">
-                <div id="dropzone" class="col">
+                <div id="dropzone" class="col dz-container">
                     <label for="images" class="mb-3 dropzone-label">
                         Drag and drop, or click to upload images <strong style="color: red">*</strong>
                     </label>
                     <input id="images" name="images" type="file" multiple accept="image/*" onchange="handleFiles(this.files)" autocomplete="off" class="form-control" style="display: none;" required />
                     <div id="dz-previews"></div>
-                    <div class="invalid-feedback">Please upload at least one photo.</div>
+                    <div id="dz-feedback" class="invalid-feedback">Please upload at least one photo.</div>
                 </div>
             </div>
             <div class="form-group">
