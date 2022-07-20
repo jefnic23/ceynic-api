@@ -312,3 +312,16 @@ a {
         width: 750px;
     }
 }
+
+@media (max-width: 768px) {
+    .painting {
+        flex-direction: column;
+    }
+
+    .thumbnail-container {
+        order: 2;
+        flex-direction: row;
+        column-gap: 5px;
+        margin-top: 1rem;
+    }
+}
