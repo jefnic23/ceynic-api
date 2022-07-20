@@ -246,6 +246,28 @@ a {
     text-align: center;
 }
 
+.thumbnail-container {
+    display: flex;
+    flex-direction: column;
+    row-gap: 5px;
+    align-items: center;
+}
+
+.img-thumbnail {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    opacity: 0.5;
+}
+
+.img-thumbnail:hover, .img-thumbnail:focus, .img-thumbnail.active {
+    opacity: 1.0;
+}
+
+.img-thumbnail.active {
+    border-color: #000;
+}
+
 .hvr-glow {
     display: inline-block;
     vertical-align: middle;

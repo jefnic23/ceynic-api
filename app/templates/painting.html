@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
 
 {% block app_content %}
-    <div class='container-fluid app-content'>
-        <div class='row mb-3'>
+    <div class='container app-content'>
+        <div class='row mb-5'>
             <div class="col">
                 <a href="/painting/{{ data.prev }}" id="prev-painting" class="hvr-icon-back paint-nav">
                     <i class="fa fa-chevron-left hvr-icon"></i>
@@ -16,9 +16,15 @@
         </div>
         <div class="row mb-3">
             {% if data.filenames|length > 1 %}
-                <div class="col-2">
+                <div class="col-2 thumbnail-container">
                     {% for image in data.filenames %}
-                        <img src="{{ image }}" class="img-thumbnail" />
+                        <img 
+                            src="{{ image }}" 
+                            class="img-thumbnail hvr-round-corners {{'active' if loop.index0 == 0}}" 
+                            data-bs-target="#mainCarousel"
+                            data-bs-slide-to="{{ loop.index0 }}"
+                            onclick="activateImg(this)" 
+                        />
                     {% endfor %}
                 </div>
                 <div class="col-10">
@@ -73,6 +79,7 @@
 
 {% block scripts %}
     {{ super () }}
+    <script src="{{ url_for('static', filename='js/painting.js') }}"></script>
     <script src="https://www.paypal.com/sdk/js?client-id=Acg6JnsBC_s4BVVnB7oNqF83hK2-kqVD-vAnziK8EhF_c3-SRuZPxgvy-EhnHXnBGFlkvr5hhloYtBZA&currency=USD&disable-funding=venmo"></script>
     <script>
         paypal.Buttons({
