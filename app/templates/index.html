@@ -9,7 +9,7 @@
         <h3 class='home-header'>Original Abstract Oil Paintings on Canvas and Prints</h3>
         <div id="homeCarousel" class='carousel carousel-dark slide carousel-fade'  data-bs-ride="carousel">
             <div class="carousel-indicators">
-                {% for image in slideshow %}
+                {% for image in slideshow['images'] %}
                     <button 
                         type="button" 
                         data-bs-target="#homeCarousel" 
@@ -21,9 +21,11 @@
                 {% endfor %}
             </div>
             <div class="carousel-inner">
-                {% for image in slideshow %}
+                {% for image in slideshow['images'] %}
                     <div class="carousel-item {{'active' if loop.index0 == 0}}">
-                        <img src="{{ image }}" class="d-block">
+                        <a href="{{ url_for('main.painting', path=slideshow['titles'][loop.index0]) }}">
+                            <img src="{{ image }}" class="d-block">
+                        </a>
                     </div>
                 {% endfor %}
             </div>

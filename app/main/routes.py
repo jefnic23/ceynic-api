@@ -11,9 +11,13 @@ from app.main import bp
 @bp.route('/')
 def index():
     images = Product.query.filter_by(slideshow=True).all()
-    slideshow = []
+    slideshow = {
+        "titles": [],
+        "images": []
+    }
     for image in images:
-        slideshow.append([f'{current_app.config["AWS_URL"]}{f.key}' for f in current_app.bucket.objects.filter(Prefix='public/' + image.title.replace(' ', '_') + '/')][0])
+        slideshow['titles'].append(image.title.replace(' ', '_'))
+        slideshow['images'].append([f'{current_app.config["AWS_URL"]}{f.key}' for f in current_app.bucket.objects.filter(Prefix='public/' + image.title.replace(' ', '_') + '/')][0])
     return render_template('index.html', slideshow=slideshow)
 
 
