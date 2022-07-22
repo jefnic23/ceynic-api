@@ -16,8 +16,8 @@
 					<div class="invalid-feedback">Please enter a title.</div>
 				</div>
 			</div>
-			<div class="mb-3 row">
-				<div class="col input-group">
+			<div class="row">
+				<div class="mb-3 col input-group">
 					<label for="price" class="form-label">Price <strong style="color: red">*</strong></label>
 					<div class="input-group">
 						<span class="input-group-text">$</span>
@@ -25,7 +25,7 @@
 					</div>
 					<div class="invalid-feedback">Please enter a price.</div>
 				</div>
-				<div class="col">
+				<div class="mb-3 col-sm-6">
 					<label for="medium" class="form-label">Medium</label>
 					<select id="medium" name="medium" value="{{ listing['medium'] }}" class="form-select">
 						<option>Painting</option>
@@ -33,8 +33,8 @@
 					</select>
 				</div>
 			</div>
-			<div class="mb-3 row">
-				<div class="col">
+			<div class="row">
+				<div class="mb-3 col-sm-6">
 					<label for="height" class="form-label">Height <strong style="color: red">*</strong></label>
 					<div class="input-group">
 						<input id="height" name="height" value="{{ listing['height'] }}" class="form-control" type="number" min="0" placeholder='0"' required />
@@ -42,7 +42,7 @@
                     </div>
 					<div class="invalid-feedback">Please enter a height.</div>
 				</div>
-				<div class="col">
+				<div class="mb-3 col-sm-6">
 					<label for="width" class="form-label">Width <strong style="color: red">*</strong></label>
 					<div class="input-group">
 						<input id="width" name="width" value="{{ listing['width'] }}" class="form-control" type="number" min="0" placeholder='0"' required />
@@ -58,12 +58,12 @@
 					<div class="invalid-feedback">Please enter a description.</div>
 				</div>
 			</div>
-			<div class="mb-3 row form-check">
-				<div class="col">
+			<div class="row form-check">
+				<div class="mb-3 col-sm-6">
 					<label for="slideshow" class="form-check-label">Include in Homepage Slideshow</label>
 					<input id="slideshow" name="slideshow" class="form-check-input" type="checkbox" {{ "checked" if listing['slideshow'] }}>
 				</div>
-				<div class="col">
+				<div class="mb-3 col-sm-6">
 					<label for="sold" class="form-check-label">Sold</label>
 					<input id="sold" name="sold" class="form-check-input" type="checkbox" {{ "checked" if listing['sold'] }}>
 				</div>

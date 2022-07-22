@@ -16,15 +16,15 @@
     flex-wrap: wrap;
     row-gap: 1rem;
     column-gap: 1rem;
-    min-height: 180px;
+    min-height: 175px;
 }
 
 .preview {
     position: relative;
     border-radius: 21px;
-    width: 180px;
-    height: 180px;
-    min-width: 180px;
+    width: 175px;
+    height: 175px;
+    min-width: 175px;
 }
 
 .preview:hover {
@@ -52,8 +52,8 @@
 .dz-img {
     border-radius: 21px;
     object-fit: cover;
-    width: 180px;
-    height: 180px;
+    width: 175px;
+    height: 175px;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
