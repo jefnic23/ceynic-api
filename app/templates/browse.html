@@ -6,10 +6,15 @@
         <div id="image-grid" class='container-fluid'>
             <div class='row'>
                 {% for img in files %}
-                    <div class="col-sm-6 col-md-4">
-                        <a href="{{ url_for('main.painting', path=img.path) }}">
-                            <img src="{{ img.filename }}" class="img-fluid hvr-glow">
-                        </a>
+                    <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3 hvr-glow">
+                        <div class="row">
+                            <a href="{{ url_for('main.painting', path=img.path) }}">
+                                <img src="{{ img.filename }}" class="img-fluid">
+                            </a>
+                        </div>
+                        <div class="row justify-content-center">
+                            <b class="w-auto">{{ img.title }}</b> ${{ img.price }}
+                        </div>
                     </div>
                 {% endfor %}
             </div>

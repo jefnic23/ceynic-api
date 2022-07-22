@@ -1,5 +1,12 @@
 const thumbnails = document.querySelector('.thumbnail-container').children;
 const carousel = document.querySelector('#mainCarousel');
+const modal = document.querySelector('#modalImg');
+
+function setModal(e) {
+    if (modal.src !== e.src) {
+        modal.src = e.src;
+    }
+}
 
 function activateImg(e) {
     [...thumbnails].forEach(t => t.classList.remove("active"));

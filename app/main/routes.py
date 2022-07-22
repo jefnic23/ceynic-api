@@ -29,7 +29,13 @@ def browse():
         try:
             painting_obj = Product.query.filter_by(title=path.replace('_', ' ')).first()
             if not painting_obj.sold:
-                d = {'id': painting_obj.id, 'path': '', 'filename': ''}
+                d = {
+                    'id': painting_obj.id, 
+                    'title': painting_obj.title,
+                    'price': painting_obj.price,
+                    'path': '', 
+                    'filename': ''
+                }
                 for obj in current_app.bucket.objects.filter(Prefix='public/' + path + '/'):  
                     d['path'], d['filename'] = path, current_app.config['AWS_URL'] + obj.key
                     files.append(d)

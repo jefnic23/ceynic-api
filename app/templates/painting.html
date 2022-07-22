@@ -1,5 +1,10 @@
 {% extends "layout.html" %}
 
+{% block styles %}
+    {{ super() }}
+     <link rel="stylesheet" href="{{ url_for('static', filename='css/painting.css') }}">
+{% endblock %}
+
 {% block app_content %}
     <div class='container app-content'>
         <div class='row mb-3'>
@@ -32,7 +37,13 @@
                         <div class="carousel-inner"> 
                             {% for image in data.filenames %}
                                 <div class="carousel-item {{'active' if loop.index0 == 0}}">
-                                    <img src="{{ image }}" class="d-block img-responsive" />
+                                    <img 
+                                        src="{{ image }}" 
+                                        class="d-block img-responsive" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#imgModal" 
+                                        onclick="setModal(this)"
+                                    />
                                 </div>
                             {% endfor %}
                         </div>
@@ -47,7 +58,13 @@
                     </div>
                 </div> 
             {% else %}
-                <img id="painting" class="img-fluid" src="{{ data.filenames[0] }}"> 
+                <img 
+                    src="{{ data.filenames[0] }}"
+                    class="d-block img-responsive" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#imgModal" 
+                    onclick="setModal(this)"
+                /> 
             {% endif %}
         </div>
         <div class='row mb-3'>
@@ -57,7 +74,7 @@
                 </div>
                 <div class='row text-center'>
                     <h3 id="medium">
-                        {{"oil painting on canvas" if data.medium == "Painting" else "fine art print"}}, {{data.width}}", {{data.height}}"
+                        {{"oil painting on canvas" if data.medium == "Painting" else "fine art print"}}, {{data.width}}"&#215;{{data.height}}"
                     </h3>
                 </div>
                 <div class='row text-center'>
@@ -71,6 +88,18 @@
                 </div>
                 <div class='row'>
                     <div id="paypal-button-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal #}
+    <div class="modal fade" id="imgModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <img id="modalImg" src="{{ data.filenames[0] }}" class="d-block img-responsive" />
                 </div>
             </div>
         </div>
