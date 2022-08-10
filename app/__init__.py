@@ -4,6 +4,7 @@ from flask_talisman import Talisman
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap5
+from flask_cors import CORS
 from flask_login import LoginManager
 import boto3
 
@@ -12,6 +13,7 @@ talisman = Talisman()
 db = SQLAlchemy()
 mail = Mail()
 bootstrap = Bootstrap5()
+cors = CORS()
 login = LoginManager()
 login.login_view = 'auth.login'
 
@@ -24,6 +26,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     mail.init_app(app)
     bootstrap.init_app(app)
+    cors.init_app(app)
     login.init_app(app)
 
     # create AWS S3 session, resource, and bucket
