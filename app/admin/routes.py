@@ -51,7 +51,7 @@ def create():
             height=height,
             width=width,
             description=description,
-            slideshow=slideshow,
+            slideshow=True if slideshow == 'on' else False,
         )
         db.session.add(new_listing)
         db.session.commit()
@@ -82,8 +82,8 @@ def update(id):
         listing.height = request.form['height']
         listing.width = request.form['width']
         listing.description = request.form['description']
-        listing.slideshow = request.form.get('slideshow')
-        listing.sold = request.form.get('sold')
+        listing.slideshow = True if request.form.get('slideshow') == "on" else False
+        listing.sold = True if request.form.get('sold') == "on" else False
         db.session.commit()
 
         # remove images from S3 bucket
