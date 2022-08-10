@@ -1,7 +1,8 @@
 from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required
+from flask_talisman import ALLOW_FROM
 from werkzeug.utils import secure_filename
-from app import db
+from app import db, talisman
 from app.models import Product
 from app.admin import bp
 
@@ -70,6 +71,7 @@ def create():
 
 @bp.route('/update/<int:id>', methods=['GET', 'POST'])
 @login_required
+@talisman(frame_options=ALLOW_FROM, frame_options_allow_from='*')
 def update(id):
     listing = Product.query.get(id)
     if request.method == 'POST':
