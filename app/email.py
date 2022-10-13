@@ -11,6 +11,6 @@ def send_async_email(app, msg):
 
 def send_email(subject, sender, recipients, text_body, html_body):
     msg = Message(subject, sender=sender, recipients=recipients)
-    msg.body = text_body + sender
-    msg.html = html_body + sender
+    msg.body = f'{text_body}\n{sender[0]} {sender[1]}'
+    msg.html = f'{html_body}\n{sender[0]} {sender[1]}' 
     Thread(target=send_async_email, args=(current_app._get_current_object(), msg)).start()
