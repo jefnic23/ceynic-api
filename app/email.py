@@ -1,16 +1,16 @@
-from flask_mail import Message
-from threading import Thread
+import requests
 from flask import current_app
-from app import mail
 
 
-def send_async_email(app, msg):
-    with app.app_context():
-        mail.send(msg)
-
-
-def send_email(subject, sender, recipients, text_body, html_body):
-    msg = Message(subject, sender=sender, recipients=recipients)
-    msg.body = f'{text_body}\n{sender[0]} {sender[1]}'
-    msg.html = f'{html_body}\n{sender[0]} {sender[1]}' 
-    Thread(target=send_async_email, args=(current_app._get_current_object(), msg)).start()
+def send_email(subject, sender, text_body, html_body):
+    return requests.post(
+        f'https://api.mailgun.net/v3/{current_app.config["MAIL_DOMAIN"]}/messages',
+        auth=("api", current_app.config["MAIL_API_KEY"]),
+        data={
+            "subject": subject,
+            "from": f"{sender[0]} {sender[1]}",
+            "to": [current_app.config['EMAIL_RECIPIENT']],
+            "text": text_body,
+            "html": html_body
+        }
+    )

@@ -2,7 +2,6 @@ from flask import Flask
 from config import Config
 from flask_talisman import Talisman
 from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail
 from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager
 import boto3
@@ -10,7 +9,6 @@ import boto3
 
 talisman = Talisman()
 db = SQLAlchemy()
-mail = Mail()
 bootstrap = Bootstrap5()
 login = LoginManager()
 login.login_view = 'auth.login'
@@ -22,7 +20,6 @@ def create_app(config_class=Config):
 
     talisman.init_app(app, content_security_policy=None)
     db.init_app(app)
-    mail.init_app(app)
     bootstrap.init_app(app)
     login.init_app(app)
 

@@ -1,10 +1,12 @@
 # from email.policy import default
-import jwt
 from enum import Enum
 from time import time
+
+import jwt
 from flask import current_app
 from flask_login import UserMixin
 from passlib.hash import pbkdf2_sha256
+
 from app import db, login
 
 
