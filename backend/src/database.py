@@ -7,8 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from backend.src.config import Settings, get_settings
-# from backend.src.models.order import Order  # noqa: F401
+from backend.src.models.medium import Medium  # noqa: F401
+from backend.src.models.order import Order  # noqa: F401
 from backend.src.models.product import Product  # noqa: F401
+from backend.src.models.user import User  # noqa: F401
 
 
 class BaseSchema(BaseModel):
@@ -39,7 +41,7 @@ async def get_database(
 
 async def get_async_session(
     database: Annotated[Database, Depends(get_database)],
-) -> AsyncGenerator[AsyncSession, any]:
+) -> AsyncGenerator[AsyncSession, None]:
     async with database.async_session() as async_session:
         yield async_session
 
