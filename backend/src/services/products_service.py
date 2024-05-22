@@ -1,14 +1,12 @@
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from backend.src.config import Settings
 from backend.src.models.product import Product
 
 
 class ProductsService:
-    def __init__(self, session: AsyncSession, settings: Settings):
+    def __init__(self, session: AsyncSession):
         self.session = session
-        self.settings = settings
 
     async def get_all(self) -> list[Product]:
         statement = select(Product)
