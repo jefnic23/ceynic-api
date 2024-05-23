@@ -10,6 +10,5 @@
         max-width: 100%;
         border-bottom: 1px solid #e7e7e7;
         position: relative;
-        top: 50px;
     }
 </style>

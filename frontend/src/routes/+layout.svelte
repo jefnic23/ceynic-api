@@ -1,3 +1,11 @@
+<script lang="ts">
+    import Etsy from "$lib/icons/etsy.svelte";
+    import Instagram from "$lib/icons/instagram.svelte";
+    import Pinterest from "$lib/icons/pinterest.svelte";
+
+    let year: number = new Date().getFullYear();
+</script>
+
 <nav>
     <a href="/">Home</a>
     <a href="/browse">Browse art</a>
@@ -6,6 +14,25 @@
 </nav>
 
 <slot></slot>
+
+<div class="footer">
+    <div class="social-icons">
+        <a href="https://www.etsy.com/shop/TraceyNicholasArt" target="_blank">
+            <Etsy />
+        </a>
+        <a href="https://www.instagram.com/traceynicholas_art/" target="_blank">
+            <Instagram />
+        </a>
+        <a href="https://www.pinterest.com/tnicholas48169/" target="_blank">
+            <Pinterest />
+        </a>
+    </div>
+    <div class="copyright">
+        Copyright © {year}, Tracey Nicholas. All rights reserved. | 
+        <a href="/login" style="color: #666666;">Administration</a> | 
+        Site by <a href="https://github.com/jefnic23" target="_blank">Jeff Nicholas</a>
+    </div>
+</div>
 
 <style>
     nav {
@@ -24,5 +51,6 @@
         color: rgba(0, 0, 0, .55);
         font-size: 13px;
         font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
     }
 </style>
