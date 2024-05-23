@@ -19,7 +19,6 @@ class Product(SQLModel, table=True):
     description: str | None
     sold: bool
     slideshow: bool
-    purchase_id: str | None
     thumbnail: str
 
     medium_id: int = Field(foreign_key="mediums.id")

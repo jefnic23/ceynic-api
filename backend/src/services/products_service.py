@@ -12,50 +12,20 @@ class ProductsService:
         self.aws = aws
 
     async def get_all(self) -> list[ProductsOut]:
-        statement = select(
-            Product.id,
-            Product.title,
-            Product.price,
-            Product.height,
-            Product.width,
-            Product.thumbnail,
-        )
+        statement = select(Product)
         results = await self.session.exec(statement=statement)
         products = results.all()
         return [
-            ProductsOut(
-                id=product.id,
-                title=product.title,
-                price=product.price,
-                height=product.height,
-                width=product.width,
-                thumbnail=product.thumbnail,
-            )
+            ProductsOut(**product.model_dump())
             for product in products
         ]
 
     async def get(self, id: int) -> ProductOut:
-        statement = select(
-            Product.id,
-            Product.title,
-            Product.price,
-            Product.height,
-            Product.width,
-            Product.thumbnail,
-            Product.description,
-            Product.slideshow,
-        ).where(Product.id == id)
+        statement = select(Product).where(Product.id == id)
         results = await self.session.exec(statement=statement)
         product = results.first()
         images = await self.aws.get_product_images(product.title)
         return ProductOut(
-            id=product.id,
-            title=product.title,
-            price=product.price,
-            height=product.height,
-            width=product.width,
-            thumbnail=product.thumbnail,
-            description=product.description,
-            slideshow=product.slideshow,
+            **product.model_dump(),
             images=images,
         )
