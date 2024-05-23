@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel
 
 
@@ -20,7 +18,7 @@ class PaymentSource(BaseModel):
 
 class Address(BaseModel):
     address_line_1: str
-    address_line_2: Optional[str]
+    address_line_2: str | None
     admin_area_2: str
     admin_area_1: str
     postal_code: str
