@@ -24,16 +24,18 @@
 	</div>
 
 	<div class="footer">
-		<div class="social-icons">
-			<a href="https://www.etsy.com/shop/TraceyNicholasArt" target="_blank">
-				<Etsy
-					style="border: #fd7e14 solid 1px; border-radius: 50%; background-color: #fd7e14; font-size: 22px; padding: 5px; color: white; display: inline-block"
-				/>
+		<div class="icons">
+			<a href="https://www.etsy.com/shop/TraceyNicholasArt" target="_blank" class="icon etsy">
+				<Etsy />
 			</a>
-			<a href="https://www.instagram.com/traceynicholas_art/" target="_blank">
+			<a
+				href="https://www.instagram.com/traceynicholas_art/"
+				target="_blank"
+				class="icon instagram"
+			>
 				<Instagram />
 			</a>
-			<a href="https://www.pinterest.com/tnicholas48169/" target="_blank">
+			<a href="https://www.pinterest.com/tnicholas48169/" target="_blank" class="icon pinterest">
 				<Pinterest />
 			</a>
 		</div>
@@ -91,5 +93,46 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+	}
+
+	.icons {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.icon {
+		font-size: 32px;
+		height: 32px;
+		width: 32px;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.etsy {
+		border: #fd7e14 solid 1px;
+		border-radius: 50%;
+		background-color: #fd7e14;
+		padding: 5px;
+		color: white;
+	}
+
+	.instagram {
+		background: radial-gradient(
+			circle at 30% 107%,
+			#fdf497 0%,
+			#fdf497 5%,
+			#fd5949 45%,
+			#d6249f 60%,
+			#285aeb 90%
+		);
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+
+	.pinterest {
+		color: red;
 	}
 </style>
