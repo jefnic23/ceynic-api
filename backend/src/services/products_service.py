@@ -47,7 +47,7 @@ class ProductsService:
         ).where(Product.id == id)
         results = await self.session.exec(statement=statement)
         product = results.first()
-        images = await self.aws.get_product_images(product.title.replace(" ", "_"))
+        images = await self.aws.get_product_images(product.title)
         return ProductOut(
             id=product.id,
             title=product.title,

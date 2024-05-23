@@ -14,9 +14,12 @@ class AwsService:
         self._region = settings.BUCKETEER_AWS_REGION
         self._bucket_name = settings.BUCKETEER_BUCKET_NAME
 
-    
     async def get_product_images(self, product_name: str) -> list[str]:
-        async with self.s3.resource(service_name="s3", region_name=self._region) as resource:
+        async with self.s3.resource(
+            service_name="s3", region_name=self._region
+        ) as resource:
             bucket = await resource.Bucket(self._bucket_name)
-            images = bucket.objects.filter(Prefix=f"public/{product_name}/")
+            images = bucket.objects.filter(
+                Prefix=f"public/{product_name.replace(' ', '_')}/"
+            )
             return [image.key async for image in images]
