@@ -1,10 +1,11 @@
+from decimal import Decimal
 from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from backend.src.models.order import Order
     from backend.src.models.medium import Medium
+    from backend.src.models.order import Order
 
 
 class Product(SQLModel, table=True):
@@ -12,10 +13,10 @@ class Product(SQLModel, table=True):
 
     id: int = Field(primary_key=True)
     title: str
-    price: int
+    price: Decimal
     height: int
     width: int
-    description: str
+    description: str | None
     sold: bool
     slideshow: bool
     purchase_id: str | None
