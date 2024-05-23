@@ -1,7 +1,7 @@
-from backend.src.dependencies import PRODUCTS_SERVICE_DEPENDENCY
 from fastapi import APIRouter, HTTPException, status
 
-from backend.src.models.product import Product
+from backend.src.dependencies import PRODUCTS_SERVICE_DEPENDENCY
+from backend.src.models.schemas.product import ProductOut, ProductsOut
 
 router = APIRouter()
 
@@ -9,7 +9,7 @@ router = APIRouter()
 @router.get("/products")
 async def get_all_services(
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
-) -> list[Product]:
+) -> list[ProductsOut]:
     return await products_service.get_all()
 
 
@@ -17,7 +17,7 @@ async def get_all_services(
 async def get_service(
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
     id: int,
-) -> Product:
+) -> ProductOut:
     product = await products_service.get(id=id)
     if not product:
         raise HTTPException(
