@@ -21,7 +21,6 @@ class Settings(BaseSettings):
     BUCKETEER_AWS_REGION: str
     BUCKETEER_AWS_SECRET_ACCESS_KEY: str
     BUCKETEER_BUCKET_NAME: str
-    AWS_URL: str
     PAYPAL_CLIENT_ID: str
     PAYPAL_CLIENT_SECRET: str
     RECAPTCHA_PUBLIC_KEY: str
