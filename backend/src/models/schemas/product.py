@@ -2,6 +2,8 @@ from decimal import Decimal
 
 from pydantic import BaseModel
 
+from backend.src.models.enums.medium import Medium
+
 
 class ProductBase(BaseModel):
     id: int
@@ -9,6 +11,7 @@ class ProductBase(BaseModel):
     price: Decimal
     height: int
     width: int
+    medium_id: Medium
     thumbnail: str
 
 
