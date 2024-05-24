@@ -7,14 +7,14 @@ router = APIRouter()
 
 
 @router.get("/products")
-async def get_all_services(
+async def get_all_products(
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
 ) -> list[ProductsOut]:
     return await products_service.get_all()
 
 
 @router.get("/products/{id}")
-async def get_service(
+async def get_product(
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
     id: int,
 ) -> ProductOut:

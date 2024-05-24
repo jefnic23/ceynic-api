@@ -16,7 +16,10 @@ class ProductsService:
         results = await self.session.exec(statement=statement)
         products = results.all()
         return [
-            ProductsOut(**product.model_dump())
+            ProductsOut(
+                **product.model_dump(),
+                image_url=f"https://bucketeer-7ae0b65a-5970-48f0-9da2-89eb2800f810.s3.amazonaws.com/public/{product.title.replace(' ', '_')}/{product.thumbnail}",
+            )
             for product in products
         ]
 

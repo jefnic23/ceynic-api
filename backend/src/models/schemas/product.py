@@ -1,11 +1,10 @@
 from decimal import Decimal
 
-from pydantic import BaseModel
-
+from backend.src.database import BaseSchema
 from backend.src.models.enums.medium import Medium
 
 
-class ProductBase(BaseModel):
+class ProductBase(BaseSchema):
     id: int
     title: str
     price: Decimal
@@ -16,10 +15,9 @@ class ProductBase(BaseModel):
 
 
 class ProductsOut(ProductBase):
-    pass
+    image_url: str
 
 
 class ProductOut(ProductBase):
     description: str | None
-    slideshow: bool
     images: list[str]
