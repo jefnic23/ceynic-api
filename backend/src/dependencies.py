@@ -18,9 +18,11 @@ AWS_SERVICE_DEPENDENCY = Annotated[AwsService, Depends(get_aws_service)]
 
 
 async def get_products_service(
-    session: ASYNC_SESSION_DEPENDENCY, aws: AWS_SERVICE_DEPENDENCY
+    session: ASYNC_SESSION_DEPENDENCY,
+    settings: SETTINGS_DEPENDENCY,
+    aws: AWS_SERVICE_DEPENDENCY,
 ) -> ProductsService:
-    return ProductsService(session=session, aws=aws)
+    return ProductsService(session=session, settings=settings, aws=aws)
 
 
 PRODUCTS_SERVICE_DEPENDENCY = Annotated[ProductsService, Depends(get_products_service)]

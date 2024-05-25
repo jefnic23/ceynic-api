@@ -22,4 +22,7 @@ class AwsService:
             images = bucket.objects.filter(
                 Prefix=f"public/{product_name.replace(' ', '_')}/"
             )
-            return [image.key async for image in images]
+            return [
+                f"https://{self._bucket_name}.s3.amazonaws.com/public/{image.key}"
+                async for image in images
+            ]

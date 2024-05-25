@@ -1,14 +1,16 @@
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from backend.src.config import Settings
 from backend.src.models.product import Product
 from backend.src.models.schemas.product import ProductOut, ProductsOut
 from backend.src.services.aws_service import AwsService
 
 
 class ProductsService:
-    def __init__(self, session: AsyncSession, aws: AwsService):
+    def __init__(self, session: AsyncSession, settings: Settings, aws: AwsService):
         self.session = session
+        self.settings = settings
         self.aws = aws
 
     async def get_all(self) -> list[ProductsOut]:
@@ -18,7 +20,7 @@ class ProductsService:
         return [
             ProductsOut(
                 **product.model_dump(),
-                image_url=f"https://bucketeer-7ae0b65a-5970-48f0-9da2-89eb2800f810.s3.amazonaws.com/public/{product.title.replace(' ', '_')}/{product.thumbnail}",
+                image_url=f"https://{self.settings.BUCKETEER_BUCKET_NAME}.s3.amazonaws.com/public/{product.title.replace(' ', '_')}/{product.thumbnail}",
             )
             for product in products
         ]
