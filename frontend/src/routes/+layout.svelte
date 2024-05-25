@@ -1,17 +1,21 @@
 <script lang="ts">
-    import "../app.css"
+	import { fly } from 'svelte/transition';
+	import '../app.css';
 	import Etsy from '$lib/icons/etsy.svelte';
 	import Instagram from '$lib/icons/instagram.svelte';
 	import Pinterest from '$lib/icons/pinterest.svelte';
 	import image from '$lib/header.jpg';
+	import type { PageData } from './$types';
 
 	let year: number = new Date().getFullYear();
+
+	export let data: PageData;
 </script>
 
 <div class="wrapper">
 	<div>
 		<nav>
-			<a href="/">Home</a>
+			<a href="/" data-sveltekit-preload-data>Home</a>
 			<a href="/browse">Browse</a>
 			<a href="/about">About</a>
 			<a href="/contact">Contact</a>
@@ -20,9 +24,11 @@
 		<img src={image} alt="header.jpg" />
 	</div>
 
-	<main>
-		<slot></slot>
-	</main>
+	{#key data.url}
+		<main in:fly={{ x: -200, duration: 233, delay: 233 }} out:fly={{ x: 200, duration: 233 }}>
+			<slot />
+		</main>
+	{/key}
 
 	<div class="footer">
 		<div class="icons">
@@ -69,9 +75,9 @@
 			border-color 0.15s ease-in-out;
 	}
 
-    a {
-        text-decoration: none;
-    }
+	a {
+		text-decoration: none;
+	}
 
 	img {
 		max-width: 100%;
@@ -79,11 +85,12 @@
 		position: relative;
 	}
 
-    main {
-        display: flex;
+	main {
+		display: flex;
 		justify-content: center;
 		flex: 1;
-    }
+		padding: 1rem;
+	}
 
 	.wrapper {
 		min-height: 100svh;
@@ -96,15 +103,17 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-        gap: 1rem;
-        padding: 1rem;
+		gap: 1rem;
+		padding: 1rem;
+		background-color: #f8f8f8;
+		border: 1px solid #e7e7e7;
 	}
 
 	.icons {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-        gap: 1rem;
+		gap: 1rem;
 	}
 
 	.icon {
@@ -112,7 +121,7 @@
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
-        height: 32px;
+		height: 32px;
 		width: 32px;
 	}
 
@@ -133,7 +142,7 @@
 		color: red;
 	}
 
-    .copyright {
-        font-size: 10px;
-    }
+	.copyright {
+		font-size: 10px;
+	}
 </style>

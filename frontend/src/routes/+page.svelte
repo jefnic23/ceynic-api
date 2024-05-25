@@ -1,40 +1,50 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    let products: any[] = [];
+	import type { PageData } from "./$types";
 
-    onMount(async () => {
-        const response = await fetch(`http://127.0.0.1:8000/products`);
-
-        if (response.status === 200) {
-            const responseData = await response.json();
-            products = responseData;
-        } else {
-            console.log("Error retrieving products.");
-        }
-    });
+    export let data: PageData;
 </script>
 
-<h3>Original Abstract Oil Paintings on Canvas and Prints</h3>
-
 <div class="wrapper">
-    {#each products as product}
-        <div>
-            {#if product.imageUrl}
-                <img src={product.imageUrl} alt={product.title} />
-            {/if}
-        </div>
-    {/each}
+    <h3>Original Abstract Oil Paintings on Canvas and Prints</h3>
+    <div class="masonry-layout">
+        {#await data.products}
+        
+        {:then products} 
+            {#each products as product}
+                <div class="masonry-item">
+                    {#if product.imageUrl}
+                        <img src={product.imageUrl} alt={product.title} />
+                    {/if}
+                </div>
+            {/each}
+        {:catch error}
+            <p style="color: red">{error.message}</p>
+        {/await}
+    </div>
 </div>
-
 
 <style>
     .wrapper {
         display: flex;
         flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .masonry-layout {
+        column-count: 4; /* Adjust the number of columns based on your design */
+        column-gap: 1rem; /* Space between columns */
+        width: 100%; /* Full width of the container */
+    }
+
+    .masonry-item {
+        break-inside: avoid; /* Prevent items from splitting across columns */
+        margin-bottom: 1rem; /* Space between items */
+        padding: 1rem; /* Padding inside items */
     }
 
     img {
-        max-width: 400px;
-        max-height: 400px;
+        max-width: 225px;
+        object-fit: contain;
     }
 </style>
