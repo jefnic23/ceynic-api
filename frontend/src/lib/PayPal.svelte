@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { loadScript } from '@paypal/paypal-js';
 	import { onMount } from 'svelte';
+	import { PUBLIC_PAYPAL_CLIENT_ID } from '$env/static/public';
 
 	export let amount: string;
 
 	onMount(async () => {
 		const paypal = await loadScript({
-			clientId: 'AV45X6mR_TtngXIq8BM43xWuAxeiklh2LOaskwhHjyNzXrACwn8jFfU9ZFAdHoWcGVzw6jUECGZPWqIs',
+			clientId: PUBLIC_PAYPAL_CLIENT_ID,
 			currency: 'USD',
 			disableFunding: 'venmo',
 			dataPageType: 'checkout'

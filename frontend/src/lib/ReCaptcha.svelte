@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { PUBLIC_RECAPTCHA_SITE_KEY } from '$env/static/public';
+</script>
+
 <svelte:head>
 	<script src="https://www.google.com/recaptcha/api.js"></script>
 
@@ -11,7 +15,7 @@
 
 <button
     class="g-recaptcha"
-    data-sitekey="6LfZN-gpAAAAAG-Apw86KAsXLC4Yp52XefxzJi1i"
+    data-sitekey="{PUBLIC_RECAPTCHA_SITE_KEY}"
     data-callback="onSubmit"
     data-action="submit"
 >
