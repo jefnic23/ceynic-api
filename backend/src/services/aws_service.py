@@ -23,6 +23,6 @@ class AwsService:
                 Prefix=f"public/{product_name.replace(' ', '_')}/"
             )
             return [
-                f"https://{self._bucket_name}.s3.amazonaws.com/public/{image.key}"
+                f"https://{self._bucket_name}.s3.amazonaws.com/{image.key}"
                 async for image in images
             ]
