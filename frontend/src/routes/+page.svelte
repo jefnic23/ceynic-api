@@ -13,7 +13,9 @@
             {#each products as product}
                 <div class="masonry-item">
                     {#if product.imageUrl}
-                        <img src={product.imageUrl} alt={product.title} />
+                        <a href="/products/{product.id}" data-sveltekit-preload-data>
+                            <img src={product.imageUrl} alt={product.title} />
+                        </a>
                     {/if}
                 </div>
             {/each}
@@ -47,4 +49,16 @@
         max-width: 225px;
         object-fit: contain;
     }
+
+    @media (max-width: 768px) {
+		.masonry-layout {
+			column-count: 2;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.masonry-layout {
+			column-count: 1;
+		}
+	}
 </style>
