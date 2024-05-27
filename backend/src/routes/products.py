@@ -15,8 +15,8 @@ async def get_all_products(
 
 @router.get("/products/{id}")
 async def get_product(
-    products_service: PRODUCTS_SERVICE_DEPENDENCY,
     id: int,
+    products_service: PRODUCTS_SERVICE_DEPENDENCY,
 ) -> ProductOut:
     product = await products_service.get(id=id)
     if not product:
