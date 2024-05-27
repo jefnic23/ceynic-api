@@ -17,6 +17,8 @@ psycopg2 = "^2.9.9"
 asyncpg = "^0.29.0"
 sqlalchemy = {extras = ["asyncio"], version = "^2.0.30"}
 aioboto3 = "^12.4.0"
+email-validator = "^2.1.1"
+python-multipart = "^0.0.9"
 
 
 [build-system]
