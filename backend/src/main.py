@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from backend.src.routes import messages
 from backend.src.routes import products
 
 
@@ -16,6 +17,7 @@ def create_app():
         allow_headers=["*"],
     )
 
+    app.include_router(messages.router)
     app.include_router(products.router)
 
     # app.mount("/", StaticFiles(directory="build/", html=True), name="static")
