@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
+	import { cubicIn, cubicOut } from 'svelte/easing';
 	import '../app.css';
 	import Etsy from '$lib/icons/etsy.svelte';
 	import Instagram from '$lib/icons/instagram.svelte';
@@ -25,7 +26,10 @@
 	</div>
 
 	{#key data.url}
-		<main in:fly={{ x: -200, duration: 233, delay: 233 }} out:fly={{ x: 200, duration: 233 }}>
+		<main
+			in:fly={{ y: -34, duration: 144, delay: 233, easing: cubicOut }}
+			out:fly={{ y: 34, duration: 144, easing: cubicIn }}
+		>
 			<slot />
 		</main>
 	{/key}

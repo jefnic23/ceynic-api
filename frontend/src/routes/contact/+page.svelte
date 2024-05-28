@@ -9,7 +9,9 @@
 
 	async function handleSubmit(event: SubmitEvent) {
 		window.grecaptcha.ready(async () => {
-			const token = await window.grecaptcha.execute(PUBLIC_RECAPTCHA_SITE_KEY, { action: 'submit' });
+			const token = await window.grecaptcha.execute(PUBLIC_RECAPTCHA_SITE_KEY, {
+				action: 'submit'
+			});
 
 			console.log(event);
 
@@ -45,15 +47,42 @@
 		{:else}
 			<div class="form-element">
 				<label class="form-label" for="name">Name</label>
-				<input class="form-control" id="name" name="name" type="text" value="" placeholder="Your name..." required />
+				<input
+					class="form-control"
+					id="name"
+					name="name"
+					type="text"
+					value=""
+					placeholder="Your name..."
+					required
+				/>
 			</div>
 			<div class="form-element">
 				<label class="form-label" for="email">Email</label>
-				<input class="form-control" id="email" name="email" type="text" value="" placeholder="Your email..." required />
+				<input
+					class="form-control"
+					id="email"
+					name="email"
+					type="text"
+					value=""
+					placeholder="Your email..."
+					required
+				/>
 			</div>
 			<div class="form-element">
 				<label class="form-label" for="message">Message</label>
-				<textarea class="form-control" id="message" name="message" required></textarea>
+				<textarea
+					class="form-control"
+					id="message"
+					name="message"
+					placeholder="Write something..."
+					required
+				></textarea>
+			</div>
+			<div class="recaptcha">
+				This site is protected by reCAPTCHA and the Google
+				<a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and
+				<a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
 			</div>
 			<button>Send</button>
 		{/if}
@@ -66,6 +95,7 @@
 		flex-direction: column;
 		align-items: center;
 		width: 100%;
+		gap: 1rem;
 	}
 
 	.form {
@@ -81,6 +111,12 @@
 
 	.form-control {
 		width: 100%;
+		border: 2px solid #666;
+		border-radius: 0.34rem;
+	}
+
+	.recaptcha {
+		font-size: 11px;
 	}
 
 	button,
@@ -88,5 +124,14 @@
 	textarea {
 		font-family: inherit;
 		font-size: 100%;
+		padding: 0.5rem;
+	}
+
+	textarea {
+		resize: none;
+	}
+
+	:global(.grecaptcha-badge) {
+		visibility: hidden;
 	}
 </style>
