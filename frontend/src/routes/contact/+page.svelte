@@ -39,19 +39,19 @@
 
 <div class="wrapper">
 	<h3>Please contact me if you have any questions or comments</h3>
-	<form method="POST" on:submit|preventDefault={handleSubmit}>
+	<form class="wrapper form" method="POST" on:submit|preventDefault={handleSubmit}>
 		{#if form?.success}
-			<div>Thank you for reaching out!</div>
+			<div>Thank you for your message!</div>
 		{:else}
-			<div>
+			<div class="form-element">
 				<label class="form-label" for="name">Name</label>
-				<input class="form-control" id="name" name="name" type="text" value="" required />
+				<input class="form-control" id="name" name="name" type="text" value="" placeholder="Your name..." required />
 			</div>
-			<div>
+			<div class="form-element">
 				<label class="form-label" for="email">Email</label>
-				<input class="form-control" id="email" name="email" type="text" value="" required />
+				<input class="form-control" id="email" name="email" type="text" value="" placeholder="Your email..." required />
 			</div>
-			<div>
+			<div class="form-element">
 				<label class="form-label" for="message">Message</label>
 				<textarea class="form-control" id="message" name="message" required></textarea>
 			</div>
@@ -66,5 +66,27 @@
 		flex-direction: column;
 		align-items: center;
 		width: 100%;
+	}
+
+	.form {
+		max-width: 500px;
+	}
+
+	.form-element {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: 100%;
+	}
+
+	.form-control {
+		width: 100%;
+	}
+
+	button,
+	input,
+	textarea {
+		font-family: inherit;
+		font-size: 100%;
 	}
 </style>
