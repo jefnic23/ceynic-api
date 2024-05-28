@@ -16,14 +16,13 @@ class Settings(BaseSettings):
     MAILGUN_API_KEY: str
     MAILGUN_DOMAIN: str
     MAILGUN_PUBLIC_KEY: str
-    EMAIL_RECIPIENT: str
+    RECIPIENT_EMAIL: str
     BUCKETEER_AWS_ACCESS_KEY_ID: str
     BUCKETEER_AWS_REGION: str
     BUCKETEER_AWS_SECRET_ACCESS_KEY: str
     BUCKETEER_BUCKET_NAME: str
     PAYPAL_CLIENT_ID: str
     PAYPAL_CLIENT_SECRET: str
-    RECAPTCHA_SITE_KEY: str
     RECAPTCHA_SECRET_KEY: str
 
     model_config = SettingsConfigDict(env_file=".env")
