@@ -19,6 +19,7 @@ sqlalchemy = {extras = ["asyncio"], version = "^2.0.30"}
 aioboto3 = "^12.4.0"
 email-validator = "^2.1.1"
 python-multipart = "^0.0.9"
+aiohttp = {extras = ["speedups"], version = "^3.9.5"}
 
 
 [build-system]
