@@ -11,6 +11,9 @@ export const actions = {
 
         if (!response.ok) {
             console.log("Error submitting form.");
+            return { success: false }
         }
+
+        return { success: true }
     }
 } satisfies Actions;
