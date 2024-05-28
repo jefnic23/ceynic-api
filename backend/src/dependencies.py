@@ -40,7 +40,7 @@ MESSAGES_SERVICE_DEPENDENCY = Annotated[MessagesService, Depends(get_messages_se
 
 async def verify_recaptcha(
     token: Annotated[str, Form()], request: Request, settings: SETTINGS_DEPENDENCY
-):
+) -> None:
     async with aiohttp.ClientSession() as session:
         data = {
             "secret": settings.RECAPTCHA_SECRET_KEY,

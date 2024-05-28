@@ -14,7 +14,7 @@ class MessagesService:
         self.api_key = settings.MAILGUN_API_KEY
         self.domain = settings.MAILGUN_DOMAIN
         self.public_key = settings.MAILGUN_PUBLIC_KEY
-        self.recipient_email = settings.EMAIL_RECIPIENT
+        self.recipient_email = settings.RECIPIENT_EMAIL
 
     def get_fast_mail(self, from_name: str, from_email) -> FastMail:
         connection_config = self._get_connection_config(
