@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     BUCKETEER_BUCKET_NAME: str
     PAYPAL_CLIENT_ID: str
     PAYPAL_CLIENT_SECRET: str
+    PAYPAL_URL: str
     RECAPTCHA_SECRET_KEY: str
 
     model_config = SettingsConfigDict(env_file=".env")
