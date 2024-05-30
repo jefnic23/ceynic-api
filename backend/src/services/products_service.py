@@ -25,8 +25,8 @@ class ProductsService:
             for product in products
         ]
 
-    async def get(self, id: int) -> ProductOut:
-        statement = select(Product).where(Product.id == id)
+    async def get(self, product_id: int) -> ProductOut:
+        statement = select(Product).where(Product.id == product_id)
         results = await self.session.exec(statement=statement)
         product = results.first()
         images = await self.aws.get_product_images(product.title)

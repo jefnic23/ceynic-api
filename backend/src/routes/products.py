@@ -18,7 +18,7 @@ async def get_product(
     id: int,
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
 ) -> ProductOut:
-    product = await products_service.get(id=id)
+    product = await products_service.get(product_id=id)
     if not product:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
