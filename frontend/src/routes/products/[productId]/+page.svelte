@@ -23,7 +23,7 @@
                     <div>
                         + FREE shipping
                     </div>
-                    <PayPal amount={product.price} />
+                    <PayPal productId={product.id} />
                 </div>
                 <div>
                     <div>
@@ -55,7 +55,6 @@
     .row {
         display: flex;
         flex-direction: row;
-        align-items: center;
     }
 
     .column {
