@@ -5,9 +5,11 @@ from fastapi import Depends, Form, HTTPException, Request, status
 
 from backend.src.config import SETTINGS_DEPENDENCY
 from backend.src.database import ASYNC_SESSION_DEPENDENCY
+from backend.src.http_client import HTTP_CLIENT_DEPENDENCY
 from backend.src.models.schemas.recaptcha_response import ReCaptchaResponse
 from backend.src.services.aws_service import AwsService
 from backend.src.services.messages_service import MessagesService
+from backend.src.services.orders_service import OrdersService
 from backend.src.services.products_service import ProductsService
 
 
@@ -36,6 +38,17 @@ async def get_messages_service(settings: SETTINGS_DEPENDENCY) -> MessagesService
 
 
 MESSAGES_SERVICE_DEPENDENCY = Annotated[MessagesService, Depends(get_messages_service)]
+
+
+async def get_orders_service(
+    session: ASYNC_SESSION_DEPENDENCY,
+    settings: SETTINGS_DEPENDENCY,
+    http_client: HTTP_CLIENT_DEPENDENCY,
+) -> OrdersService:
+    return OrdersService(session=session, settings=settings, http_client=http_client)
+
+
+ORDERS_SERVICE_DEPENDENCY = Annotated[OrdersService, Depends(get_orders_service)]
 
 
 async def verify_recaptcha(
