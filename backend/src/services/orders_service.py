@@ -1,12 +1,18 @@
 import base64
+import json
+
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-import json
+
 from backend.src.config import Settings
 from backend.src.http_client import HttpClient
+from backend.src.models.order import Order
 from backend.src.models.product import Product
-from backend.src.models.schemas.create_order_response import CreateOrder
-from backend.src.models.schemas.paypal_auth_response import PayPalAuthResponse
+from backend.src.models.schemas.paypal import (
+    CapturePaymentResponse,
+    CreateOrderResponse,
+    PayPalAuthResponse,
+)
 
 
 class OrdersService:
@@ -20,16 +26,18 @@ class OrdersService:
         self.http_client: HttpClient = http_client
         self.access_token: str = None
 
-    async def create_order(self, product_id) -> str:
+    async def create_order(self, product_id: int) -> str:
         statement = select(Product).where(Product.id == product_id)
         results = await self.session.exec(statement=statement)
         product = results.first()
 
-        auth_response = await self._get_access_token()
+        if not self.access_token:
+            auth_response = await self._get_access_token()
+            self.access_token = auth_response.access_token
 
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"{auth_response.token_type} {auth_response.access_token}",
+            "Authorization": f"Bearer {self.access_token}",
         }
 
         data = {
@@ -43,15 +51,53 @@ class OrdersService:
         }
 
         response = await self.http_client.post_async(
-            url=f"{self.paypal_url}/v2/checkout/orders", headers=headers, data=json.dumps(data)
+            url=f"{self.paypal_url}/v2/checkout/orders",
+            headers=headers,
+            data=json.dumps(data),
         )
 
-        create_order = CreateOrder(**response)
+        create_order_response = CreateOrderResponse(**response)
 
-        return create_order.id
+        return create_order_response.id
+
+    async def capture_payment(
+        self, order_id: str, product_id: str
+    ) -> CapturePaymentResponse:
+        if not self.access_token:
+            auth_response = await self._get_access_token()
+            self.access_token = auth_response.access_token
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
+        }
+
+        response = await self.http_client.post_async(
+            url=f"{self.paypal_url}/v2/checkout/orders/{order_id}/capture",
+            data={},
+            headers=headers,
+        )
+
+        capture_payment_response = CapturePaymentResponse(**response)
+
+        statement = select(Product).where(Product.id == product_id)
+        results = await self.session.exec(statement=statement)
+        product = results.first()
+        product.sold = True
+        product.order_id = order_id
+
+        order = Order(id=capture_payment_response.id)
+        self.session.add(order)
+        await self.session.commit()
+
+        return capture_payment_response
+
+    # TODO: write method that checks for/validates existing token
 
     async def _get_access_token(self) -> PayPalAuthResponse:
-        auth = base64.b64encode(f"{self.client_id}:{self.client_secret}".encode()).decode()
+        auth = base64.b64encode(
+            f"{self.client_id}:{self.client_secret}".encode()
+        ).decode()
 
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
