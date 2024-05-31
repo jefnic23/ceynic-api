@@ -6,7 +6,7 @@ from fastapi import Depends, Form, HTTPException, Request, status
 from backend.src.config import SETTINGS_DEPENDENCY
 from backend.src.database import ASYNC_SESSION_DEPENDENCY
 from backend.src.http_client import HTTP_CLIENT_DEPENDENCY
-from backend.src.models.schemas.recaptcha_response import ReCaptchaResponse
+from backend.src.models.schemas.recaptcha import ReCaptchaResponse
 from backend.src.services.aws_service import AwsService
 from backend.src.services.messages_service import MessagesService
 from backend.src.services.orders_service import OrdersService
