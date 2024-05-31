@@ -18,7 +18,7 @@ class PaymentSource(BaseModel):
 
 class Address(BaseModel):
     address_line_1: str
-    address_line_2: str | None
+    address_line_2: str | None = None
     admin_area_2: str
     admin_area_1: str
     postal_code: str
@@ -67,7 +67,7 @@ class Capture(BaseModel):
     amount: Amount
     seller_protection: dict
     final_capture: bool
-    disbursement_mode: str
+    disbursement_mode: str | None = None
     seller_receivable_breakdown: SellerReceivableBreakdown
     create_time: str
     update_time: str
@@ -90,7 +90,33 @@ class Payer(BaseModel):
     payer_id: str
 
 
-class Order(BaseModel):
+class Link(BaseModel):
+    href: str
+    rel: str
+    method: str
+
+
+class PayPalAuthResponse(BaseModel):
+    scope: str
+    access_token: str
+    token_type: str
+    app_id: str
+    expires_in: int
+    nonce: str
+
+
+class CreateOrderRequest(BaseModel):
+    product_id: int
+
+
+class CreateOrderResponse(BaseModel):
+    id: str
+    status: str
+    payment_source: PaymentSource | None = None
+    links: list[Link]
+
+
+class CapturePaymentResponse(BaseModel):
     id: str
     status: str
     payment_source: PaymentSource
