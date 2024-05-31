@@ -1,7 +1,7 @@
-<script>
+<script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
-	export let duration = '300ms';
+	export let duration = '233ms';
 	export let offset = 0;
 	export let tolerance = 0;
 
@@ -10,41 +10,26 @@
 	let y = 0;
 	let lastY = 0;
 
-    const warn = (msg, val) => console.warn(`[svelte-headroom]:`, msg, val);
-
-    function validate({ duration, offset, tolerance }) {
-    if (typeof offset !== "number")
-        warn("The `offset` prop is not a number: ", offset);
-    if (typeof tolerance !== "number")
-        warn("The `tolerance` prop is not a number: ", tolerance);
-    if (typeof duration !== "string")
-        warn("The `duration` prop is not a string such as '200ms': ", duration);
-    }
-
 	const dispatch = createEventDispatcher();
 
-	function deriveClass(y = 0, scrolled = 0) {
+	function deriveClass(y: number = 0, scrolled: number = 0): string {
 		if (y < offset) return 'pin';
 		if (!scrolled || Math.abs(scrolled) < tolerance) return headerClass;
-		const dir = scrolled < 0 ? 'down' : 'up';
-		if (dir === 'up') return 'pin';
-		if (dir === 'down') return 'unpin';
-		return headerClass;
+		return scrolled < 0 ? 'unpin' : 'pin';
 	}
 
-	function updateClass(y = 0) {
+	function updateClass(y: number = 0): string {
 		const scrolledPxs = lastY - y;
 		const result = deriveClass(y, scrolledPxs);
 		lastY = y;
 		return result;
 	}
 
-	function action(node) {
+	function action(node: HTMLElement): void {
 		node.style.transitionDuration = duration;
 	}
 
 	$: {
-		validate({ duration, offset, tolerance });
 		headerClass = updateClass(y);
 		if (headerClass !== lastHeaderClass) {
 			dispatch(headerClass);
@@ -64,12 +49,14 @@
 		position: fixed;
 		width: 100%;
 		top: 0;
-		transition: transform 300ms linear;
-        z-index: 1000;
+		transition: transform 233ms linear;
+		z-index: 999;
 	}
+
 	.pin {
 		transform: translateY(0%);
 	}
+
 	.unpin {
 		transform: translateY(-100%);
 	}
