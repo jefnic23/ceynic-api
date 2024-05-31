@@ -6,7 +6,7 @@ from pydantic.alias_generators import to_camel
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from backend.src.config import Settings, get_settings
+from backend.src.config import SETTINGS_DEPENDENCY, Settings
 from backend.src.models.medium import Medium  # noqa: F401
 from backend.src.models.order import Order  # noqa: F401
 from backend.src.models.product import Product  # noqa: F401
@@ -34,13 +34,16 @@ class Database:
 
 
 async def get_database(
-    settings: Annotated[Settings, Depends(get_settings)],
+    settings: SETTINGS_DEPENDENCY,
 ) -> Database:
     return Database(settings=settings)
 
 
+DATABASE_DEPENDENCY = Annotated[Database, Depends(get_database)]
+
+
 async def get_async_session(
-    database: Annotated[Database, Depends(get_database)],
+    database: DATABASE_DEPENDENCY,
 ) -> AsyncGenerator[AsyncSession, None]:
     async with database.async_session() as async_session:
         yield async_session
