@@ -21,7 +21,7 @@
 				<a href="/" data-sveltekit-preload-data>Home</a>
 				<a href="/browse" data-sveltekit-preload-data>Browse</a>
 				<a href="/about">About</a>
-				<a href="/contact">Contact</a>
+				<a href="/contact" data-sveltekit-preload-data>Contact</a>
 			</nav>
 		</Header>
 		<img class="hero" src={image} alt="header.jpg" />
