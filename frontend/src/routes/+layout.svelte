@@ -7,6 +7,7 @@
 	import Pinterest from '$lib/icons/pinterest.svelte';
 	import image from '$lib/header.jpg';
 	import type { PageData } from './$types';
+	import Header from '$lib/components/Header.svelte';
 
 	let year: number = new Date().getFullYear();
 
@@ -15,14 +16,15 @@
 
 <div class="wrapper">
 	<div>
-		<nav>
-			<a href="/" data-sveltekit-preload-data>Home</a>
-			<a href="/browse" data-sveltekit-preload-data>Browse</a>
-			<a href="/about">About</a>
-			<a href="/contact">Contact</a>
-		</nav>
-
-		<img src={image} alt="header.jpg" />
+		<Header>
+			<nav>
+				<a href="/" data-sveltekit-preload-data>Home</a>
+				<a href="/browse" data-sveltekit-preload-data>Browse</a>
+				<a href="/about">About</a>
+				<a href="/contact">Contact</a>
+			</nav>
+		</Header>
+		<img class="hero" src={image} alt="header.jpg" />
 	</div>
 
 	{#key data.url}
@@ -83,17 +85,19 @@
 		text-decoration: none;
 	}
 
-	img {
-		max-width: 100%;
-		border-bottom: 1px solid #e7e7e7;
-		position: relative;
-	}
-
 	main {
 		display: flex;
 		justify-content: center;
 		flex: 1;
 		padding: 1rem;
+	}
+
+	.hero {
+		max-width: 100%;
+		border-bottom: 1px solid #e7e7e7;
+		position: relative;
+		margin-top: 50px;
+
 	}
 
 	.wrapper {
