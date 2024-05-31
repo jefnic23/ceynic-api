@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from "./$types";
-    import PayPal from "$lib/PayPal.svelte";
+    import PayPal from "$lib/components/PayPal.svelte";
 
     export let data: PageData;
 </script>

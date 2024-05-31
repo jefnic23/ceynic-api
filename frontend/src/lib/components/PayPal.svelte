@@ -40,6 +40,23 @@
 
 					return json.order_id;
 				},
+				onApprove: async function(data, actions) {
+					const response = await fetch(`http://127.0.0.1:8000/orders/${data.orderID}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({ product_id: productId })
+					});
+
+					if (!response.ok) {
+						console.log("Error creating order.");
+					}
+
+					const json = await response.json();
+
+					console.log(json);
+				}
 				// onApprove: function(data, actions) {
 				// 	const CAPTURE_ORDER_URL = '{{ url_for("main.capture_order", order_id="order_id") }}'.replace('order_id', data.orderID);
 				// 	return fetch(CAPTURE_ORDER_URL, {
