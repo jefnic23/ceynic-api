@@ -8,7 +8,7 @@
     <h3>Original Abstract Oil Paintings on Canvas and Prints</h3>
     <div class="masonry-layout">
         {#await data.products}
-        
+            <div>loading products...</div>
         {:then products} 
             {#each products as product}
                 <div class="masonry-item">

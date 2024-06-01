@@ -13,8 +13,6 @@
 				action: 'submit'
 			});
 
-			console.log(event);
-
 			const data = new FormData(event.target as HTMLFormElement);
 
 			data.append('token', token);
