@@ -1,15 +1,15 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-    import { goto } from '$app/navigation';
+	import { goto } from '$app/navigation';
 
 	export let data: PageData;
 
-    let sort: string = "";
+	let sort: string = '';
 
-    async function handleSort(event: Event) {
-        sort = (event.target as HTMLSelectElement).value;
-        goto(`?sort=${sort}`, { replaceState: true, keepFocus: true })
-    }
+	async function handleSort(event: Event) {
+		sort = (event.target as HTMLSelectElement).value;
+		goto(`products?sort=${sort}`, { replaceState: true, keepFocus: true });
+	}
 </script>
 
 <div class="row">
@@ -24,11 +24,13 @@
 				<div>
 					Sort by:
 					<select on:change={handleSort} bind:value={sort}>
-                        <option value=""></option>
-						<option value="price_asc">Price (low - high)</option>
-						<option value="price_desc">Price (high - low)</option>
-						<option value="size_asc">Size (small - large)</option>
-						<option value="size_desc">Size (large - small)</option>
+						<option value=""></option>
+						<option value="oldest">Oldest</option>
+						<option value="newest">Newest</option>
+						<option value="price_asc">Lowest Price</option>
+						<option value="price_desc">Highest Price</option>
+						<option value="size_asc">Smallest</option>
+						<option value="size_desc">Largest</option>
 					</select>
 				</div>
 				<div>
@@ -63,6 +65,7 @@
 	.column {
 		display: flex;
 		flex-direction: column;
+		padding: 1rem;
 	}
 
 	.container {
@@ -77,14 +80,17 @@
 	.item {
 		grid-row: span 1;
 		grid-column: span 1;
+		margin: auto;
 	}
 
 	.small {
 		flex: 1;
+		border-right: 1px solid #e7e7e7;
 	}
 
 	.large {
 		flex: 3;
+		row-gap: 1rem;
 	}
 
 	img {
