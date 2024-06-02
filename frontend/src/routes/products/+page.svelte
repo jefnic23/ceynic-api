@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+    import { goto } from '$app/navigation';
 
 	export let data: PageData;
 
@@ -7,9 +8,7 @@
 
     async function handleSort(event: Event) {
         sort = (event.target as HTMLSelectElement).value;
-        const url = new URL(window.location.href);
-        url.searchParams.set('sort', sort);
-        window.location.href = url.toString();
+        goto(`?sort=${sort}`, { replaceState: true, keepFocus: true })
     }
 </script>
 
