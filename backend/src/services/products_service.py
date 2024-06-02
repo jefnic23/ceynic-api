@@ -17,7 +17,11 @@ class ProductsService:
     async def get_all(self, sort: ProductSortParams | None = None) -> list[ProductsOut]:
         statement = select(Product)
         if sort:
-            if sort == ProductSortParams.PRICE_ASC:
+            if sort == ProductSortParams.OLDEST:
+                statement = statement.order_by(Product.date_added)
+            elif sort == ProductSortParams.NEWEST:
+                statement = statement.order_by(Product.date_added.desc())
+            elif sort == ProductSortParams.PRICE_ASC:
                 statement = statement.order_by(Product.price)
             elif sort == ProductSortParams.PRICE_DESC:
                 statement = statement.order_by(Product.price.desc())
@@ -29,6 +33,7 @@ class ProductsService:
                 )
         results = await self.session.exec(statement=statement)
         products = results.all()
+        # TODO: omit products that don't have any images 
         return [
             ProductsOut(
                 **product.model_dump(),

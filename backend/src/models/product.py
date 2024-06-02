@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Optional
 
@@ -19,6 +20,7 @@ class Product(SQLModel, table=True):
     description: str | None
     sold: bool
     thumbnail: str
+    date_added: datetime
 
     medium_id: int = Field(foreign_key="mediums.id")
     medium: "Medium" = Relationship(back_populates="products")
