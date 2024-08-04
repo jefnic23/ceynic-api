@@ -24,7 +24,7 @@
     </div>
     <div class="copyright">
         Copyright © {year}, Tracey Nicholas. All rights reserved. |
-        <a href="/login" style="color: #666666;">Administration</a> | Site by
+        <a href="/admin" style="color: #666666; text-decoration: none;" target="_blank">Administration</a> | Site by
         <a href="https://github.com/jefnic23" target="_blank">Jeff Nicholas</a>
     </div>
 </div>
