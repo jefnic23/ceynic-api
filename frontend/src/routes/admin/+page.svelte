@@ -4,7 +4,7 @@
     let showModal: boolean = true;
 </script>
 
-<Modal bind:showModal>
+<Modal bind:showModal showClose={false}>
     <h2 slot="header">
         Login
     </h2>
