@@ -7,10 +7,13 @@ from backend.src.config import SETTINGS_DEPENDENCY
 from backend.src.database import ASYNC_SESSION_DEPENDENCY
 from backend.src.http_client import HTTP_CLIENT_DEPENDENCY
 from backend.src.models.schemas.recaptcha import ReCaptchaResponse
+from backend.src.services.auth_service import AuthService
 from backend.src.services.aws_service import AwsService
 from backend.src.services.messages_service import MessagesService
 from backend.src.services.orders_service import OrdersService
 from backend.src.services.products_service import ProductsService
+from backend.src.services.refresh_tokens_service import RefreshTokensService
+from backend.src.services.users_service import UsersService
 
 
 async def get_aws_service(
@@ -49,6 +52,43 @@ async def get_orders_service(
 
 
 ORDERS_SERVICE_DEPENDENCY = Annotated[OrdersService, Depends(get_orders_service)]
+
+
+async def get_users_service(
+    session: ASYNC_SESSION_DEPENDENCY,
+) -> UsersService:
+    return UsersService(session=session)
+
+
+USERS_SERVICE_DEPENDENCY = Annotated[UsersService, Depends(get_users_service)]
+
+
+async def get_refresh_tokens_service(
+    session: ASYNC_SESSION_DEPENDENCY,
+) -> RefreshTokensService:
+    return RefreshTokensService(session=session)
+
+
+REFRESH_TOKENS_SERVICE_DEPENDENCY = Annotated[
+    RefreshTokensService, Depends(get_refresh_tokens_service)
+]
+
+
+async def get_auth_service(
+    session: ASYNC_SESSION_DEPENDENCY,
+    settings: SETTINGS_DEPENDENCY,
+    users_service: USERS_SERVICE_DEPENDENCY,
+    refresh_tokens_service: REFRESH_TOKENS_SERVICE_DEPENDENCY,
+) -> AuthService:
+    return AuthService(
+        session=session,
+        settings=settings,
+        users_service=users_service,
+        refresh_tokens_service=refresh_tokens_service,
+    )
+
+
+AUTH_SERVICE_DEPENDENCY = Annotated[AuthService, Depends(get_auth_service)]
 
 
 async def verify_recaptcha(

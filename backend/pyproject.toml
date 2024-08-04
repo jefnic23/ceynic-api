@@ -20,6 +20,8 @@ aioboto3 = "^12.4.0"
 email-validator = "^2.1.1"
 python-multipart = "^0.0.9"
 aiohttp = {extras = ["speedups"], version = "^3.9.5"}
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 
 
 [build-system]
