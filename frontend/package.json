@@ -31,6 +31,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@paypal/paypal-js": "^8.0.5"
+		"@paypal/paypal-js": "^8.0.5",
+		"jwt-decode": "^4.0.0"
 	}
 }
