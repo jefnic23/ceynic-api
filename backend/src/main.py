@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from backend.src.routes import messages, orders, products
+from backend.src.routes import auth, messages, orders, products
 
 
 def create_app():
@@ -16,6 +16,7 @@ def create_app():
         allow_headers=["*"],
     )
 
+    app.include_router(auth.router)
     app.include_router(messages.router)
     app.include_router(orders.router)
     app.include_router(products.router)
