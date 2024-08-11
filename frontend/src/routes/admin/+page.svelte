@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
-    import { accessToken, refreshToken } from "$lib/stores/tokens";
-    import { user, getUser } from "$lib/stores/users";
-    import { type Token } from "$lib/interfaces/token";
+	import { accessToken, refreshToken } from '$lib/stores/tokens';
+	import { user, getUser } from '$lib/stores/users';
+	import { type Token } from '$lib/interfaces/token';
 	import Person from '$lib/icons/person.svelte';
 	import Lock from '$lib/icons/lock.svelte';
 
@@ -22,6 +22,7 @@
 			accessToken.set(responseData.accessToken);
 			refreshToken.set(responseData.refreshToken);
 			user.set(await getUser(responseData.accessToken));
+			showModal = false;
 		} else if (response.status == 401) {
 			console.log('Username or password incorrect.');
 		} else {
@@ -30,22 +31,39 @@
 	}
 </script>
 
-<Modal bind:showModal showClose={false}>
-	<div class="body">
-		<h2>Log In</h2>
-		<form method="post" action="http://127.0.0.1:8000/login" on:submit|preventDefault={handleSubmit}>
-			<div class="input-container">
-				<Person />
-				<input id="email" name="username" value="" placeholder="Email" required />
-			</div>
-			<div class="input-container">
-				<Lock />
-				<input id="password" name="password" value="" placeholder="Password" type="password" required />
-			</div>
-			<button>Submit</button>
-		</form>
+{#if showModal}
+	<Modal bind:showModal showClose={false}>
+		<div class="body">
+			<h2>Log In</h2>
+			<form
+				method="post"
+				action="http://127.0.0.1:8000/login"
+				on:submit|preventDefault={handleSubmit}
+			>
+				<div class="input-container">
+					<Person />
+					<input id="email" name="username" value="" placeholder="Email" required />
+				</div>
+				<div class="input-container">
+					<Lock />
+					<input
+						id="password"
+						name="password"
+						value=""
+						placeholder="Password"
+						type="password"
+						required
+					/>
+				</div>
+				<button>Submit</button>
+			</form>
+		</div>
+	</Modal>
+{:else}
+	<div>
+		<h1>hello world</h1>
 	</div>
-</Modal>
+{/if}
 
 <style>
 	.body {
