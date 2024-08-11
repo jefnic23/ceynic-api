@@ -1,6 +1,7 @@
 <script lang="ts">
 	export let showModal: boolean;
 	export let showClose: boolean = true;
+	export let type: 'info' | 'success' | 'warning' | 'error' = 'info';
 
 	let dialog: HTMLDialogElement;
 
@@ -11,13 +12,11 @@
 <dialog
 	bind:this={dialog}
 	on:close={() => (showModal = false)}
+	class={type}
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div on:click|stopPropagation>
-		<slot name="header" />
-		<hr />
 		<slot />
-		<hr />
 		<!-- svelte-ignore a11y-autofocus -->
 		{#if showClose}
 			<button autofocus on:click={() => dialog.close()}>close</button>
@@ -28,7 +27,7 @@
 <style>
 	dialog {
 		max-width: 32em;
-		border-radius: 0.2em;
+		border-radius: 0.5em;
 		border: none;
 		padding: 0;
 	}
@@ -69,5 +68,34 @@
     
 	button {
 		display: block;
+	}
+
+	/* Colored bar on the left edge */
+	dialog::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 0.5em;
+		border-radius: 0.5em 0 0 0.5em;
+		background-color: var(--modal-bar-color);
+	}
+
+	/* Modal types */
+	.info::before {
+		--modal-bar-color: #1e90ff; /* Blue for info */
+	}
+
+	.success::before {
+		--modal-bar-color: #28a745; /* Green for success */
+	}
+
+	.warning::before {
+		--modal-bar-color: #ffcc00; /* Yellow for warning */
+	}
+
+	.error::before {
+		--modal-bar-color: #ff6347; /* Red for error */
 	}
 </style>
