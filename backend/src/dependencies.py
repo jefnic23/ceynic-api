@@ -2,11 +2,14 @@ from typing import Annotated
 
 import aiohttp
 from fastapi import Depends, Form, HTTPException, Request, status
+from fastapi.security import OAuth2PasswordBearer
 
 from backend.src.config import SETTINGS_DEPENDENCY
 from backend.src.database import ASYNC_SESSION_DEPENDENCY
+from backend.src.exceptions import credentials_exception
 from backend.src.http_client import HTTP_CLIENT_DEPENDENCY
 from backend.src.models.schemas.recaptcha import ReCaptchaResponse
+from backend.src.models.user import User
 from backend.src.services.auth_service import AuthService
 from backend.src.services.aws_service import AwsService
 from backend.src.services.messages_service import MessagesService
@@ -14,6 +17,9 @@ from backend.src.services.orders_service import OrdersService
 from backend.src.services.products_service import ProductsService
 from backend.src.services.refresh_tokens_service import RefreshTokensService
 from backend.src.services.users_service import UsersService
+
+OAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl="login")
+OAUTH_DEPENDENCY = Annotated[str, Depends(OAUTH2_SCHEME)]
 
 
 async def get_aws_service(
@@ -112,3 +118,18 @@ async def verify_recaptcha(
                 raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
             if recaptcha_response.score < 0.9:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+async def get_current_user(
+    token: OAUTH_DEPENDENCY,
+    users_service: USERS_SERVICE_DEPENDENCY,
+    auth_service: AUTH_SERVICE_DEPENDENCY,
+) -> User:
+    payload = auth_service.verify_token(token)
+    user = await users_service.get_user_by_id(id=int(payload.get("sub")))
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+CURRENT_USER_DEPENDENCY = Annotated[User, Depends(get_current_user)]
