@@ -1,134 +1,21 @@
 <script lang="ts">
-	import Modal from '$lib/components/Modal.svelte';
-	import { accessToken, refreshToken } from '$lib/stores/tokens';
-	import { user, getUser } from '$lib/stores/users';
-	import { type Token } from '$lib/interfaces/token';
-	import Person from '$lib/icons/person.svelte';
-	import Lock from '$lib/icons/lock.svelte';
+	import Login from '$lib/components/Login.svelte';
+	import type { PageData } from './$types';
 
-	let showModal: boolean = true;
+	export let data: PageData;
 
-	async function handleSubmit(event: Event): Promise<void> {
-		const formEl = event.target as HTMLFormElement;
-		const data = new FormData(formEl);
+	let user = data.user;
+	$: showModal = !user;
 
-		const response = await fetch(formEl.action, {
-			method: formEl.method,
-			body: data
-		});
-
-		if (response.status == 200) {
-			const responseData: Token = await response.json();
-			accessToken.set(responseData.accessToken);
-			refreshToken.set(responseData.refreshToken);
-			user.set(await getUser(responseData.accessToken));
-			showModal = false;
-		} else if (response.status == 401) {
-			console.log('Username or password incorrect.');
-		} else {
-			console.log('Error logging in.');
-		}
+	function handleLoginSuccess(event: any) {
+		user = event.detail.user;
 	}
 </script>
 
 {#if showModal}
-	<Modal bind:showModal showClose={false}>
-		<div class="body">
-			<h2>Log In</h2>
-			<form
-				method="post"
-				action="http://127.0.0.1:8000/login"
-				on:submit|preventDefault={handleSubmit}
-			>
-				<div class="input-container">
-					<Person />
-					<input id="email" name="username" value="" placeholder="Email" required />
-				</div>
-				<div class="input-container">
-					<Lock />
-					<input
-						id="password"
-						name="password"
-						value=""
-						placeholder="Password"
-						type="password"
-						required
-					/>
-				</div>
-				<button>Submit</button>
-			</form>
-		</div>
-	</Modal>
+	<Login on:loginSuccess={handleLoginSuccess} />
 {:else}
 	<div>
 		<h1>hello world</h1>
 	</div>
 {/if}
-
-<style>
-	.body {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		width: 377px;
-	}
-
-	h2 {
-		text-transform: uppercase;
-	}
-
-	form {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		width: 100%;
-	}
-
-	.input-container {
-		display: flex;
-		align-items: center;
-		margin-bottom: 1rem;
-		border-bottom: 2px solid #ccc;
-		width: 89%;
-	}
-
-	input {
-		flex-grow: 1;
-		padding: 0.5rem 0;
-		border: none;
-		outline: none;
-		background-color: transparent;
-		margin-left: 0.5em;
-	}
-
-	input::placeholder {
-		color: #aaa;
-	}
-
-	input:-webkit-autofill,
-	input:-webkit-autofill:hover,
-	input:-webkit-autofill:focus {
-		-webkit-box-shadow: 0 0 0px 1000px white inset !important;
-		box-shadow: 0 0 0px 1000px white inset !important;
-		-webkit-text-fill-color: #000 !important;
-	}
-
-	.input-container:focus-within {
-		border-bottom-color: #007bff; /* Change this to your desired color */
-	}
-
-	button {
-		margin-top: 1rem;
-		padding: 0.75rem;
-		background-color: #007bff;
-		color: white;
-		border: none;
-		border-radius: 4px;
-		cursor: pointer;
-		width: 34%;
-	}
-
-	button:hover {
-		background-color: #0056b3;
-	}
-</style>
