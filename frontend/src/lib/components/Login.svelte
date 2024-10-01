@@ -2,10 +2,9 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Person from '$lib/icons/person.svelte';
 	import Lock from '$lib/icons/lock.svelte';
-	import { goto } from '$app/navigation';
 	import { createEventDispatcher } from 'svelte';
-
-	export let showModal: boolean = true;
+	import type { Token } from '$lib/interfaces/token';
+	
 	export let invalid: boolean = false;
 	export let credentials: boolean = false;
 
@@ -20,15 +19,19 @@
 			body: data
 		});
 
-		dispatch('loginSuccess', { user: "me" });
+		let responseData = await response.json();
 
-		() => showModal = false;
-
-		await goto("/admin");
+		if (response.status == 200 && responseData.success == true) {
+            dispatch('loginSuccess', { user: "me" });
+        } else if (response.status == 401) {
+            console.log("Username or password incorrect.");
+        } else {
+            console.log("Error logging in.");
+        }
 	}
 </script>
 
-<Modal bind:showModal showClose={false}>
+<Modal showModal={true} showClose={false}>
 	<div class="body">
 		<h2>Log In</h2>
 		<form action="/admin/login" method="POST" on:submit|preventDefault={handleSubmit}>
