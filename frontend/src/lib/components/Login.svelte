@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
-	import Person from '$lib/icons/person.svelte';
-	import Lock from '$lib/icons/lock.svelte';
+	import Person from '$lib/icons/Person.svelte';
+	import Lock from '$lib/icons/Lock.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import type { Token } from '$lib/interfaces/token';
 	

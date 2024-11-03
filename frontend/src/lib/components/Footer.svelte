@@ -1,7 +1,7 @@
 <script lang="ts">
-    import Etsy from '$lib/icons/etsy.svelte';
-	import Instagram from '$lib/icons/instagram.svelte';
-	import Pinterest from '$lib/icons/pinterest.svelte';
+    import Etsy from '$lib/icons/Etsy.svelte';
+	import Instagram from '$lib/icons/Instagram.svelte';
+	import Pinterest from '$lib/icons/Pinterest.svelte';
 
     let year: number = new Date().getFullYear();
 </script>
