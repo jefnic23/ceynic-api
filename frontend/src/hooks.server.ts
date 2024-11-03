@@ -1,12 +1,23 @@
 import type { Handle } from '@sveltejs/kit';
+import { handleRefresh } from '$lib/server/auth';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	if (event.url.pathname.startsWith('/admin')) {
 		const accessToken = event.cookies.get("access");
+		const refreshToken = event.cookies.get("refresh");
 
-		if (!accessToken) {
-			return await resolve(event);
+		// If access token is missing, attempt a refresh if refresh token is available
+		if (!accessToken && refreshToken) {
+			const attemptRefresh = await handleRefresh(event.cookies);
+			if (!attemptRefresh) {
+				return await resolve(event);  // Refresh failed
+			} else {
+				event.locals.user = "me";
+			}
 		}
+		
+		// Either access token exists or refresh was successful
+		return await resolve(event);
 	}
 
 	// todo: get user
