@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ActionData } from './$types';
-	import Person from '$lib/icons/person.svelte';
-	import Lock from '$lib/icons/lock.svelte';
+	import Person from '$lib/icons/Person.svelte';
+	import Lock from '$lib/icons/Lock.svelte';
 
 	export let form: ActionData;
 </script>
