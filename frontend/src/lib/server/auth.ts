@@ -30,3 +30,26 @@ export async function handleLogin({ request, cookies }: { request: Request, cook
 
     return { success: true };
 }
+
+export async function handleRefresh(cookies: Cookies ) {
+    const refreshToken = cookies.get("refresh");
+
+    const response = await fetch("http://127.0.0.1:8000/refresh", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({refresh_token: refreshToken})
+    });
+
+    if (response.status != 200) {
+        return { success: false };
+    }
+
+    const responseData: Token = await response.json();
+
+    setCookie('access', responseData.accessToken, 60 * 5, cookies);
+    setCookie('refresh', responseData.refreshToken, 60 * 60 * 24 * 30, cookies);
+
+    return { success: true };
+}
