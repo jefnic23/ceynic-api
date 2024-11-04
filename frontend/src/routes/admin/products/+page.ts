@@ -13,6 +13,7 @@ export const load = async ({ fetch }) => {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return responseData.map((item: any): Product => ({
+            id: item.id,
             title: item.title,
             price: item.price,
             height: item.height,
