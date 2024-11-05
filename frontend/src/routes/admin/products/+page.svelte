@@ -1,24 +1,31 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
-	import type { Product } from '$lib/interfaces/product';
+	import Thumbnail from '$lib/icons/Thumbnail.svelte';
+	import type { ProductOut, ProductsOut } from '$lib/interfaces/product';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
 	let showModal: boolean = false;
-	let selectedProduct: Product;
+	let loadingModal: boolean = false;
+	let selectedProduct: ProductOut;
 
-	async function openEditModal(product: Product) {
+	async function openEditModal(product: ProductsOut) {
+		showModal = true;
+		loadingModal = true;
 		const response = await fetch(`http://127.0.0.1:8000/products/${product.id}`);
 
-        if (response.status !== 200) {
-            console.log("Error retrieving product.");
-        }
-    
-        const responseData = await response.json();
+		if (response.status !== 200) {
+			console.log('Error retrieving product.');
+			loadingModal = false;
+			showModal = false;
+			return;
+		}
+
+		const responseData = await response.json();
 
 		selectedProduct = { ...responseData };
-		showModal = true;
+		loadingModal = false;
 	}
 
 	const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -30,7 +37,7 @@
 	let hoverImage: string | null = null;
 	let hoverPosition = { x: 0, y: 0 };
 
-	function showImage(product: Product, event: MouseEvent) {
+	function showImage(product: ProductsOut, event: MouseEvent) {
 		hoverImage = product.imageUrl;
 		hoverPosition = { x: event.clientX + 20, y: event.clientY - 50 }; // Adjust positioning as needed
 	}
@@ -62,7 +69,9 @@
 					<td>{product.height}</td>
 					<td>{product.width}</td>
 					<td>{product.medium}</td>
-					<td><button on:click={async () => await openEditModal(product)}>Edit</button></td>
+					<td>
+						<button on:click={async () => await openEditModal(product)}>Edit</button>
+					</td>
 				</tr>
 			{/each}
 		</tbody>
@@ -82,16 +91,54 @@
 
 {#if showModal}
 	<Modal bind:showModal>
-		<div class="edit">
-			<input type="text" value={selectedProduct.title} />
-			<input type="number" min="0.01" step="0.01" value={selectedProduct.price} />
-			<input type="number" min="1" step="1" value={selectedProduct.height} />
-			<input type="number" min="1" step="1" value={selectedProduct.width} />
-			<select name="medium" bind:value={selectedProduct.medium}>
-				<option value="Painting">Painting</option>
-				<option value="Print">Print</option>
-			</select>
-		</div>
+		{#if loadingModal}
+			<div>loading product...</div>
+		{:else}
+			<div class="edit">
+				<label for="title">Title</label>
+				<input name="title" type="text" value={selectedProduct.title} />
+
+				<label for="price">Price</label>
+				<div class="price">
+					<input name="price" type="number" min="0.01" step="0.01" value={selectedProduct.price} />
+				</div>
+
+				<div class="form-row">
+					<div class="form-input">
+						<label for="height">Height</label>
+						<div class="inches">
+							<input name="height" type="number" min="1" step="1" value={selectedProduct.height} />
+						</div>
+					</div>
+
+					<div class="form-input">
+						<label for="width">Width</label>
+						<div class="inches">
+							<input name="width" type="number" min="1" step="1" value={selectedProduct.width} />
+						</div>
+					</div>
+				</div>
+
+				<label for="medium">Medium</label>
+				<select name="medium" bind:value={selectedProduct.medium}>
+					<option value="Painting">Painting</option>
+					<option value="Print">Print</option>
+				</select>
+
+				<div class="image-container">
+					{#each selectedProduct.images as image}
+						<div class="image-wrapper">
+							<img src={image} alt={image} />
+							{#if image.endsWith(selectedProduct.thumbnail)}
+								<div class="thumbnail-overlay">
+									<Thumbnail width="3em" height="3em" />
+								</div>
+							{/if}
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
 	</Modal>
 {/if}
 
@@ -123,5 +170,83 @@
 	.edit {
 		display: flex;
 		flex-direction: column;
+	}
+
+	.image-container {
+		overflow-x: auto;
+		display: flex;
+		flex-direction: row;
+	}
+
+	.image-wrapper {
+		position: relative;
+		display: inline-block;
+	}
+
+	.image-wrapper img {
+		height: 250px;
+		padding: 13px;
+	}
+
+	.thumbnail-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: flex-end;
+		justify-content: flex-start;
+		pointer-events: none;
+		padding: 13px;
+		color: #1e90ff;
+	}
+
+	.form-row {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.form-input {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.price {
+		position: relative;
+		display: inline-block;
+	}
+
+	.price input {
+		padding-left: 1.5em; /* Add space for the dollar sign */
+	}
+
+	.price::before {
+		content: '$';
+		position: absolute;
+		left: 0.5em; /* Adjust positioning as needed */
+		top: 50%;
+		transform: translateY(-50%);
+		font-size: 1em;
+		color: #333; /* Adjust color as needed */
+	}
+
+	.inches {
+		position: relative;
+		display: inline-block;
+	}
+
+	.inches input {
+		padding-right: 2em;
+	}
+
+	.inches::after {
+		content: 'in.';
+		position: absolute;
+		right: 0.5em; /* Adjust positioning as needed */
+		top: 50%;
+		transform: translateY(-50%);
+		font-size: 1em;
+		color: #333; /* Adjust color as needed */
 	}
 </style>
