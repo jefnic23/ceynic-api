@@ -3,7 +3,6 @@
 	import Person from '$lib/icons/Person.svelte';
 	import Lock from '$lib/icons/Lock.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import type { Token } from '$lib/interfaces/token';
 	
 	export let invalid: boolean = false;
 	export let credentials: boolean = false;

@@ -69,6 +69,7 @@
     
 	button {
 		display: block;
+		margin-top: 1rem;
 	}
 
 	/* Colored bar on the left edge */
