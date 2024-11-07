@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Dropzone from '$lib/components/Dropzone.svelte';
 	import Modal from '$lib/components/Modal.svelte';
 	import Info from '$lib/icons/Info.svelte';
 	import Thumbnail from '$lib/icons/Thumbnail.svelte';
@@ -45,6 +46,19 @@
 
 	function hideImage() {
 		hoverImage = null;
+	}
+
+	let images: File[] = [];
+
+	function handleSubmit(event: Event) {
+		event.preventDefault();
+		const formData = new FormData(event.target as HTMLFormElement);
+		images.forEach((image) => formData.append('images', image));
+		// Send `formData` to your API endpoint
+	}
+
+	function handleImagesChange(event: CustomEvent<{ files: File[] }>) {
+		images = event.detail.files;
 	}
 </script>
 
@@ -98,7 +112,7 @@
 			<div class="edit">
 				<div class="edit-header">
 					<Info color="#1e90ff" width="2em" height="2em" />
-					<span>Edit Product</span>
+					<div>Edit Product</div>
 				</div>
 
 				<div class="form-input">
@@ -149,7 +163,9 @@
 					</div>
 				</div>
 
-				<div class="image-container">
+				<Dropzone on:change={handleImagesChange} />
+
+				<!-- <div class="image-container">
 					{#each selectedProduct.images as image}
 						<div class="image-wrapper">
 							<img src={image} alt={image} />
@@ -160,7 +176,7 @@
 							{/if}
 						</div>
 					{/each}
-				</div>
+				</div> -->
 			</div>
 		{/if}
 	</Modal>
@@ -180,6 +196,7 @@
 
 	textarea {
 		resize: vertical;
+		height: 89px;
 	}
 
 	input {
@@ -282,7 +299,7 @@
 	.inches::after {
 		content: 'in.';
 		position: absolute;
-		right: 0.5em; /* Adjust positioning as needed */
+		right: 0.34em; /* Adjust positioning as needed */
 		top: 50%;
 		transform: translateY(-50%);
 		line-height: normal;
