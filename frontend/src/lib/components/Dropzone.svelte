@@ -37,9 +37,13 @@
 
 <div
 	class="dropzone"
+	role="button"
+	aria-label="Image upload dropzone. Click or press Enter to upload images."
+	tabindex="0"
 	on:dragover|preventDefault
 	on:drop={handleDrop}
 	on:click={() => fileInput.click()}
+	on:keydown={(e) => e.key === 'Enter' && fileInput.click()}
 >
 	<p>Drag & drop images here, or click to select</p>
 	<input
