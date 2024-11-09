@@ -1,8 +1,16 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
+
+	export let previews: string[];
+	export let thumbnail: string | null;
 
 	const dispatch = createEventDispatcher();
 	let files: File[] = [];
+
+	$: if (!thumbnail && files.length > 0) {
+		thumbnail = files[0].name;
+	}
 
 	// Triggered when images are dropped into the dropzone
 	function handleDrop(event: DragEvent) {
@@ -32,7 +40,31 @@
 		dispatch('change', { files });
 	}
 
+	function selectThumbnail(filename: string, event: MouseEvent | KeyboardEvent) {
+		event.stopPropagation(); // Prevents triggering the dropzone click event
+		thumbnail = filename;
+		dispatch('thumbnailChange', { thumbnail });
+	}
+
+	async function createFileFromImage(imageUrl: string) {
+		const filename = imageUrl.split('/').at(-1);
+		const response = await fetch(imageUrl);
+		const blob = await response.blob();
+		const file = new File([blob], filename as string, { type: blob.type });
+		return file;
+	}
+
 	let fileInput: HTMLInputElement;
+
+	onMount(async () => {
+		if (previews.length > 0) {
+			Promise.all(previews.map(createFileFromImage))
+				.then((resolvedFiles) => {
+					files = resolvedFiles;
+				})
+				.catch((error) => console.error('Error loading files:', error));
+		}
+	});
 </script>
 
 <div
@@ -56,9 +88,22 @@
 	/>
 	<div class="image-preview">
 		{#each files as file, index}
-			<div class="image-wrapper">
+			<div
+				class="image-wrapper {thumbnail === file.name ? 'thumbnail' : ''}"
+				role="button"
+				aria-label="Click an image to make it the product thumbnail."
+				aria-pressed={thumbnail === file.name}
+				tabindex="0"
+				on:click={(e) => selectThumbnail(file.name, e)}
+				on:keydown={(e) => e.key === 'Enter' && selectThumbnail(file.name, e)}
+			>
 				<img src={URL.createObjectURL(file)} alt="Preview" class="image" />
-				<button class="remove-btn" on:click={(e) => removeImage(index, e)}>✕</button>
+				{#if thumbnail === file.name}
+					<span class="thumbnail-indicator">Thumbnail</span>
+				{/if}
+				<button class="remove-btn" aria-label="Remove image" on:click={(e) => removeImage(index, e)}
+					>&times;</button
+				>
 			</div>
 		{/each}
 	</div>
@@ -105,5 +150,30 @@
 		border: none;
 		border-radius: 50%;
 		cursor: pointer;
+		transition:
+			transform 0.2s ease,
+			background-color 0.2s ease;
+	}
+
+	.remove-btn:hover {
+		transform: scale(1.2);
+		background-color: rgba(255, 0, 0, 0.8);
+		color: white;
+	}
+
+	.thumbnail-indicator {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		background: rgba(0, 128, 0, 0.6);
+		color: white;
+		padding: 2px 5px;
+		font-size: 0.8em;
+		border-radius: 0 0 0 3px;
+	}
+
+	.image-wrapper.thumbnail {
+		border: 2px solid green;
+		border-radius: 5px;
 	}
 </style>
