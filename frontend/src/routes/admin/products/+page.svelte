@@ -2,7 +2,6 @@
 	import Dropzone from '$lib/components/Dropzone.svelte';
 	import Modal from '$lib/components/Modal.svelte';
 	import Info from '$lib/icons/Info.svelte';
-	import Thumbnail from '$lib/icons/Thumbnail.svelte';
 	import type { ProductOut, ProductsOut } from '$lib/interfaces/product';
 	import type { PageData } from './$types';
 
@@ -27,7 +26,13 @@
 		const responseData = await response.json();
 
 		selectedProduct = { ...responseData };
+		selectedProduct.images = selectedProduct.images.map(replaceImageUrl);
 		loadingModal = false;
+	}
+
+	function replaceImageUrl(imageUrl: string) {
+		const filename = imageUrl.split('/').at(-1);
+		return `/api/proxy/${selectedProduct.title.replaceAll(' ', '_')}/${filename}`;
 	}
 
 	const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -38,10 +43,16 @@
 
 	let hoverImage: string | null = null;
 	let hoverPosition = { x: 0, y: 0 };
+	let tableElement: Element;
 
 	function showImage(product: ProductsOut, event: MouseEvent) {
 		hoverImage = product.imageUrl;
-		hoverPosition = { x: event.clientX + 20, y: event.clientY - 50 }; // Adjust positioning as needed
+		const tableRect = tableElement.getBoundingClientRect();
+		const isCursorOnLeft = event.clientX < tableRect.left + tableRect.width / 2;
+		hoverPosition = {
+			x: isCursorOnLeft ? event.clientX + 20 : event.clientX - 220, // Adjust for image width
+			y: event.clientY - 50
+		};
 	}
 
 	function hideImage() {
@@ -50,19 +61,24 @@
 
 	let images: File[] = [];
 
-	function handleSubmit(event: Event) {
-		event.preventDefault();
-		const formData = new FormData(event.target as HTMLFormElement);
-		images.forEach((image) => formData.append('images', image));
-		// Send `formData` to your API endpoint
-	}
-
 	function handleImagesChange(event: CustomEvent<{ files: File[] }>) {
 		images = event.detail.files;
 	}
+
+	function handleThumbnailChange(event: CustomEvent<{ thumbnail: string }>) {
+		selectedProduct.thumbnail = event.detail.thumbnail;
+	}
+
+	function handleSubmit(event: Event) {
+		event.preventDefault();
+		console.log(selectedProduct);
+		// const formData = new FormData(event.target as HTMLFormElement);
+		// images.forEach((image) => formData.append('images', image));
+		// Send `formData` to your API endpoint
+	}
 </script>
 
-<table>
+<table bind:this={tableElement}>
 	{#await data.products}
 		<div>loading products...</div>
 	{:then products}
@@ -163,7 +179,16 @@
 					</div>
 				</div>
 
-				<Dropzone on:change={handleImagesChange} />
+				<Dropzone
+					on:change={handleImagesChange}
+					on:thumbnailChange={handleThumbnailChange}
+					previews={selectedProduct.images}
+					thumbnail={selectedProduct.thumbnail}
+				/>
+
+				<div class="form-input">
+					<button type="submit" on:click={handleSubmit}>Submit</button>
+				</div>
 
 				<!-- <div class="image-container">
 					{#each selectedProduct.images as image}
@@ -220,37 +245,6 @@
 		display: flex;
 		flex-direction: column;
 		row-gap: 1rem;
-	}
-
-	.image-container {
-		overflow-x: auto;
-		display: flex;
-		flex-direction: row;
-		border: 2px #ccc dashed;
-	}
-
-	.image-wrapper {
-		position: relative;
-		display: inline-block;
-	}
-
-	.image-wrapper img {
-		height: 250px;
-		padding: 13px;
-	}
-
-	.thumbnail-overlay {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		display: flex;
-		align-items: flex-end;
-		justify-content: flex-start;
-		pointer-events: none;
-		padding: 13px;
-		color: #1e90ff;
 	}
 
 	.form-row {
