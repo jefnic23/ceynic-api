@@ -1,1 +1,1 @@
-web: gunicorn tracey_nicholas_art:app --preload
+web: uvicorn backend.src.main:app --reload

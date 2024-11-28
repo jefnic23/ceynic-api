@@ -22,11 +22,11 @@ def create_app():
     app.include_router(products.router)
     app.include_router(users.router)
 
-    # app.mount("/", StaticFiles(directory="build/", html=True), name="static")
+    app.mount("/", StaticFiles(directory="build/", html=True), name="static")
 
-    # @app.get("/")
-    # def index():
-    #     return app.send_static_file("index.html")  # type: ignore
+    @app.get("/")
+    def index():
+        return app.send_static_file("index.html")  # type: ignore
 
     return app
 
