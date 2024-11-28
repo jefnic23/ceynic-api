@@ -136,8 +136,8 @@
 	}
 
 	.image {
-		width: 100px;
-		height: 100px;
+		width: 144px;
+		height: 144px;
 		object-fit: cover;
 		border-radius: 5px;
 	}

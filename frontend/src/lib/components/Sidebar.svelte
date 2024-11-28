@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { enhance } from "$app/forms";
 	import Hamburger from "$lib/icons/Hamburger.svelte";
     import Home from '$lib/icons/Home.svelte';
 	import Listing from '$lib/icons/Listing.svelte';
 	import Logout from "$lib/icons/Logout.svelte";
+	import Button from "./Button.svelte";
 
     let open: boolean = false
 </script>
@@ -12,7 +14,9 @@
     <nav>
         <a href="/admin"><Home /> Home</a>
         <a href="/admin/products"><Listing /> Products</a>
-		<a href="/admin"><Logout /> Logout</a>
+		<form action="/admin/logout" method="POST" use:enhance>
+			<button><Logout /> Log Out</button>
+		</form>
     </nav>
 </aside>
 

@@ -6,18 +6,22 @@ export const handle: Handle = async ({ event, resolve }) => {
 		const accessToken = event.cookies.get("access");
 		const refreshToken = event.cookies.get("refresh");
 
+		if (!accessToken && !refreshToken) {
+			return await resolve(event);
+		}
+
 		// If access token is missing, attempt a refresh if refresh token is available
 		if (!accessToken && refreshToken) {
 			const attemptRefresh = await handleRefresh(event.cookies);
-			if (!attemptRefresh) {
-				return await resolve(event);  // Refresh failed
-			} else {
+			if (attemptRefresh) {
 				event.locals.user = "me";
+			} else {
+				return await resolve(event);
 			}
 		}
-		
+
 		// Either access token exists or refresh was successful
-		return await resolve(event);
+		// return await resolve(event);
 	}
 
 	// todo: get user

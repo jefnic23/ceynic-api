@@ -53,3 +53,8 @@ export async function handleRefresh(cookies: Cookies ) {
 
     return { success: true };
 }
+
+export function handleLogout(cookies: Cookies) {
+    setCookie('access', '', 0, cookies);
+    setCookie('refresh', '', 0, cookies);
+}

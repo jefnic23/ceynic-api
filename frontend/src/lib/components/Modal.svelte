@@ -2,6 +2,7 @@
 	export let showModal: boolean;
 	export let showClose: boolean = true;
 	export let type: 'info' | 'success' | 'warning' | 'error' = 'info';
+	export let title: string;
 
 	let dialog: HTMLDialogElement;
 
@@ -9,24 +10,23 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
-<dialog
-	bind:this={dialog}
-	on:close={() => (showModal = false)}
-	class={type}
->
+<dialog bind:this={dialog} on:close={() => (showModal = false)} class={type}>
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div on:click|stopPropagation>
+		<div class="header">
+			<h2>{title}</h2>
+			<!-- svelte-ignore a11y-autofocus -->
+			{#if showClose}
+				<button class="close-button" autofocus on:click={() => dialog.close()}>&times;</button>
+			{/if}
+		</div>
 		<slot />
-		<!-- svelte-ignore a11y-autofocus -->
-		{#if showClose}
-			<button autofocus on:click={() => dialog.close()}>close</button>
-		{/if}
 	</div>
 </dialog>
 
 <style>
 	dialog {
-		max-width: 32em;
+		max-width: 50em;
 		border-radius: 0.5em;
 		border: none;
 		padding: 0;
@@ -38,7 +38,7 @@
 	}
 
 	dialog > div {
-		padding: 1em;
+		padding: 1em 1em 1em 1.34em;
 	}
 
 	dialog[open] {
@@ -66,10 +66,30 @@
 			opacity: 1;
 		}
 	}
-    
-	button {
-		display: block;
-		margin-top: 1rem;
+
+	.header {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		text-transform: uppercase;
+	}
+
+	/* Close button styling */
+	.close-button {
+		background: none;
+		border: none;
+		font-size: 1.5em;
+		cursor: pointer;
+		color: #333;
+		transition:
+			transform 0.2s ease,
+			color 0.2s ease;
+	}
+
+	.close-button:hover {
+		transform: scale(1.2);
+		color: #000;
 	}
 
 	/* Colored bar on the left edge */

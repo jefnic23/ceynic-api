@@ -3,6 +3,7 @@
 	import Person from '$lib/icons/Person.svelte';
 	import Lock from '$lib/icons/Lock.svelte';
 	import { createEventDispatcher } from 'svelte';
+	import Button from './Button.svelte';
 	
 	export let invalid: boolean = false;
 	export let credentials: boolean = false;
@@ -30,9 +31,8 @@
 	}
 </script>
 
-<Modal showModal={true} showClose={false}>
+<Modal showModal={true} showClose={false} title="Log In">
 	<div class="body">
-		<h2>Log In</h2>
 		<form action="/admin/login" method="POST" on:submit|preventDefault={handleSubmit}>
 			<div class="input-container">
 				<Person />
@@ -56,7 +56,7 @@
 			{#if credentials}
 				<p class="error">You have entered the wrong credentials.</p>
 			{/if}
-			<button>Submit</button>
+			<Button text="Submit" />
 		</form>
 	</div>
 </Modal>
@@ -67,10 +67,6 @@
 		flex-direction: column;
 		align-items: center;
 		width: 377px;
-	}
-
-	h2 {
-		text-transform: uppercase;
 	}
 
 	form {

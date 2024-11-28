@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Dropzone from '$lib/components/Dropzone.svelte';
+	import Button from '$lib/components/Button.svelte';
+import Dropzone from '$lib/components/Dropzone.svelte';
 	import Modal from '$lib/components/Modal.svelte';
-	import Info from '$lib/icons/Info.svelte';
 	import type { ProductOut, ProductsOut } from '$lib/interfaces/product';
 	import type { PageData } from './$types';
 
@@ -121,16 +121,11 @@
 {/if}
 
 {#if showModal}
-	<Modal bind:showModal>
+	<Modal bind:showModal title="Edit Product">
 		{#if loadingModal}
 			<div>loading product...</div>
 		{:else}
 			<div class="edit">
-				<div class="edit-header">
-					<Info color="#1e90ff" width="2em" height="2em" />
-					<div>Edit Product</div>
-				</div>
-
 				<div class="form-input">
 					<label for="title">Title</label>
 					<input id="title" type="text" value={selectedProduct.title} />
@@ -186,8 +181,9 @@
 					thumbnail={selectedProduct.thumbnail}
 				/>
 
-				<div class="form-input">
-					<button type="submit" on:click={handleSubmit}>Submit</button>
+				<div class="form-buttons">
+					<Button text="Submit" on:click={handleSubmit} />
+					<Button text="Cancel" style="cancel" on:click={() => showModal = false} />
 				</div>
 
 				<!-- <div class="image-container">
@@ -245,6 +241,7 @@
 		display: flex;
 		flex-direction: column;
 		row-gap: 1rem;
+		width: 35em;
 	}
 
 	.form-row {
@@ -259,6 +256,14 @@
 		display: flex;
 		flex-direction: column;
 		flex: 1;
+	}
+
+	.form-buttons {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-end;
+		column-gap: 1rem;
 	}
 
 	.price {
@@ -300,13 +305,5 @@
 		font-size: 1em;
 		font-weight: bold;
 		color: #333; /* Adjust color as needed */
-	}
-
-	.edit-header {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		align-items: center;
-		line-height: normal;
 	}
 </style>
