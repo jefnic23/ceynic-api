@@ -1,6 +1,9 @@
 {
 	"name": "frontend",
 	"version": "0.0.1",
+	"engines": {
+		"node": "22.x"
+	},
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
@@ -9,7 +12,8 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"start": "node build"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",
@@ -33,6 +37,7 @@
 	"type": "module",
 	"dependencies": {
 		"@paypal/paypal-js": "^8.0.5",
+		"@sveltejs/adapter-node": "^5.2.9",
 		"jwt-decode": "^4.0.0"
 	}
 }
