@@ -133,3 +133,33 @@ async def get_current_user(
 
 
 CURRENT_USER_DEPENDENCY = Annotated[User, Depends(get_current_user)]
+
+
+def get_subdomain(request: Request) -> str:
+    """
+    Extracts the subdomain from the incoming request's host header.
+    """
+
+    # todo: this should probably be used only on prod env
+
+    host = request.headers.get("host")
+    if not host:
+        raise HTTPException(status_code=400, detail="Host header is missing")
+
+    # Assuming the main domain is 'ceynic.net'
+    main_domain = "ceynic.net" # todo: environment variable?
+    if not host.endswith(main_domain):
+        raise HTTPException(status_code=400, detail="Invalid host")
+
+    # Extract the subdomain
+    subdomain = host.removesuffix(f".{main_domain}").split(".")[0]
+
+    if not subdomain:
+        raise HTTPException(status_code=400, detail="Subdomain is missing")
+    
+    # todo: get and return storefront id?
+
+    return subdomain
+
+
+SUBDOMAIN_DEPENDENCY = Annotated[str, Depends(get_subdomain)]

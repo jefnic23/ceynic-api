@@ -14,8 +14,10 @@ class ProductsService:
         self.settings = settings
         self.aws = aws
 
-    async def get_all(self, sort: ProductSortParams | None = None) -> list[ProductsOut]:
-        statement = select(Product)
+    async def get_all(
+        self, subdomain: str, sort: ProductSortParams | None = None
+    ) -> list[ProductsOut]:
+        statement = select(Product).where(Product.storefront.name == subdomain)
         if sort:
             if sort == ProductSortParams.OLDEST:
                 statement = statement.order_by(Product.date_added)
@@ -33,7 +35,7 @@ class ProductsService:
                 )
         results = await self.session.exec(statement=statement)
         products = results.all()
-        # TODO: omit products that don't have any images 
+        # TODO: omit products that don't have any images
         return [
             ProductsOut(
                 **product.model_dump(),
@@ -42,12 +44,24 @@ class ProductsService:
             for product in products
         ]
 
-    async def get(self, product_id: int) -> ProductOut:
-        statement = select(Product).where(Product.id == product_id)
+    async def get(self, product_id: int, subdomain: str) -> ProductOut:
+        statement = (
+            select(Product)
+            .where(Product.id == product_id)
+            .where(Product.storefront.name == subdomain)
+        )
         results = await self.session.exec(statement=statement)
-        product = results.first()
+        product = results.one()
         images = await self.aws.get_product_images(product.title)
         return ProductOut(
             **product.model_dump(),
             images=images,
         )
+
+    async def update(self, product: ProductOut) -> None:
+        statement = select(Product).where(Product.id == product.id)
+        results = await self.session.exec(statement=statement)
+        product = results.one()
+
+
+    # todo: static methods for applying sorting/filtering
