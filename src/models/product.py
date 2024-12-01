@@ -7,6 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 if TYPE_CHECKING:
     from src.models.medium import Medium
     from src.models.order import Order
+    from src.models.storefront import Storefront
 
 
 class Product(SQLModel, table=True):
@@ -27,3 +28,6 @@ class Product(SQLModel, table=True):
 
     order_id: str | None = Field(foreign_key="orders.id", unique=True)
     order: Optional["Order"] = Relationship(back_populates="products")
+
+    storefront_id: int = Field(foreign_key="storefronts.id")
+    storefront: "Storefront" = Relationship(back_populates="storefronts")

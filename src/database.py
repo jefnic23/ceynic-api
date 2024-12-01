@@ -10,6 +10,7 @@ from src.config import SETTINGS_DEPENDENCY, Settings
 from src.models.medium import Medium  # noqa: F401
 from src.models.order import Order  # noqa: F401
 from src.models.product import Product  # noqa: F401
+from src.models.storefront import Storefront  # noqa: F401
 from src.models.user import User  # noqa: F401
 
 
