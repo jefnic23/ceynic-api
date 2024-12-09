@@ -5,6 +5,7 @@ from src.config import Settings
 from src.models.enums.product_sort_params import ProductSortParams
 from src.models.product import Product
 from src.models.schemas.product import ProductOut, ProductsOut
+from src.models.storefront import Storefront
 from src.services.aws_service import AwsService
 
 
@@ -17,7 +18,9 @@ class ProductsService:
     async def get_all(
         self, subdomain: str, sort: ProductSortParams | None = None
     ) -> list[ProductsOut]:
-        statement = select(Product).where(Product.storefront.name == subdomain)
+        statement = (
+            select(Product).join(Product.storefront).where(Storefront.name == subdomain)
+        )
         if sort:
             if sort == ProductSortParams.OLDEST:
                 statement = statement.order_by(Product.date_added)
@@ -29,10 +32,12 @@ class ProductsService:
                 statement = statement.order_by(Product.price.desc())
             elif sort == ProductSortParams.SIZE_ASC:
                 statement = statement.order_by(Product.height, Product.width)
-            else:
+            elif sort == ProductSortParams.SIZE_DESC:
                 statement = statement.order_by(
                     Product.height.desc(), Product.width.desc()
                 )
+            else:
+                statement = statement
         results = await self.session.exec(statement=statement)
         products = results.all()
         # TODO: omit products that don't have any images
@@ -47,8 +52,9 @@ class ProductsService:
     async def get(self, product_id: int, subdomain: str) -> ProductOut:
         statement = (
             select(Product)
+            .join(Product.storefront)
+            .where(Storefront.name == subdomain)
             .where(Product.id == product_id)
-            .where(Product.storefront.name == subdomain)
         )
         results = await self.session.exec(statement=statement)
         product = results.one()
@@ -61,7 +67,6 @@ class ProductsService:
     async def update(self, product: ProductOut) -> None:
         statement = select(Product).where(Product.id == product.id)
         results = await self.session.exec(statement=statement)
-        product = results.one()
-
+        product_to_update = results.one()
 
     # todo: static methods for applying sorting/filtering
