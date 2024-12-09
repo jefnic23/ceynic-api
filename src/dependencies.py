@@ -98,7 +98,7 @@ AUTH_SERVICE_DEPENDENCY = Annotated[AuthService, Depends(get_auth_service)]
 
 
 async def verify_recaptcha(
-    token: Annotated[str, Form()], request: Request, settings: SETTINGS_DEPENDENCY
+    settings: SETTINGS_DEPENDENCY, token: Annotated[str, Form()], request: Request
 ) -> None:
     async with aiohttp.ClientSession() as session:
         data = {
@@ -135,19 +135,19 @@ async def get_current_user(
 CURRENT_USER_DEPENDENCY = Annotated[User, Depends(get_current_user)]
 
 
-def get_subdomain(request: Request) -> str:
+def get_subdomain(settings: SETTINGS_DEPENDENCY, request: Request) -> str:
     """
     Extracts the subdomain from the incoming request's host header.
     """
-
-    # todo: this should probably be used only on prod env
+    if settings.FASTAPI_ENV == "development":
+        return "traceynicholas"
 
     host = request.headers.get("host")
     if not host:
         raise HTTPException(status_code=400, detail="Host header is missing")
 
     # Assuming the main domain is 'ceynic.net'
-    main_domain = "ceynic.net" # todo: environment variable?
+    main_domain = "ceynic.net"
     if not host.endswith(main_domain):
         raise HTTPException(status_code=400, detail="Invalid host")
 
@@ -156,7 +156,7 @@ def get_subdomain(request: Request) -> str:
 
     if not subdomain:
         raise HTTPException(status_code=400, detail="Subdomain is missing")
-    
+
     # todo: get and return storefront id?
 
     return subdomain
