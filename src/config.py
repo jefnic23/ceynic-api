@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     PAYPAL_CLIENT_SECRET: str
     PAYPAL_URL: str
     RECAPTCHA_SECRET_KEY: str
+    FASTAPI_ENV: str = "production"
 
     model_config = SettingsConfigDict(env_file=".env")
 
