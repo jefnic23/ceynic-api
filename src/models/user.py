@@ -14,8 +14,8 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True)
     password: str
 
-    storefront_id = int = Field(foreign_key='storefronts.id')
-    Storefront: "Storefront" = Relationship(back_populates="users")
+    storefront_id: int = Field(foreign_key='storefronts.id')
+    storefront: "Storefront" = Relationship(back_populates="users")
 
     refresh_token: Optional["RefreshToken"] = Relationship(
         back_populates="user", sa_relationship_kwargs={"uselist": False}

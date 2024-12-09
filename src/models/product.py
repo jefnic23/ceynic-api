@@ -30,4 +30,4 @@ class Product(SQLModel, table=True):
     order: Optional["Order"] = Relationship(back_populates="products")
 
     storefront_id: int = Field(foreign_key="storefronts.id")
-    storefront: "Storefront" = Relationship(back_populates="storefronts")
+    storefront: "Storefront" = Relationship(back_populates="products")
