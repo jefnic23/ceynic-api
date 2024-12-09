@@ -25,4 +25,5 @@ class AwsService:
             return [
                 f"https://{self._bucket_name}.s3.amazonaws.com/{image.key}"
                 async for image in images
+                if not image.key.endswith("/")
             ]
