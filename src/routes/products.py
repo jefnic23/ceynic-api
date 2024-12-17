@@ -7,6 +7,7 @@ from src.dependencies import (
     USERS_SERVICE_DEPENDENCY,
 )
 from src.models.enums.product_sort_params import ProductSortParams
+from src.models.schemas.price_range import PriceRange
 from src.models.schemas.product import ProductOut, ProductsOut
 
 router = APIRouter()
@@ -21,7 +22,7 @@ async def get_all_products(
     return await products_service.get_all(subdomain=subdomain, sort=sort)
 
 
-@router.get("/products/{id}")
+@router.get("/products/{id:int}")
 async def get_product(
     subdomain: SUBDOMAIN_DEPENDENCY,
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
@@ -36,7 +37,7 @@ async def get_product(
     return product
 
 
-@router.put("/products/{id}")
+@router.put("/products/{id:int}")
 async def update_product(
     current_user: CURRENT_USER_DEPENDENCY,
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
@@ -58,3 +59,11 @@ async def update_product(
         )
     await products_service.update(product=product)
     return None
+
+
+@router.get("/products/priceRange")
+async def get_price_range(
+    subdomain: SUBDOMAIN_DEPENDENCY,
+    products_service: PRODUCTS_SERVICE_DEPENDENCY, 
+) -> PriceRange:
+    return await products_service.get_price_range(subdomain=subdomain)

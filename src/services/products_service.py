@@ -1,9 +1,11 @@
+from sqlalchemy import func
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import Settings
 from src.models.enums.product_sort_params import ProductSortParams
 from src.models.product import Product
+from src.models.schemas.price_range import PriceRange
 from src.models.schemas.product import ProductOut, ProductsOut
 from src.models.storefront import Storefront
 from src.services.aws_service import AwsService
@@ -68,5 +70,21 @@ class ProductsService:
         statement = select(Product).where(Product.id == product.id)
         results = await self.session.exec(statement=statement)
         product_to_update = results.one()
+
+    async def get_price_range(self, subdomain: str) -> PriceRange:
+        # Select the min and max price values from the Product table, filtered by the Storefront name
+        statement = select(
+            func.min(Product.price).label("minimum"),
+            func.max(Product.price).label("maximum")
+        ).join(Product.storefront).where(Storefront.name == subdomain)
+        
+        # Execute the statement
+        results = await self.session.exec(statement)
+        
+        # Get the result (which will be a tuple of min and max prices)
+        min_price, max_price = results.one()
+        
+        # Return the result as a PriceRange object
+        return PriceRange(minimum=min_price, maximum=max_price)
 
     # todo: static methods for applying sorting/filtering
