@@ -3,10 +3,13 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import Settings
+from src.models.medium import Medium
 from src.models.enums.product_sort_params import ProductSortParams
 from src.models.product import Product
+from src.models.schemas.medium_count import MediumCount
 from src.models.schemas.price_range import PriceRange
 from src.models.schemas.product import ProductOut, ProductsOut
+from src.models.schemas.size_ranges import SizeRanges
 from src.models.storefront import Storefront
 from src.services.aws_service import AwsService
 
@@ -72,19 +75,37 @@ class ProductsService:
         product_to_update = results.one()
 
     async def get_price_range(self, subdomain: str) -> PriceRange:
-        # Select the min and max price values from the Product table, filtered by the Storefront name
         statement = select(
             func.min(Product.price).label("minimum"),
             func.max(Product.price).label("maximum")
         ).join(Product.storefront).where(Storefront.name == subdomain)
-        
-        # Execute the statement
         results = await self.session.exec(statement)
-        
-        # Get the result (which will be a tuple of min and max prices)
         min_price, max_price = results.one()
-        
-        # Return the result as a PriceRange object
         return PriceRange(minimum=min_price, maximum=max_price)
+
+    async def get_medium_counts(self, subdomain: str) -> list[MediumCount]:
+        statement = (
+            select(Medium.name, func.count(Product.medium_id).label("count"))
+            .select_from(Medium)
+            .join(Product, Medium.id == Product.medium_id, isouter=True)
+            .join(Storefront, Product.storefront_id == Storefront.id, isouter=True)
+            .where(Storefront.name == subdomain)
+            .group_by(Medium.name)
+        )
+        results = await self.session.exec(statement)
+        medium_counts = results.all()
+        return [MediumCount(name=medium_count[0], count=medium_count[1]) for medium_count in medium_counts]
+    
+    async def get_size_ranges(self, subdomain: str) -> SizeRanges:
+        statement = select(
+            func.min(Product.width).label("width_minimum"),
+            func.max(Product.width).label("width_maximum"),
+            func.min(Product.height).label("height_minimum"),
+            func.max(Product.height).label("height_maximum")
+        ).join(Product.storefront).where(Storefront.name == subdomain)
+        results = await self.session.exec(statement)
+        width_minimum, width_maximum, height_minimum, height_maximum = results.one()
+        return SizeRanges(width_minimum=width_minimum, width_maximum=width_maximum, height_minimum=height_minimum, height_maximum=height_maximum)
+
 
     # todo: static methods for applying sorting/filtering
