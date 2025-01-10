@@ -28,7 +28,7 @@ async def get_all_products(
 async def get_product(
     subdomain: SUBDOMAIN_DEPENDENCY,
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
-    id: int
+    id: int,
 ) -> ProductOut:
     product = await products_service.get(product_id=id, subdomain=subdomain)
     if not product:
@@ -66,7 +66,7 @@ async def update_product(
 @router.get("/products/priceRange")
 async def get_price_range(
     subdomain: SUBDOMAIN_DEPENDENCY,
-    products_service: PRODUCTS_SERVICE_DEPENDENCY, 
+    products_service: PRODUCTS_SERVICE_DEPENDENCY,
 ) -> PriceRange:
     return await products_service.get_price_range(subdomain=subdomain)
 
@@ -82,6 +82,6 @@ async def get_medium_counts(
 @router.get("/products/sizeRanges")
 async def get_size_ranges(
     subdomain: SUBDOMAIN_DEPENDENCY,
-    products_service: PRODUCTS_SERVICE_DEPENDENCY, 
+    products_service: PRODUCTS_SERVICE_DEPENDENCY,
 ) -> SizeRanges:
     return await products_service.get_size_ranges(subdomain=subdomain)

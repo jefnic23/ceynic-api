@@ -3,8 +3,8 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import Settings
-from src.models.medium import Medium
 from src.models.enums.product_sort_params import ProductSortParams
+from src.models.medium import Medium
 from src.models.product import Product
 from src.models.schemas.medium_count import MediumCount
 from src.models.schemas.price_range import PriceRange
@@ -75,10 +75,14 @@ class ProductsService:
         product_to_update = results.one()
 
     async def get_price_range(self, subdomain: str) -> PriceRange:
-        statement = select(
-            func.min(Product.price).label("minimum"),
-            func.max(Product.price).label("maximum")
-        ).join(Product.storefront).where(Storefront.name == subdomain)
+        statement = (
+            select(
+                func.min(Product.price).label("minimum"),
+                func.max(Product.price).label("maximum"),
+            )
+            .join(Product.storefront)
+            .where(Storefront.name == subdomain)
+        )
         results = await self.session.exec(statement)
         min_price, max_price = results.one()
         return PriceRange(minimum=min_price, maximum=max_price)
@@ -94,18 +98,29 @@ class ProductsService:
         )
         results = await self.session.exec(statement)
         medium_counts = results.all()
-        return [MediumCount(name=medium_count[0], count=medium_count[1]) for medium_count in medium_counts]
-    
+        return [
+            MediumCount(name=medium_count[0], count=medium_count[1])
+            for medium_count in medium_counts
+        ]
+
     async def get_size_ranges(self, subdomain: str) -> SizeRanges:
-        statement = select(
-            func.min(Product.width).label("width_minimum"),
-            func.max(Product.width).label("width_maximum"),
-            func.min(Product.height).label("height_minimum"),
-            func.max(Product.height).label("height_maximum")
-        ).join(Product.storefront).where(Storefront.name == subdomain)
+        statement = (
+            select(
+                func.min(Product.width).label("width_minimum"),
+                func.max(Product.width).label("width_maximum"),
+                func.min(Product.height).label("height_minimum"),
+                func.max(Product.height).label("height_maximum"),
+            )
+            .join(Product.storefront)
+            .where(Storefront.name == subdomain)
+        )
         results = await self.session.exec(statement)
         width_minimum, width_maximum, height_minimum, height_maximum = results.one()
-        return SizeRanges(width_minimum=width_minimum, width_maximum=width_maximum, height_minimum=height_minimum, height_maximum=height_maximum)
-
+        return SizeRanges(
+            width_minimum=width_minimum,
+            width_maximum=width_maximum,
+            height_minimum=height_minimum,
+            height_maximum=height_maximum,
+        )
 
     # todo: static methods for applying sorting/filtering
