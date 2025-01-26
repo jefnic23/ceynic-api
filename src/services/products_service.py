@@ -1,4 +1,4 @@
-from sqlalchemy import func
+from sqlalchemy import Select, func
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -9,6 +9,7 @@ from src.models.product import Product
 from src.models.schemas.medium_count import MediumCount
 from src.models.schemas.price_range import PriceRange
 from src.models.schemas.product import ProductOut, ProductsOut
+from src.models.schemas.product_query_params import ProductQueryParams
 from src.models.schemas.size_ranges import SizeRanges
 from src.models.storefront import Storefront
 from src.services.aws_service import AwsService
@@ -21,28 +22,13 @@ class ProductsService:
         self.aws = aws
 
     async def get_all(
-        self, subdomain: str, sort: ProductSortParams | None = None
+        self, subdomain: str, query_params: ProductQueryParams | None = None
     ) -> list[ProductsOut]:
         statement = (
             select(Product).join(Product.storefront).where(Storefront.name == subdomain)
         )
-        if sort:
-            if sort == ProductSortParams.OLDEST:
-                statement = statement.order_by(Product.date_added)
-            elif sort == ProductSortParams.NEWEST:
-                statement = statement.order_by(Product.date_added.desc())
-            elif sort == ProductSortParams.PRICE_ASC:
-                statement = statement.order_by(Product.price)
-            elif sort == ProductSortParams.PRICE_DESC:
-                statement = statement.order_by(Product.price.desc())
-            elif sort == ProductSortParams.SIZE_ASC:
-                statement = statement.order_by(Product.height, Product.width)
-            elif sort == ProductSortParams.SIZE_DESC:
-                statement = statement.order_by(
-                    Product.height.desc(), Product.width.desc()
-                )
-            else:
-                statement = statement
+        if query_params:
+            statement = self.apply_query_params(statement, query_params)
         results = await self.session.exec(statement=statement)
         products = results.all()
         # TODO: omit products that don't have any images
@@ -89,17 +75,17 @@ class ProductsService:
 
     async def get_medium_counts(self, subdomain: str) -> list[MediumCount]:
         statement = (
-            select(Medium.name, func.count(Product.medium_id).label("count"))
+            select(Medium.id, Medium.name, func.count(Product.medium_id).label("count"))
             .select_from(Medium)
             .join(Product, Medium.id == Product.medium_id, isouter=True)
             .join(Storefront, Product.storefront_id == Storefront.id, isouter=True)
             .where(Storefront.name == subdomain)
-            .group_by(Medium.name)
+            .group_by(Medium.id, Medium.name)
         )
         results = await self.session.exec(statement)
         medium_counts = results.all()
         return [
-            MediumCount(name=medium_count[0], count=medium_count[1])
+            MediumCount(id=medium_count[0], name=medium_count[1], count=medium_count[2])
             for medium_count in medium_counts
         ]
 
@@ -123,4 +109,38 @@ class ProductsService:
             height_maximum=height_maximum,
         )
 
-    # todo: static methods for applying sorting/filtering
+    @staticmethod
+    def apply_query_params(statement: Select, query_params: ProductQueryParams | None) -> Select:
+        if query_params.mediums:
+            statement = statement.where(Product.medium_id in query_params.mediums)
+        if query_params.min_price:
+            statement = statement.where(Product.price >= query_params.min_price)
+        if query_params.max_price:
+            statement = statement.where(Product.price <= query_params.max_price)
+        if query_params.min_width:
+            statement = statement.where(Product.width >= query_params.min_width)
+        if query_params.max_width:
+            statement = statement.where(Product.width <= query_params.max_width)
+        if query_params.min_height:
+            statement = statement.where(Product.height >= query_params.min_height)
+        if query_params.max_height:
+            statement = statement.where(Product.height <= query_params.max_height)
+        if query_params.sort:
+            if query_params.sort == ProductSortParams.OLDEST:
+                statement = statement.order_by(Product.date_added)
+            elif query_params.sort == ProductSortParams.NEWEST:
+                statement = statement.order_by(Product.date_added.desc())
+            elif query_params.sort == ProductSortParams.PRICE_ASC:
+                statement = statement.order_by(Product.price)
+            elif query_params.sort == ProductSortParams.PRICE_DESC:
+                statement = statement.order_by(Product.price.desc())
+            elif query_params.sort == ProductSortParams.SIZE_ASC:
+                statement = statement.order_by(Product.height, Product.width)
+            elif query_params.sort == ProductSortParams.SIZE_DESC:
+                statement = statement.order_by(
+                    Product.height.desc(), Product.width.desc()
+                )
+            else:
+                statement = statement
+        return statement
+

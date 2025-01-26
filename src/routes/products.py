@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, status
+from typing import Annotated
+from fastapi import APIRouter, HTTPException, Query, status
 
 from src.dependencies import (
     CURRENT_USER_DEPENDENCY,
@@ -10,6 +11,7 @@ from src.models.enums.product_sort_params import ProductSortParams
 from src.models.schemas.medium_count import MediumCount
 from src.models.schemas.price_range import PriceRange
 from src.models.schemas.product import ProductOut, ProductsOut
+from src.models.schemas.product_query_params import ProductQueryParams
 from src.models.schemas.size_ranges import SizeRanges
 
 router = APIRouter()
@@ -19,9 +21,9 @@ router = APIRouter()
 async def get_all_products(
     subdomain: SUBDOMAIN_DEPENDENCY,
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
-    sort: ProductSortParams | None = None,
+    query_params: Annotated[ProductQueryParams, Query()],
 ) -> list[ProductsOut]:
-    return await products_service.get_all(subdomain=subdomain, sort=sort)
+    return await products_service.get_all(subdomain=subdomain, query_params=query_params)
 
 
 @router.get("/products/{id:int}")
