@@ -16,10 +16,18 @@ from src.services.messages_service import MessagesService
 from src.services.orders_service import OrdersService
 from src.services.products_service import ProductsService
 from src.services.refresh_tokens_service import RefreshTokensService
+from src.services.storefronts_service import StorefrontsService
 from src.services.users_service import UsersService
 
 OAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl="login")
 OAUTH_DEPENDENCY = Annotated[str, Depends(OAUTH2_SCHEME)]
+
+
+async def get_storefronts_service(session: ASYNC_SESSION_DEPENDENCY) -> StorefrontsService:
+    return StorefrontsService(session=session)
+
+
+STOREFRONTS_SERVICE_DEPENDENCY = Annotated[StorefrontsService, Depends(get_storefronts_service)]
 
 
 async def get_aws_service(

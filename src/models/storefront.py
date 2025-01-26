@@ -12,6 +12,8 @@ class Storefront(SQLModel, table=True):
 
     id: int = Field(primary_key=True)
     name: str = Field(unique=True)
+    city: str
+    state: str = Field(nullable=False)
 
     products: list["Product"] = Relationship(back_populates="storefront")
     users: list["User"] = Relationship(back_populates="storefront")
