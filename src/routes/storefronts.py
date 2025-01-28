@@ -12,3 +12,10 @@ async def get_location(
     storefronts_service: STOREFRONTS_SERVICE_DEPENDENCY
 ) -> Location:
     return await storefronts_service.get_locations(subdomain)
+
+@router.get("/storefronts/about")
+async def get_about(
+    subdomain: SUBDOMAIN_DEPENDENCY,
+    storefronts_service: STOREFRONTS_SERVICE_DEPENDENCY
+) -> str:
+    return await storefronts_service.get_about(subdomain)

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import SETTINGS_DEPENDENCY, Settings
+from src.models.content import Content  # noqa: F401
 from src.models.medium import Medium  # noqa: F401
 from src.models.order import Order  # noqa: F401
 from src.models.product import Product  # noqa: F401
