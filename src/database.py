@@ -32,7 +32,7 @@ class Database:
             future=True,
         )
         self.async_session: async_sessionmaker[AsyncSession] = async_sessionmaker(
-            self.engine, expire_on_commit=False, class_=AsyncSession
+            self.engine, expire_on_commit=True, class_=AsyncSession
         )
 
 
@@ -49,7 +49,13 @@ async def get_async_session(
     database: DATABASE_DEPENDENCY,
 ) -> AsyncGenerator[AsyncSession, None]:
     async with database.async_session() as async_session:
-        yield async_session
+        try:
+            yield async_session
+        except Exception:
+            await async_session.rollback()
+            raise
+        finally:
+            await async_session.close()
 
 
 ASYNC_SESSION_DEPENDENCY = Annotated[AsyncSession, Depends(get_async_session)]
