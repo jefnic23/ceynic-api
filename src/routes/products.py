@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, Response, status
 
 from src.dependencies import (
     CURRENT_USER_DEPENDENCY,
@@ -22,7 +22,9 @@ async def get_all_products(
     subdomain: SUBDOMAIN_DEPENDENCY,
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
     query_params: Annotated[ProductQueryParams, Query()],
+    response: Response
 ) -> list[ProductsOut]:
+    response.headers["cache-control"] = "max-age=3600"
     return await products_service.get_all(subdomain=subdomain, query_params=query_params)
 
 
@@ -31,6 +33,7 @@ async def get_product(
     subdomain: SUBDOMAIN_DEPENDENCY,
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
     id: int,
+    response: Response
 ) -> ProductOut:
     product = await products_service.get(product_id=id, subdomain=subdomain)
     if not product:
@@ -38,6 +41,7 @@ async def get_product(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found",
         )
+    response.headers["cache-control"] = "max-age=3600"
     return product
 
 
@@ -69,7 +73,9 @@ async def update_product(
 async def get_price_range(
     subdomain: SUBDOMAIN_DEPENDENCY,
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
+    response: Response
 ) -> PriceRange:
+    response.headers["cache-control"] = "max-age=3600"
     return await products_service.get_price_range(subdomain=subdomain)
 
 
@@ -77,7 +83,9 @@ async def get_price_range(
 async def get_medium_counts(
     subdomain: SUBDOMAIN_DEPENDENCY,
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
+    response: Response
 ) -> list[MediumCount]:
+    response.headers["cache-control"] = "max-age=3600"
     return await products_service.get_medium_counts(subdomain=subdomain)
 
 
@@ -85,5 +93,7 @@ async def get_medium_counts(
 async def get_size_ranges(
     subdomain: SUBDOMAIN_DEPENDENCY,
     products_service: PRODUCTS_SERVICE_DEPENDENCY,
+    response: Response
 ) -> SizeRanges:
+    response.headers["cache-control"] = "max-age=3600"
     return await products_service.get_size_ranges(subdomain=subdomain)
