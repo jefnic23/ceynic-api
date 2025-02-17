@@ -112,7 +112,7 @@ class ProductsService:
     @staticmethod
     def apply_query_params(statement: Select, query_params: ProductQueryParams | None) -> Select:
         if query_params.mediums:
-            statement = statement.where(Product.medium_id in query_params.mediums)
+            statement = statement.where(Product.medium.name in query_params.mediums)
         if query_params.min_price:
             statement = statement.where(Product.price >= query_params.min_price)
         if query_params.max_price:

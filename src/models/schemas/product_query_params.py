@@ -5,7 +5,7 @@ from src.models.enums.product_sort_params import ProductSortParams
 
 class ProductQueryParams(BaseModel):
     sort: Optional[ProductSortParams] = None
-    mediums: Optional[list[int]] = None
+    mediums: Optional[list[str]] = None
     min_price: Optional[int] = None
     max_price: Optional[int] = None
     min_width: Optional[int] = None
