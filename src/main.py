@@ -1,11 +1,19 @@
 from fastapi import FastAPI
+from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.database import database
 from src.routes import auth, messages, orders, products, storefronts, users
 
 
 def create_app():
-    app = FastAPI()
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        yield
+        if database._engine is not None:
+            await database.close()
+
+    app = FastAPI(title="ceynic API", lifespan=lifespan)
 
     app.add_middleware(
         CORSMiddleware,
