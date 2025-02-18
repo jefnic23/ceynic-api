@@ -1,5 +1,5 @@
 from sqlalchemy import Select, func
-from sqlmodel import select
+from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import Settings
@@ -25,7 +25,10 @@ class ProductsService:
         self, subdomain: str, query_params: ProductQueryParams | None = None
     ) -> list[ProductsOut]:
         statement = (
-            select(Product).join(Product.storefront).where(Storefront.name == subdomain)
+            select(Product)
+            .join(Medium, Product.medium_id == Medium.id)
+            .join(Storefront, Product.storefront_id == Storefront.id)
+            .where(Storefront.name == subdomain)
         )
         if query_params:
             statement = self.apply_query_params(statement, query_params)
@@ -43,7 +46,7 @@ class ProductsService:
     async def get(self, product_id: int, subdomain: str) -> ProductOut:
         statement = (
             select(Product)
-            .join(Product.storefront)
+            .join(Storefront, Product.storefront_id == Storefront.id)
             .where(Storefront.name == subdomain)
             .where(Product.id == product_id)
         )
@@ -66,7 +69,7 @@ class ProductsService:
                 func.min(Product.price).label("minimum"),
                 func.max(Product.price).label("maximum"),
             )
-            .join(Product.storefront)
+            .join(Storefront, Product.storefront_id == Storefront.id)
             .where(Storefront.name == subdomain)
         )
         results = await self.session.exec(statement)
@@ -97,7 +100,7 @@ class ProductsService:
                 func.min(Product.height).label("height_minimum"),
                 func.max(Product.height).label("height_maximum"),
             )
-            .join(Product.storefront)
+            .join(Storefront, Product.storefront_id == Storefront.id)
             .where(Storefront.name == subdomain)
         )
         results = await self.session.exec(statement)
@@ -111,8 +114,8 @@ class ProductsService:
 
     @staticmethod
     def apply_query_params(statement: Select, query_params: ProductQueryParams | None) -> Select:
-        if query_params.mediums:
-            statement = statement.where(Product.medium.name in query_params.mediums)
+        if query_params.medium:
+            statement = statement.where(col(Medium.name).in_(query_params.medium))
         if query_params.min_price:
             statement = statement.where(Product.price >= query_params.min_price)
         if query_params.max_price:
