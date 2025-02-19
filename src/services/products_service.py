@@ -29,16 +29,16 @@ class ProductsService:
             .join(Medium, Product.medium_id == Medium.id)
             .join(Storefront, Product.storefront_id == Storefront.id)
             .where(Storefront.name == subdomain)
+            .where(Product.thumbnail != None)
         )
         if query_params:
             statement = self.apply_query_params(statement, query_params)
         results = await self.session.exec(statement=statement)
-        products = results.all()
-        # TODO: omit products that don't have any images
+        products: list[Product] = results.all()
         return [
             ProductsOut(
                 **product.model_dump(),
-                image_url=f"https://{self.settings.BUCKETEER_BUCKET_NAME}.s3.amazonaws.com/public/{product.title.replace(' ', '_')}/{product.thumbnail}",
+                image_url=self.aws.get_product_thumbnail(product),
             )
             for product in products
         ]
@@ -51,14 +51,15 @@ class ProductsService:
             .where(Product.id == product_id)
         )
         results = await self.session.exec(statement=statement)
-        product = results.one()
-        images = await self.aws.get_product_images(product.title)
+        product: Product = results.one()
+        images = await self.aws.get_product_images(product)
         return ProductOut(
             **product.model_dump(),
             images=images,
         )
 
     async def update(self, product: ProductOut) -> None:
+        # todo: implement
         statement = select(Product).where(Product.id == product.id)
         results = await self.session.exec(statement=statement)
         product_to_update = results.one()

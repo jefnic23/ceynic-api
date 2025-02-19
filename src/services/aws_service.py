@@ -2,6 +2,7 @@ import aioboto3
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import Settings
+from src.models.product import Product
 
 
 class AwsService:
@@ -14,16 +15,19 @@ class AwsService:
         self._region = settings.BUCKETEER_AWS_REGION
         self._bucket_name = settings.BUCKETEER_BUCKET_NAME
 
-    async def get_product_images(self, product_name: str) -> list[str]:
+    async def get_product_images(self, product: Product) -> list[str]:
         async with self.s3.resource(
             service_name="s3", region_name=self._region
         ) as resource:
             bucket = await resource.Bucket(self._bucket_name)
             images = bucket.objects.filter(
-                Prefix=f"public/{product_name.replace(' ', '_')}/"
+                Prefix=f"public/{product.formatted_title}/"
             )
             return [
                 f"https://{self._bucket_name}.s3.amazonaws.com/{image.key}"
                 async for image in images
                 if not image.key.endswith("/")
             ]
+
+    def get_product_thumbnail(self, product: Product) -> str:
+        return f"https://{self._bucket_name}.s3.amazonaws.com/public/{product.formatted_title}/{product.thumbnail}"

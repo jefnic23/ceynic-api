@@ -31,3 +31,7 @@ class Product(SQLModel, table=True):
 
     storefront_id: int = Field(foreign_key="storefronts.id")
     storefront: "Storefront" = Relationship(back_populates="products")
+
+    @property
+    def formatted_title(self) -> str:
+        return self.title.replace(' ', '_')
