@@ -57,8 +57,7 @@ class Database:
         finally:
             await async_session.close()
 
-settings = get_settings()
-database = Database(settings.DATABASE_URL)
+database = Database(get_settings().DATABASE_URL)
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with database.async_session() as async_session:
