@@ -59,6 +59,8 @@ class OrdersService:
         create_order_response = CreateOrderResponse(**response)
 
         return create_order_response.id
+    
+    # todo: payment should ONLY be captured when product is shipped
 
     async def capture_payment(
         self, order_id: str, product_id: str
