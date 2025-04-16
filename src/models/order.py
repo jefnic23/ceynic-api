@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from src.models.product import Product
+    from src.models.order_product import OrderProduct
 
 
 class Order(SQLModel, table=True):
@@ -11,4 +11,4 @@ class Order(SQLModel, table=True):
 
     id: str = Field(primary_key=True)
 
-    products: list["Product"] = Relationship(back_populates="order")
+    products: list["OrderProduct"] = Relationship(back_populates="order")

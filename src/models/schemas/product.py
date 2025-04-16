@@ -12,7 +12,7 @@ class ProductBase(BaseSchema):
     width: int
     medium_id: Medium
     thumbnail: str
-    sold: bool
+    enabled: bool
 
 
 class ProductsOut(ProductBase):
