@@ -10,8 +10,11 @@ from src.exceptions import credentials_exception
 from src.http_client import HTTP_CLIENT_DEPENDENCY
 from src.models.schemas.recaptcha import ReCaptchaResponse
 from src.models.user import User
+from src.repositories.order_repository import OrderRepository
+from src.services.account_settings_service import AccountSettingsService
 from src.services.auth_service import AuthService
 from src.services.aws_service import AwsService
+from src.services.factories.payment_processor_factory import PaymentProcessorFactory
 from src.services.messages_service import MessagesService
 from src.services.orders_service import OrdersService
 from src.services.products_service import ProductsService
@@ -28,6 +31,13 @@ async def get_storefronts_service(session: ASYNC_SESSION_DEPENDENCY) -> Storefro
 
 
 STOREFRONTS_SERVICE_DEPENDENCY = Annotated[StorefrontsService, Depends(get_storefronts_service)]
+
+
+async def get_account_settings_service(session: ASYNC_SESSION_DEPENDENCY) -> AccountSettingsService:
+    return AccountSettingsService(session=session)
+
+
+ACCOUNT_SETTINGS_SERVICE_DEPENDENCY = Annotated[AccountSettingsService, Depends(get_account_settings_service)]
 
 
 async def get_aws_service(
@@ -57,12 +67,42 @@ async def get_messages_service(settings: SETTINGS_DEPENDENCY) -> MessagesService
 MESSAGES_SERVICE_DEPENDENCY = Annotated[MessagesService, Depends(get_messages_service)]
 
 
-async def get_orders_service(
+async def get_order_repository(
+    session: ASYNC_SESSION_DEPENDENCY
+) -> OrderRepository:
+    return OrderRepository(session=session)
+
+
+ORDER_REPOSITORY_DEPENDENCY = Annotated[OrderRepository, Depends(get_order_repository)]
+
+
+async def get_payment_processor_factory(
     session: ASYNC_SESSION_DEPENDENCY,
     settings: SETTINGS_DEPENDENCY,
     http_client: HTTP_CLIENT_DEPENDENCY,
+    order_repository: ORDER_REPOSITORY_DEPENDENCY
+) -> PaymentProcessorFactory:
+    return PaymentProcessorFactory(
+        session=session,
+        settings=settings,
+        http_client=http_client,
+        order_repository=order_repository
+    )
+
+
+PAYMENT_PROCESSOR_FACTORY_DEPENDENCY = Annotated[PaymentProcessorFactory, Depends(get_payment_processor_factory)]    
+
+
+async def get_orders_service(
+    session: ASYNC_SESSION_DEPENDENCY,
+    order_repository: ORDER_REPOSITORY_DEPENDENCY,
+    payment_processor_factory: PAYMENT_PROCESSOR_FACTORY_DEPENDENCY,
 ) -> OrdersService:
-    return OrdersService(session=session, settings=settings, http_client=http_client)
+    return OrdersService(
+        session=session,
+        order_repository=order_repository,
+        payment_processor_factory=payment_processor_factory
+    )
 
 
 ORDERS_SERVICE_DEPENDENCY = Annotated[OrdersService, Depends(get_orders_service)]
@@ -171,3 +211,13 @@ def get_subdomain(settings: SETTINGS_DEPENDENCY, request: Request) -> str:
 
 
 SUBDOMAIN_DEPENDENCY = Annotated[str, Depends(get_subdomain)]
+
+
+async def get_storefront_id(
+    storefronts_service: STOREFRONTS_SERVICE_DEPENDENCY,
+    subdomain: SUBDOMAIN_DEPENDENCY
+) -> int:
+    return await storefronts_service.get_id_from_subdomain(subdomain=subdomain)
+
+
+STOREFRONT_ID_DEPENDENCY = Annotated[int, Depends(get_storefront_id)]

@@ -3,12 +3,12 @@ from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.database import database
-from src.routes import auth, messages, orders, products, storefronts, users
+from src.routes import auth, messages, orders, products, settings, storefronts, users
 
 
 def create_app():
     @asynccontextmanager
-    async def lifespan(app: FastAPI):
+    async def lifespan(_: FastAPI):
         yield
         if database._engine is not None:
             await database.close()
@@ -22,11 +22,12 @@ def create_app():
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
+    
     app.include_router(auth.router)
     app.include_router(messages.router)
     app.include_router(orders.router)
     app.include_router(products.router)
+    app.include_router(settings.router)
     app.include_router(storefronts.router)
     app.include_router(users.router)
 

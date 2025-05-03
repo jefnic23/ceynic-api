@@ -1,4 +1,5 @@
 
+from decimal import Decimal
 from typing import Annotated, AsyncGenerator, AsyncIterator
 
 from fastapi import Depends
@@ -24,6 +25,7 @@ class BaseSchema(BaseModel):
         alias_generator=to_camel,
         populate_by_name=True,
         from_attributes=True,
+        ser_json_encoders={Decimal: lambda v: str(v)}
     )
 
 

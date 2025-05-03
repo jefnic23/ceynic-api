@@ -1,117 +1,120 @@
-import base64
-import json
-
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.config import Settings
-from src.http_client import HttpClient
-from src.models.order import Order
-from src.models.product import Product
-from src.models.schemas.paypal import (
-    CapturePaymentResponse,
-    CreateOrderResponse,
-    PayPalAuthResponse,
-)
+from src.decorators import with_payment_processor
+from src.models.account_settings import AccountSettings
+from src.models.enums.payment_processor import PaymentProcessorEnum
+from src.models.payment_processor import PaymentProcessor
+from src.models.schemas.create_order_out import CreateOrderOut
+from src.models.schemas.order import OrdersOut
+from src.models.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
+from src.models.schemas.paypal.capture_payment_response import CapturePaymentResponse
+from src.models.schemas.paypal.order_details import OrderDetails
+from src.models.schemas.paypal.payments import Authorization
+from src.models.schemas.product_for_order import ProductForOrder
+from src.models.storefront import Storefront
+from src.repositories.order_repository import OrderRepository
+from src.services.base.payment_processor_base import PaymentProcessorBase
+from src.services.factories.payment_processor_factory import PaymentProcessorFactory
 
 
 class OrdersService:
     def __init__(
-        self, session: AsyncSession, settings: Settings, http_client: HttpClient
+        self, 
+        session: AsyncSession,
+        order_repository: OrderRepository,
+        payment_processor_factory: PaymentProcessorFactory
     ):
-        self.session: AsyncSession = session
-        self.client_id: str = settings.PAYPAL_CLIENT_ID
-        self.client_secret: str = settings.PAYPAL_CLIENT_SECRET
-        self.paypal_url: str = settings.PAYPAL_URL
-        self.http_client: HttpClient = http_client
-        self.access_token: str = None
+        self._session: AsyncSession = session
+        self._order_repository: OrderRepository = order_repository
+        self._payment_processor_factory: PaymentProcessorFactory = payment_processor_factory
 
-    async def create_order(self, product_id: int) -> str:
-        statement = select(Product).where(Product.id == product_id)
-        results = await self.session.exec(statement=statement)
-        product = results.first()
-
-        if not self.access_token:
-            auth_response = await self._get_access_token()
-            self.access_token = auth_response.access_token
-
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}",
-        }
-
-        data = {
-            "intent": "CAPTURE",
-            "purchase_units": [
-                {
-                    "description": product.description,
-                    "amount": {"currency_code": "USD", "value": str(product.price)},
-                }
-            ],
-        }
-
-        response = await self.http_client.post_async(
-            url=f"{self.paypal_url}/v2/checkout/orders",
-            headers=headers,
-            data=json.dumps(data),
-        )
-
-        create_order_response = CreateOrderResponse(**response)
-
-        return create_order_response.id
+    async def get_orders(self, storefront_id: int) -> list[OrdersOut]:
+        orders = await self._order_repository.get_all(storefront_id)
+        return [OrdersOut(**order.model_dump()) for order in orders]
     
-    # todo: payment should ONLY be captured when product is shipped
+    @with_payment_processor
+    async def get_order(
+        self, 
+        storefront_id: int, 
+        order_id: str, 
+        payment_processor: PaymentProcessorBase = None
+    ) -> OrderDetails:
+        return await payment_processor.get_order(storefront_id=storefront_id, order_id=order_id)
 
+    @with_payment_processor
+    async def create_order(
+        self, 
+        storefront_id: int, 
+        products: list[ProductForOrder], 
+        payment_processor: PaymentProcessorBase = None
+    ) -> CreateOrderOut:
+        return await payment_processor.create_order(storefront_id, products)
+    
+    @with_payment_processor
+    async def authorize_payment(
+        self, 
+        storefront_id: int, 
+        order_id: str, 
+        product_ids: list[int], 
+        payment_processor: PaymentProcessorBase = None
+    ) -> AuthorizePaymentResponse:
+        return await payment_processor.authorize_payment(
+            storefront_id=storefront_id,
+            order_id=order_id, 
+            product_ids=product_ids
+        )
+    
+    @with_payment_processor
+    async def reauthorize_payment(
+        self, 
+        storefront_id: int, 
+        order_id: str,
+        payment_processor: PaymentProcessorBase = None
+    ) -> AuthorizePaymentResponse:
+        return await payment_processor.reauthorize_payment(
+            storefront_id=storefront_id,
+            order_id=order_id
+        )
+    
+    @with_payment_processor
+    async def void_payment(
+        self, 
+        storefront_id: int, 
+        order_id: str, 
+        payment_processor: PaymentProcessorBase = None
+    ) -> Authorization:
+        return await payment_processor.void_payment(storefront_id=storefront_id, order_id=order_id)
+
+    @with_payment_processor
     async def capture_payment(
-        self, order_id: str, product_id: str
+        self, 
+        storefront_id: int, 
+        order_id: str, 
+        payment_processor: PaymentProcessorBase = None
     ) -> CapturePaymentResponse:
-        if not self.access_token:
-            auth_response = await self._get_access_token()
-            self.access_token = auth_response.access_token
+        return await payment_processor.capture_payment(storefront_id, order_id=order_id)
+    
+    @with_payment_processor
+    async def refund_payment(
+        self, 
+        storefront_id: int, 
+        order_id: str, 
+        payment_processor: PaymentProcessorBase = None
+    ) -> CapturePaymentResponse:
+        return await payment_processor.refund_payment(storefront_id, order_id=order_id)
 
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}",
-        }
+    # region Private Methods
 
-        response = await self.http_client.post_async(
-            url=f"{self.paypal_url}/v2/checkout/orders/{order_id}/capture",
-            data={},
-            headers=headers,
+    async def _get_payment_processor(self, storefront_id: int) -> PaymentProcessorBase:
+        statement = (
+            select(PaymentProcessor)
+            .join(AccountSettings, PaymentProcessor.id == AccountSettings.payment_processor_id)
+            .join(Storefront, AccountSettings.storefront_id == Storefront.id)
+            .where(Storefront.id == storefront_id)
         )
+        result = await self._session.exec(statement)
+        payment_processor = result.one_or_none()
+        return self._payment_processor_factory.get_payment_processor(PaymentProcessorEnum(payment_processor.name))
 
-        capture_payment_response = CapturePaymentResponse(**response)
-
-        statement = select(Product).where(Product.id == product_id)
-        results = await self.session.exec(statement=statement)
-        product = results.first()
-        product.sold = True
-        product.order_id = order_id
-
-        order = Order(id=capture_payment_response.id)
-        self.session.add(order)
-        await self.session.commit()
-
-        return capture_payment_response
-
-    # TODO: write method that checks for/validates existing token
-
-    async def _get_access_token(self) -> PayPalAuthResponse:
-        auth = base64.b64encode(
-            f"{self.client_id}:{self.client_secret}".encode()
-        ).decode()
-
-        headers = {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": f"Basic {auth}",
-        }
-
-        data = {"grant_type": "client_credentials"}
-
-        response = await self.http_client.post_async(
-            url=f"{self.paypal_url}/v1/oauth2/token",
-            data=data,
-            headers=headers,
-        )
-
-        return PayPalAuthResponse(**response)
+    # endregion

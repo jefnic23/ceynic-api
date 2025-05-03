@@ -21,8 +21,6 @@ class Settings(BaseSettings):
     BUCKETEER_AWS_REGION: str
     BUCKETEER_AWS_SECRET_ACCESS_KEY: str
     BUCKETEER_BUCKET_NAME: str
-    PAYPAL_CLIENT_ID: str
-    PAYPAL_CLIENT_SECRET: str
     PAYPAL_URL: str
     RECAPTCHA_SECRET_KEY: str
     FASTAPI_ENV: str = "production"

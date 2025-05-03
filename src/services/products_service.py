@@ -9,6 +9,7 @@ from src.models.product import Product
 from src.models.schemas.medium_count import MediumCount
 from src.models.schemas.price_range import PriceRange
 from src.models.schemas.product import ProductOut, ProductsOut
+from src.models.schemas.product_for_order import ProductForOrder
 from src.models.schemas.product_query_params import ProductQueryParams
 from src.models.schemas.size_ranges import SizeRanges
 from src.models.storefront import Storefront
@@ -28,7 +29,7 @@ class ProductsService:
             select(Product)
             .join(Medium, Product.medium_id == Medium.id)
             .join(Storefront, Product.storefront_id == Storefront.id)
-            .where(Storefront.name == subdomain)
+            .where(Storefront.subdomain == subdomain)
             .where(Product.thumbnail != None)
         )
         if query_params:
@@ -47,7 +48,7 @@ class ProductsService:
         statement = (
             select(Product)
             .join(Storefront, Product.storefront_id == Storefront.id)
-            .where(Storefront.name == subdomain)
+            .where(Storefront.subdomain == subdomain)
             .where(Product.id == product_id)
         )
         results = await self.session.exec(statement=statement)
@@ -57,6 +58,18 @@ class ProductsService:
             **product.model_dump(),
             images=images,
         )
+    
+    async def get_for_order(self, storefront_id: int, product_ids: list[int]) -> list[ProductForOrder]:
+        statement = (
+            select(Product)
+            .join(Storefront, Product.storefront_id == Storefront.id)
+            .where(Storefront.id == storefront_id)
+            .where(col(Product.id).in_(product_ids))
+        )
+        results = await self.session.exec(statement=statement)
+        products = results.all()
+        return [ProductForOrder(**product.model_dump()) for product in products]
+
 
     async def update(self, product: ProductOut) -> None:
         # todo: implement
@@ -71,7 +84,7 @@ class ProductsService:
                 func.max(Product.price).label("maximum"),
             )
             .join(Storefront, Product.storefront_id == Storefront.id)
-            .where(Storefront.name == subdomain)
+            .where(Storefront.subdomain == subdomain)
         )
         results = await self.session.exec(statement)
         min_price, max_price = results.one()
@@ -83,7 +96,7 @@ class ProductsService:
             .select_from(Medium)
             .join(Product, Medium.id == Product.medium_id, isouter=True)
             .join(Storefront, Product.storefront_id == Storefront.id, isouter=True)
-            .where(Storefront.name == subdomain)
+            .where(Storefront.subdomain == subdomain)
             .group_by(Medium.id, Medium.name)
         )
         results = await self.session.exec(statement)
@@ -102,7 +115,7 @@ class ProductsService:
                 func.max(Product.height).label("height_maximum"),
             )
             .join(Storefront, Product.storefront_id == Storefront.id)
-            .where(Storefront.name == subdomain)
+            .where(Storefront.subdomain == subdomain)
         )
         results = await self.session.exec(statement)
         width_minimum, width_maximum, height_minimum, height_maximum = results.one()

@@ -21,7 +21,7 @@ class UsersService:
 
     async def get_subdomain_from_user(self, id: int) -> str | None:
         statement = (
-            select(Storefront.name)
+            select(Storefront.subdomain)
             .join(User, User.storefront_id == Storefront.id)
             .where(User.id == id)
         )

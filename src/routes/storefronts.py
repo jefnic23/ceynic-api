@@ -23,3 +23,12 @@ async def get_about(
 ) -> str:
     response.headers["cache-control"] = "max-age=3600"
     return await storefronts_service.get_about(subdomain)
+
+@router.get("/storefronts/name")
+async def get_about(
+    subdomain: SUBDOMAIN_DEPENDENCY,
+    storefronts_service: STOREFRONTS_SERVICE_DEPENDENCY,
+    response: Response
+) -> str:
+    response.headers["cache-control"] = "max-age=3600"
+    return await storefronts_service.get_name(subdomain)

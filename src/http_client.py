@@ -5,9 +5,9 @@ from fastapi import Depends
 
 
 class HttpClient:
-    async def get_async(url: str, headers: dict[str, any] = None) -> dict[str, any]:
+    async def get_async(url: str, headers: dict[str, any] = None, params: dict[str, any] = None) -> dict[str, any]:
         async with aiohttp.ClientSession() as session:
-            async with session.get(url=url, headers=headers) as res:
+            async with session.get(url=url, headers=headers, params=params) as res:
                 if not res.ok:
                     await res.raise_for_status()
                 return await res.json()
