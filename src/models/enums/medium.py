@@ -1,6 +1,6 @@
 from enum import Enum
 
 
-class Medium(Enum):
+class MediumEnum(Enum):
     PAINTING = 1
     PRINT = 2
