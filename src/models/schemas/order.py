@@ -6,4 +6,3 @@ class OrdersOut(BaseSchema):
     id: str
     create_time: datetime
     status: str
-    authorization_expiration_time: datetime | None

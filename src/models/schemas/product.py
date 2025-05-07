@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from src.database import BaseSchema
-from src.models.enums.medium import Medium
+from src.models.enums.medium import MediumEnum
 
 
 class ProductBase(BaseSchema):
@@ -10,7 +10,7 @@ class ProductBase(BaseSchema):
     price: Decimal
     height: int
     width: int
-    medium_id: Medium
+    medium_id: MediumEnum
     thumbnail: str
     enabled: bool
 
