@@ -31,7 +31,6 @@ class ProductsService:
             .join(Storefront, Product.storefront_id == Storefront.id)
             .where(Storefront.subdomain == subdomain)
             .where(Product.thumbnail != None)
-            .where(Product.medium_id == 1)
         )
         if query_params:
             statement = self.apply_query_params(statement, query_params)
