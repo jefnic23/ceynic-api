@@ -1,7 +1,6 @@
-from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from src.models.account_settings import AccountSettings

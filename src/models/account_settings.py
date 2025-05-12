@@ -1,10 +1,8 @@
-from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from src.models.order_product import OrderProduct
     from src.models.payment_processor import PaymentProcessor
     from src.models.storefront import Storefront
 
