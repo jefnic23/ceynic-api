@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from src.models.order import Order
     from src.models.paypal_settings import PayPalSettings
     from src.models.product import Product
+    from src.models.social_media_link import SocialMediaLink
     from src.models.user import User
 
 
@@ -31,4 +32,5 @@ class Storefront(SQLModel, table=True):
     account_settings: list["AccountSettings"] = Relationship(back_populates="storefront")
     orders: list["Order"] = Relationship(back_populates="storefront") 
     products: list["Product"] = Relationship(back_populates="storefront")
+    social_media_links: list["SocialMediaLink"] = Relationship(back_populates="storefront")
     users: list["User"] = Relationship(back_populates="storefront")

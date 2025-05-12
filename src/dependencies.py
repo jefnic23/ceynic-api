@@ -11,6 +11,7 @@ from src.http_client import HTTP_CLIENT_DEPENDENCY
 from src.models.schemas.recaptcha import ReCaptchaResponse
 from src.models.user import User
 from src.repositories.order_repository import OrderRepository
+from src.repositories.social_media_link_repository import SocialMediaLinkRepository
 from src.services.account_settings_service import AccountSettingsService
 from src.services.auth_service import AuthService
 from src.services.aws_service import AwsService
@@ -31,6 +32,13 @@ async def get_storefronts_service(session: ASYNC_SESSION_DEPENDENCY) -> Storefro
 
 
 STOREFRONTS_SERVICE_DEPENDENCY = Annotated[StorefrontsService, Depends(get_storefronts_service)]
+
+
+async def get_social_media_link_repository(session: ASYNC_SESSION_DEPENDENCY) -> SocialMediaLinkRepository:
+    return SocialMediaLinkRepository(session=session)
+
+
+SOCIAL_MEDIA_LINK_REPOSITORY_DEPENDENCY = Annotated[SocialMediaLinkRepository, Depends(get_social_media_link_repository)]
 
 
 async def get_account_settings_service(session: ASYNC_SESSION_DEPENDENCY) -> AccountSettingsService:
