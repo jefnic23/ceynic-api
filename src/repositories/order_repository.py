@@ -4,7 +4,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.models.order import Order
 from src.models.order_product import OrderProduct
-from src.models.schemas.order_update import OrderUpdate
+from src.schemas.order_update import OrderUpdate
 
 
 class OrderRepository:

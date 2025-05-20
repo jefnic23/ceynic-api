@@ -1,5 +1,5 @@
 from src.database import BaseSchema
-from src.models.schemas.paypal.base import Tax, UnitAmount
+from src.schemas.paypal.base import Tax, UnitAmount
 
 
 class DiscountPercent(BaseSchema):

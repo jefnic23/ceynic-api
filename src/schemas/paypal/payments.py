@@ -1,7 +1,7 @@
 from datetime import datetime
 from src.database import BaseSchema
-from src.models.schemas.paypal.base import Amount, Link, SellerProtection
-from src.models.schemas.paypal.seller_receivable_breakdown import SellerReceivableBreakdown
+from src.schemas.paypal.base import Amount, Link, SellerProtection
+from src.schemas.paypal.seller_receivable_breakdown import SellerReceivableBreakdown
 
 
 class Authorization(BaseSchema):

@@ -5,8 +5,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 
 from src.dependencies import AUTH_SERVICE_DEPENDENCY
-from src.models.schemas.token import Token
-from src.models.schemas.token_refresh_request import TokenRefreshRequest
+from src.schemas.token import Token
+from src.schemas.token_refresh_request import TokenRefreshRequest
 
 router = APIRouter()
 

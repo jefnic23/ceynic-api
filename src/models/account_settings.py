@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class AccountSettings(SQLModel, table=True):
-    __tablename__ = "account_settings"
+    __tablename__ = "settings"
 
     id: str = Field(primary_key=True)
 

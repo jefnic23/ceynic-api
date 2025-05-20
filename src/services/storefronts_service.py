@@ -3,9 +3,9 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.models.account_settings import AccountSettings
 from src.models.content import Content
-from src.models.enums.payment_processor import PaymentProcessorEnum
+from src.enums.payment_processor import PaymentProcessorEnum
 from src.models.payment_processor import PaymentProcessor
-from src.models.schemas.location import Location
+from src.schemas.location import Location
 from src.models.storefront import Storefront
 
 class StorefrontsService:

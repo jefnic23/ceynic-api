@@ -1,6 +1,6 @@
 from src.database import BaseSchema
-from src.models.schemas.paypal.base import Link
-from src.models.schemas.paypal.payment_source import PaymentSource
+from src.schemas.paypal.base import Link
+from src.schemas.paypal.payment_source import PaymentSource
 
 
 class CreateOrderResponse(BaseSchema):

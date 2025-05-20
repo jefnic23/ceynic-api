@@ -1,7 +1,7 @@
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.models.schemas.social_media_link_out import SocialMediaLinkOut
+from src.schemas.social_media_link_out import SocialMediaLinkOut
 from src.models.social_media_link import SocialMediaLink
 
 

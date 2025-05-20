@@ -2,7 +2,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.models.account_settings import AccountSettings
-from src.models.enums.payment_processor import PaymentProcessorEnum
+from src.enums.payment_processor import PaymentProcessorEnum
 from src.models.payment_processor import PaymentProcessor
 from src.models.storefront import Storefront
 

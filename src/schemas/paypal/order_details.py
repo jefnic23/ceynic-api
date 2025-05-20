@@ -1,9 +1,9 @@
 from datetime import datetime
 from src.database import BaseSchema
-from src.models.schemas.paypal.base import Link
-from src.models.schemas.paypal.payer import Payer
-from src.models.schemas.paypal.payment_source import PaymentSource
-from src.models.schemas.paypal.purchase_unit import PurchaseUnit
+from src.schemas.paypal.base import Link
+from src.schemas.paypal.payer import Payer
+from src.schemas.paypal.payment_source import PaymentSource
+from src.schemas.paypal.purchase_unit import PurchaseUnit
 
 
 class OrderDetails(BaseSchema):

@@ -3,15 +3,15 @@ from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import Settings
-from src.models.enums.product_sort_params import ProductSortParams
+from src.enums.product_sort_params import ProductSortParams
 from src.models.medium import Medium
 from src.models.product import Product
-from src.models.schemas.medium_count import MediumCount
-from src.models.schemas.price_range import PriceRange
-from src.models.schemas.product import ProductOut, ProductsOut
-from src.models.schemas.product_for_order import ProductForOrder
-from src.models.schemas.product_query_params import ProductQueryParams
-from src.models.schemas.size_ranges import SizeRanges
+from src.schemas.medium_count import MediumCount
+from src.schemas.price_range import PriceRange
+from src.schemas.product import ProductOut, ProductsOut
+from src.schemas.product_for_order import ProductForOrder
+from src.schemas.product_query_params import ProductQueryParams
+from src.schemas.size_ranges import SizeRanges
 from src.models.storefront import Storefront
 from src.services.aws_service import AwsService
 

@@ -9,19 +9,19 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.config import Settings
 from src.http_client import HttpClient
 from src.models.paypal_settings import PayPalSettings
-from src.models.schemas.create_order_out import CreateOrderOut
-from src.models.schemas.order_update import OrderUpdate
-from src.models.schemas.paypal.auth_response import AuthResponse
-from src.models.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
-from src.models.schemas.paypal.base import Amount
-from src.models.schemas.paypal.capture_payment_response import CapturePaymentResponse
-from src.models.schemas.paypal.create_order_payload import CreateOrderPayload
-from src.models.schemas.paypal.create_order_response import CreateOrderResponse
-from src.models.schemas.paypal.order_details import OrderDetails
-from src.models.schemas.paypal.payments import Authorization
-from src.models.schemas.paypal.purchase_unit import PurchaseUnit
-from src.models.schemas.paypal_credentials import PayPalCredentials
-from src.models.schemas.product_for_order import ProductForOrder
+from src.schemas.create_order_out import CreateOrderOut
+from src.schemas.order_update import OrderUpdate
+from src.schemas.paypal.auth_response import AuthResponse
+from src.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
+from src.schemas.paypal.base import Amount
+from src.schemas.paypal.capture_payment_response import CapturePaymentResponse
+from src.schemas.paypal.create_order_payload import CreateOrderPayload
+from src.schemas.paypal.create_order_response import CreateOrderResponse
+from src.schemas.paypal.order_details import OrderDetails
+from src.schemas.paypal.payments import Authorization
+from src.schemas.paypal.purchase_unit import PurchaseUnit
+from src.schemas.paypal_credentials import PayPalCredentials
+from src.schemas.product_for_order import ProductForOrder
 from src.repositories.order_repository import OrderRepository
 from src.services.base.payment_processor_base import PaymentProcessorBase
 
@@ -51,7 +51,7 @@ class PayPalService(PaymentProcessorBase):
 
     @property
     def _paypal_url(self) -> str:
-        return self._settings.PAYPAL_URL
+        return self._settings.PAYPAL_BASE_URL
     
     async def get_order(
         self,

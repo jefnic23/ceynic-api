@@ -7,12 +7,12 @@ from src.dependencies import (
     SUBDOMAIN_DEPENDENCY,
     USERS_SERVICE_DEPENDENCY,
 )
-from src.models.enums.product_sort_params import ProductSortParams
-from src.models.schemas.medium_count import MediumCount
-from src.models.schemas.price_range import PriceRange
-from src.models.schemas.product import ProductOut, ProductsOut
-from src.models.schemas.product_query_params import ProductQueryParams
-from src.models.schemas.size_ranges import SizeRanges
+from src.enums.product_sort_params import ProductSortParams
+from src.schemas.medium_count import MediumCount
+from src.schemas.price_range import PriceRange
+from src.schemas.product import ProductOut, ProductsOut
+from src.schemas.product_query_params import ProductQueryParams
+from src.schemas.size_ranges import SizeRanges
 
 router = APIRouter()
 

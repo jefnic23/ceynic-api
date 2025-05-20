@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException
 
 from src.dependencies import CURRENT_USER_DEPENDENCY, ORDERS_SERVICE_DEPENDENCY, PRODUCTS_SERVICE_DEPENDENCY, STOREFRONT_ID_DEPENDENCY
-from src.models.schemas.create_order_out import CreateOrderOut
-from src.models.schemas.create_order_request import CreateOrderRequest
-from src.models.schemas.order import OrdersOut
-from src.models.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
-from src.models.schemas.paypal.capture_payment_response import CapturePaymentResponse
-from src.models.schemas.paypal.order_details import OrderDetails
-from src.models.schemas.paypal.payments import Authorization
+from src.schemas.create_order_out import CreateOrderOut
+from src.schemas.create_order_request import CreateOrderRequest
+from src.schemas.order import OrdersOut
+from src.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
+from src.schemas.paypal.capture_payment_response import CapturePaymentResponse
+from src.schemas.paypal.order_details import OrderDetails
+from src.schemas.paypal.payments import Authorization
 
 router = APIRouter()
 

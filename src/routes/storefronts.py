@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response
 
 from src.dependencies import SUBDOMAIN_DEPENDENCY, STOREFRONTS_SERVICE_DEPENDENCY
-from src.models.schemas.location import Location
+from src.schemas.location import Location
 
 router = APIRouter()
 

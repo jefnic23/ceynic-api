@@ -1,5 +1,5 @@
 from src.database import BaseSchema
-from src.models.schemas.paypal.base import GrossAmount, NetAmount, PaypalFee
+from src.schemas.paypal.base import GrossAmount, NetAmount, PaypalFee
 
 
 class SellerReceivableBreakdown(BaseSchema):

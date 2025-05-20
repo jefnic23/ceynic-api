@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response
 from src.dependencies import ACCOUNT_SETTINGS_SERVICE_DEPENDENCY, SUBDOMAIN_DEPENDENCY
-from src.models.enums.payment_processor import PaymentProcessorEnum
+from src.enums.payment_processor import PaymentProcessorEnum
 
 router = APIRouter()
 

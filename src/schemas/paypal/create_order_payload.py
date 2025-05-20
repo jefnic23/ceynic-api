@@ -1,5 +1,5 @@
 from src.database import BaseSchema
-from src.models.schemas.paypal.purchase_unit import PurchaseUnit
+from src.schemas.paypal.purchase_unit import PurchaseUnit
 
 
 class CreateOrderPayload(BaseSchema):

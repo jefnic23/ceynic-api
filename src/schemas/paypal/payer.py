@@ -1,6 +1,6 @@
 from pydantic import EmailStr
 from src.database import BaseSchema
-from src.models.schemas.paypal.base import Name
+from src.schemas.paypal.base import Name
 
 
 class Payer(BaseSchema):

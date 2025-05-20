@@ -8,7 +8,7 @@ from src.config import SETTINGS_DEPENDENCY
 from src.database import ASYNC_SESSION_DEPENDENCY
 from src.exceptions import credentials_exception
 from src.http_client import HTTP_CLIENT_DEPENDENCY
-from src.models.schemas.recaptcha import ReCaptchaResponse
+from src.schemas.recaptcha import ReCaptchaResponse
 from src.models.user import User
 from src.repositories.order_repository import OrderRepository
 from src.repositories.social_media_link_repository import SocialMediaLinkRepository

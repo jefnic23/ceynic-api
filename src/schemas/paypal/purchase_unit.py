@@ -1,7 +1,7 @@
 from src.database import BaseSchema
-from src.models.schemas.paypal.base import Amount, Payee
-from src.models.schemas.paypal.payments import Payments
-from src.models.schemas.paypal.shipping import Shipping
+from src.schemas.paypal.base import Amount, Payee
+from src.schemas.paypal.payments import Payments
+from src.schemas.paypal.shipping import Shipping
 
 
 class PurchaseUnit(BaseSchema):

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
-from src.models.enums.product_sort_params import ProductSortParams
+from src.enums.product_sort_params import ProductSortParams
 
 class ProductQueryParams(BaseModel):
     sort: Optional[ProductSortParams] = None

@@ -1,4 +1,4 @@
-from src.models.enums.payment_processor import PaymentProcessorEnum
+from src.enums.payment_processor import PaymentProcessorEnum
 from src.repositories.order_repository import OrderRepository
 from src.services.base.payment_processor_base import PaymentProcessorBase
 from sqlmodel.ext.asyncio.session import AsyncSession

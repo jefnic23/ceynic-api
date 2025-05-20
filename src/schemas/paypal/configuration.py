@@ -1,5 +1,5 @@
 from src.database import BaseSchema
-from src.models.schemas.paypal.base import UnitAmount
+from src.schemas.paypal.base import UnitAmount
 
 
 class PartialPayment(BaseSchema):

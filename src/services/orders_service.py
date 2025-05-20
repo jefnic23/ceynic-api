@@ -3,15 +3,15 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.decorators import with_payment_processor
 from src.models.account_settings import AccountSettings
-from src.models.enums.payment_processor import PaymentProcessorEnum
+from src.enums.payment_processor import PaymentProcessorEnum
 from src.models.payment_processor import PaymentProcessor
-from src.models.schemas.create_order_out import CreateOrderOut
-from src.models.schemas.order import OrdersOut
-from src.models.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
-from src.models.schemas.paypal.capture_payment_response import CapturePaymentResponse
-from src.models.schemas.paypal.order_details import OrderDetails
-from src.models.schemas.paypal.payments import Authorization
-from src.models.schemas.product_for_order import ProductForOrder
+from src.schemas.create_order_out import CreateOrderOut
+from src.schemas.order import OrdersOut
+from src.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
+from src.schemas.paypal.capture_payment_response import CapturePaymentResponse
+from src.schemas.paypal.order_details import OrderDetails
+from src.schemas.paypal.payments import Authorization
+from src.schemas.product_for_order import ProductForOrder
 from src.models.storefront import Storefront
 from src.repositories.order_repository import OrderRepository
 from src.services.base.payment_processor_base import PaymentProcessorBase

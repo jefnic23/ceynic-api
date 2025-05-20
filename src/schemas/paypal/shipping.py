@@ -1,5 +1,5 @@
 from src.database import BaseSchema
-from src.models.schemas.paypal.base import Address
+from src.schemas.paypal.base import Address
 
 
 class Shipping(BaseSchema):

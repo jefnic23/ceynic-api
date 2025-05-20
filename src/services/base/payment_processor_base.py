@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
-from src.models.schemas.create_order_out import CreateOrderOut
-from src.models.schemas.paypal.order_details import OrderDetails
-from src.models.schemas.product_for_order import ProductForOrder
+from src.schemas.create_order_out import CreateOrderOut
+from src.schemas.paypal.order_details import OrderDetails
+from src.schemas.product_for_order import ProductForOrder
 
 
 class PaymentProcessorBase(ABC):

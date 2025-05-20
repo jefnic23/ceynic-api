@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response
 from src.dependencies import SOCIAL_MEDIA_LINK_REPOSITORY_DEPENDENCY, STOREFRONT_ID_DEPENDENCY
-from src.models.schemas.social_media_link_out import SocialMediaLinkOut
+from src.schemas.social_media_link_out import SocialMediaLinkOut
 
 router = APIRouter()
 
