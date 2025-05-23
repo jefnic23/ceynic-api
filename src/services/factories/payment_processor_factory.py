@@ -1,9 +1,13 @@
+from typing import Annotated
+
+from fastapi import Depends
+from src.database import get_async_session
 from src.enums.payment_processor import PaymentProcessorEnum
 from src.repositories.order_repository import OrderRepository
 from src.services.base.payment_processor_base import PaymentProcessorBase
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.config import Settings
+from src.config import Settings, get_settings
 from src.http_client import HttpClient
 from src.services.base.payment_processor_base import PaymentProcessorBase
 from src.services.paypal_service import PayPalService
@@ -11,10 +15,10 @@ from src.services.paypal_service import PayPalService
 class PaymentProcessorFactory:
     def __init__(
         self,
-        session: AsyncSession, 
-        settings: Settings, 
-        http_client: HttpClient,
-        order_repository: OrderRepository
+        session: Annotated[AsyncSession, Depends(get_async_session)], 
+        settings: Annotated[Settings, Depends(get_settings)], 
+        http_client: Annotated[HttpClient, Depends()],
+        order_repository: Annotated[OrderRepository, Depends()]
     ):
         self._session: AsyncSession = session
         self._settings: Settings = settings

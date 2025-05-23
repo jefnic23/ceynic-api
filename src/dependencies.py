@@ -5,152 +5,16 @@ from fastapi import Depends, Form, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 
 from src.config import SETTINGS_DEPENDENCY
-from src.database import ASYNC_SESSION_DEPENDENCY
 from src.exceptions import credentials_exception
-from src.http_client import HTTP_CLIENT_DEPENDENCY
 from src.schemas.recaptcha import ReCaptchaResponse
 from src.models.user import User
-from src.repositories.order_repository import OrderRepository
-from src.repositories.social_media_link_repository import SocialMediaLinkRepository
-from src.services.account_settings_service import AccountSettingsService
 from src.services.auth_service import AuthService
-from src.services.aws_service import AwsService
-from src.services.factories.payment_processor_factory import PaymentProcessorFactory
-from src.services.messages_service import MessagesService
-from src.services.orders_service import OrdersService
-from src.services.products_service import ProductsService
-from src.services.refresh_tokens_service import RefreshTokensService
 from src.services.storefronts_service import StorefrontsService
 from src.services.users_service import UsersService
 
+
 OAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl="login")
 OAUTH_DEPENDENCY = Annotated[str, Depends(OAUTH2_SCHEME)]
-
-
-async def get_storefronts_service(session: ASYNC_SESSION_DEPENDENCY) -> StorefrontsService:
-    return StorefrontsService(session=session)
-
-
-STOREFRONTS_SERVICE_DEPENDENCY = Annotated[StorefrontsService, Depends(get_storefronts_service)]
-
-
-async def get_social_media_link_repository(session: ASYNC_SESSION_DEPENDENCY) -> SocialMediaLinkRepository:
-    return SocialMediaLinkRepository(session=session)
-
-
-SOCIAL_MEDIA_LINK_REPOSITORY_DEPENDENCY = Annotated[SocialMediaLinkRepository, Depends(get_social_media_link_repository)]
-
-
-async def get_account_settings_service(session: ASYNC_SESSION_DEPENDENCY) -> AccountSettingsService:
-    return AccountSettingsService(session=session)
-
-
-ACCOUNT_SETTINGS_SERVICE_DEPENDENCY = Annotated[AccountSettingsService, Depends(get_account_settings_service)]
-
-
-async def get_aws_service(
-    session: ASYNC_SESSION_DEPENDENCY, settings: SETTINGS_DEPENDENCY
-) -> AwsService:
-    return AwsService(session=session, settings=settings)
-
-
-AWS_SERVICE_DEPENDENCY = Annotated[AwsService, Depends(get_aws_service)]
-
-
-async def get_products_service(
-    session: ASYNC_SESSION_DEPENDENCY,
-    settings: SETTINGS_DEPENDENCY,
-    aws: AWS_SERVICE_DEPENDENCY,
-) -> ProductsService:
-    return ProductsService(session=session, settings=settings, aws=aws)
-
-
-PRODUCTS_SERVICE_DEPENDENCY = Annotated[ProductsService, Depends(get_products_service)]
-
-
-async def get_messages_service(settings: SETTINGS_DEPENDENCY) -> MessagesService:
-    return MessagesService(settings=settings)
-
-
-MESSAGES_SERVICE_DEPENDENCY = Annotated[MessagesService, Depends(get_messages_service)]
-
-
-async def get_order_repository(
-    session: ASYNC_SESSION_DEPENDENCY
-) -> OrderRepository:
-    return OrderRepository(session=session)
-
-
-ORDER_REPOSITORY_DEPENDENCY = Annotated[OrderRepository, Depends(get_order_repository)]
-
-
-async def get_payment_processor_factory(
-    session: ASYNC_SESSION_DEPENDENCY,
-    settings: SETTINGS_DEPENDENCY,
-    http_client: HTTP_CLIENT_DEPENDENCY,
-    order_repository: ORDER_REPOSITORY_DEPENDENCY
-) -> PaymentProcessorFactory:
-    return PaymentProcessorFactory(
-        session=session,
-        settings=settings,
-        http_client=http_client,
-        order_repository=order_repository
-    )
-
-
-PAYMENT_PROCESSOR_FACTORY_DEPENDENCY = Annotated[PaymentProcessorFactory, Depends(get_payment_processor_factory)]    
-
-
-async def get_orders_service(
-    session: ASYNC_SESSION_DEPENDENCY,
-    order_repository: ORDER_REPOSITORY_DEPENDENCY,
-    payment_processor_factory: PAYMENT_PROCESSOR_FACTORY_DEPENDENCY,
-) -> OrdersService:
-    return OrdersService(
-        session=session,
-        order_repository=order_repository,
-        payment_processor_factory=payment_processor_factory
-    )
-
-
-ORDERS_SERVICE_DEPENDENCY = Annotated[OrdersService, Depends(get_orders_service)]
-
-
-async def get_users_service(
-    session: ASYNC_SESSION_DEPENDENCY,
-) -> UsersService:
-    return UsersService(session=session)
-
-
-USERS_SERVICE_DEPENDENCY = Annotated[UsersService, Depends(get_users_service)]
-
-
-async def get_refresh_tokens_service(
-    session: ASYNC_SESSION_DEPENDENCY,
-) -> RefreshTokensService:
-    return RefreshTokensService(session=session)
-
-
-REFRESH_TOKENS_SERVICE_DEPENDENCY = Annotated[
-    RefreshTokensService, Depends(get_refresh_tokens_service)
-]
-
-
-async def get_auth_service(
-    session: ASYNC_SESSION_DEPENDENCY,
-    settings: SETTINGS_DEPENDENCY,
-    users_service: USERS_SERVICE_DEPENDENCY,
-    refresh_tokens_service: REFRESH_TOKENS_SERVICE_DEPENDENCY,
-) -> AuthService:
-    return AuthService(
-        session=session,
-        settings=settings,
-        users_service=users_service,
-        refresh_tokens_service=refresh_tokens_service,
-    )
-
-
-AUTH_SERVICE_DEPENDENCY = Annotated[AuthService, Depends(get_auth_service)]
 
 
 async def verify_recaptcha(
@@ -178,8 +42,8 @@ async def verify_recaptcha(
 
 async def get_current_user(
     token: OAUTH_DEPENDENCY,
-    users_service: USERS_SERVICE_DEPENDENCY,
-    auth_service: AUTH_SERVICE_DEPENDENCY,
+    users_service: Annotated[UsersService, Depends()],
+    auth_service: Annotated[AuthService, Depends()],
 ) -> User:
     payload = auth_service.verify_token(token)
     user = await users_service.get_user_by_id(id=int(payload.get("sub")))
@@ -222,8 +86,8 @@ SUBDOMAIN_DEPENDENCY = Annotated[str, Depends(get_subdomain)]
 
 
 async def get_storefront_id(
-    storefronts_service: STOREFRONTS_SERVICE_DEPENDENCY,
-    subdomain: SUBDOMAIN_DEPENDENCY
+    storefronts_service: Annotated[StorefrontsService, Depends()],
+    subdomain: Annotated[str, Depends(get_subdomain)]
 ) -> int:
     return await storefronts_service.get_id_from_subdomain(subdomain=subdomain)
 

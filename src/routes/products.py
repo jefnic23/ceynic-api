@@ -1,41 +1,34 @@
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
-from src.dependencies import (
-    CURRENT_USER_DEPENDENCY,
-    PRODUCTS_SERVICE_DEPENDENCY,
-    SUBDOMAIN_DEPENDENCY,
-    USERS_SERVICE_DEPENDENCY,
-)
-from src.enums.product_sort_params import ProductSortParams
-from src.schemas.medium_count import MediumCount
-from src.schemas.price_range import PriceRange
-from src.schemas.product import ProductOut, ProductsOut
+from src.dependencies import CURRENT_USER_DEPENDENCY, STOREFRONT_ID_DEPENDENCY
+from src.models.product import ProductOut, ProductsOut
+from src.schemas.product_metadata import ProductMetadata
 from src.schemas.product_query_params import ProductQueryParams
-from src.schemas.size_ranges import SizeRanges
+from src.services.products_service import ProductsService
 
 router = APIRouter()
 
 
 @router.get("/products")
 async def get_all_products(
-    subdomain: SUBDOMAIN_DEPENDENCY,
-    products_service: PRODUCTS_SERVICE_DEPENDENCY,
+    storefront_id: STOREFRONT_ID_DEPENDENCY,
+    products_service: Annotated[ProductsService, Depends()],
     query_params: Annotated[ProductQueryParams, Query()],
     response: Response
 ) -> list[ProductsOut]:
     response.headers["cache-control"] = "max-age=3600"
-    return await products_service.get_all(subdomain=subdomain, query_params=query_params)
+    return await products_service.get_all(storefront_id=storefront_id, query_params=query_params)
 
 
 @router.get("/products/{id:int}")
 async def get_product(
-    subdomain: SUBDOMAIN_DEPENDENCY,
-    products_service: PRODUCTS_SERVICE_DEPENDENCY,
+    storefront_id: STOREFRONT_ID_DEPENDENCY,
+    products_service: Annotated[ProductsService, Depends()],
     id: int,
     response: Response
 ) -> ProductOut:
-    product = await products_service.get(product_id=id, subdomain=subdomain)
+    product = await products_service.get(storefront_id=storefront_id, product_id=id)
     if not product:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -48,8 +41,7 @@ async def get_product(
 @router.put("/products/{id:int}")
 async def update_product(
     current_user: CURRENT_USER_DEPENDENCY,
-    products_service: PRODUCTS_SERVICE_DEPENDENCY,
-    users_service: USERS_SERVICE_DEPENDENCY,
+    products_service: Annotated[ProductsService, Depends()],
     id: int,
     product: ProductOut,
 ) -> None:
@@ -58,42 +50,15 @@ async def update_product(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Mismatching product id.",
         )
-    subdomain = await users_service.get_subdomain_from_user(id=current_user.id)
-    old_product = await products_service.get(product_id=id, subdomain=subdomain)
-    if not old_product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product not found.",
-        )
-    await products_service.update(product=product)
+    await products_service.update(storefront_id=current_user.storefront_id, product=product)
     return None
 
 
-@router.get("/products/priceRange")
-async def get_price_range(
-    subdomain: SUBDOMAIN_DEPENDENCY,
-    products_service: PRODUCTS_SERVICE_DEPENDENCY,
+@router.get("/products/metadata")
+async def get_product_metadata(
+    storefront_id: STOREFRONT_ID_DEPENDENCY,
+    products_service: Annotated[ProductsService, Depends()],
     response: Response
-) -> PriceRange:
+) -> ProductMetadata:
     response.headers["cache-control"] = "max-age=3600"
-    return await products_service.get_price_range(subdomain=subdomain)
-
-
-@router.get("/products/mediumCounts")
-async def get_medium_counts(
-    subdomain: SUBDOMAIN_DEPENDENCY,
-    products_service: PRODUCTS_SERVICE_DEPENDENCY,
-    response: Response
-) -> list[MediumCount]:
-    response.headers["cache-control"] = "max-age=3600"
-    return await products_service.get_medium_counts(subdomain=subdomain)
-
-
-@router.get("/products/sizeRanges")
-async def get_size_ranges(
-    subdomain: SUBDOMAIN_DEPENDENCY,
-    products_service: PRODUCTS_SERVICE_DEPENDENCY,
-    response: Response
-) -> SizeRanges:
-    response.headers["cache-control"] = "max-age=3600"
-    return await products_service.get_size_ranges(subdomain=subdomain)
+    return await products_service.get_product_metadata(storefront_id)

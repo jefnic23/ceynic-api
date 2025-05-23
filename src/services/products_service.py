@@ -1,63 +1,50 @@
-from sqlalchemy import Select, func
+from typing import Annotated
+from fastapi import Depends, HTTPException, status
+from sqlalchemy import func
 from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.config import Settings
-from src.enums.product_sort_params import ProductSortParams
+from src.config import Settings, get_settings
+from src.database import get_async_session
 from src.models.medium import Medium
 from src.models.product import Product
-from src.schemas.medium_count import MediumCount
-from src.schemas.price_range import PriceRange
-from src.schemas.product import ProductOut, ProductsOut
+from src.repositories.product_repository import ProductRepository
+from src.models.product import ProductOut, ProductsOut
 from src.schemas.product_for_order import ProductForOrder
+from src.schemas.product_metadata import MediumCount, PriceRange, ProductMetadata, SizeRanges
 from src.schemas.product_query_params import ProductQueryParams
-from src.schemas.size_ranges import SizeRanges
 from src.models.storefront import Storefront
 from src.services.aws_service import AwsService
 
 
 class ProductsService:
-    def __init__(self, session: AsyncSession, settings: Settings, aws: AwsService):
-        self.session = session
-        self.settings = settings
-        self.aws = aws
+    def __init__(
+        self, 
+        session: Annotated[AsyncSession, Depends(get_async_session)], 
+        settings: Annotated[Settings, Depends(get_settings)], 
+        aws: Annotated[AwsService, Depends()],
+        repository: Annotated[ProductRepository, Depends()] 
+    ):
+        self._session = session
+        self._settings = settings
+        self._aws = aws
+        self._repository = repository
 
     async def get_all(
-        self, subdomain: str, query_params: ProductQueryParams | None = None
+        self, storefront_id: int, query_params: ProductQueryParams | None = None
     ) -> list[ProductsOut]:
-        statement = (
-            select(Product)
-            .join(Medium, Product.medium_id == Medium.id)
-            .join(Storefront, Product.storefront_id == Storefront.id)
-            .where(Storefront.subdomain == subdomain)
-            .where(Product.thumbnail != None)
-        )
-        if query_params:
-            statement = self.apply_query_params(statement, query_params)
-        results = await self.session.exec(statement=statement)
-        products: list[Product] = results.all()
-        return [
-            ProductsOut(
-                **product.model_dump(),
-                image_url=self.aws.get_product_thumbnail(product),
-            )
-            for product in products
-        ]
+        products = await self._repository.get_all(storefront_id=storefront_id, query_params=query_params)
+        return [ProductsOut.from_product(product, bucket_name=self._settings.BUCKETEER_BUCKET_NAME) for product in products]
 
-    async def get(self, product_id: int, subdomain: str) -> ProductOut:
-        statement = (
-            select(Product)
-            .join(Storefront, Product.storefront_id == Storefront.id)
-            .where(Storefront.subdomain == subdomain)
-            .where(Product.id == product_id)
-        )
-        results = await self.session.exec(statement=statement)
-        product: Product = results.one()
-        images = await self.aws.get_product_images(product)
-        return ProductOut(
-            **product.model_dump(),
-            images=images,
-        )
+    async def get(self, storefront_id: int, product_id: int) -> ProductOut:
+        product = await self._repository.get(storefront_id=storefront_id, product_id=product_id)
+        if not product:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Product not found",
+            )
+        images = await self._aws.get_product_images(product)
+        return ProductOut.from_product(product, images)
     
     async def get_for_order(self, storefront_id: int, product_ids: list[int]) -> list[ProductForOrder]:
         statement = (
@@ -66,98 +53,46 @@ class ProductsService:
             .where(Storefront.id == storefront_id)
             .where(col(Product.id).in_(product_ids))
         )
-        results = await self.session.exec(statement=statement)
+        results = await self._session.exec(statement=statement)
         products = results.all()
         return [ProductForOrder(**product.model_dump()) for product in products]
 
-
-    async def update(self, product: ProductOut) -> None:
+    async def update(self, storefront_id: int, product: ProductOut) -> None:
         # todo: implement
-        statement = select(Product).where(Product.id == product.id)
-        results = await self.session.exec(statement=statement)
+        statement = select(Product).where(Product.id == product.id).where(Storefront.id == storefront_id)
+        results = await self._session.exec(statement=statement)
         product_to_update = results.one()
 
-    async def get_price_range(self, subdomain: str) -> PriceRange:
-        statement = (
+    async def get_product_metadata(self, storefront_id: int) -> ProductMetadata:
+        price_size_statement = (
             select(
                 func.min(Product.price).label("minimum"),
                 func.max(Product.price).label("maximum"),
-            )
-            .join(Storefront, Product.storefront_id == Storefront.id)
-            .where(Storefront.subdomain == subdomain)
-        )
-        results = await self.session.exec(statement)
-        min_price, max_price = results.one()
-        return PriceRange(minimum=min_price, maximum=max_price)
-
-    async def get_medium_counts(self, subdomain: str) -> list[MediumCount]:
-        statement = (
-            select(Medium.id, Medium.name, func.count(Product.medium_id).label("count"))
-            .select_from(Medium)
-            .join(Product, Medium.id == Product.medium_id, isouter=True)
-            .join(Storefront, Product.storefront_id == Storefront.id, isouter=True)
-            .where(Storefront.subdomain == subdomain)
-            .group_by(Medium.id, Medium.name)
-        )
-        results = await self.session.exec(statement)
-        medium_counts = results.all()
-        return [
-            MediumCount(id=medium_count[0], name=medium_count[1], count=medium_count[2])
-            for medium_count in medium_counts
-        ]
-
-    async def get_size_ranges(self, subdomain: str) -> SizeRanges:
-        statement = (
-            select(
                 func.min(Product.width).label("width_minimum"),
                 func.max(Product.width).label("width_maximum"),
                 func.min(Product.height).label("height_minimum"),
                 func.max(Product.height).label("height_maximum"),
             )
-            .join(Storefront, Product.storefront_id == Storefront.id)
-            .where(Storefront.subdomain == subdomain)
+            .where(Product.storefront_id == storefront_id)
         )
-        results = await self.session.exec(statement)
-        width_minimum, width_maximum, height_minimum, height_maximum = results.one()
-        return SizeRanges(
-            width_minimum=width_minimum,
-            width_maximum=width_maximum,
-            height_minimum=height_minimum,
-            height_maximum=height_maximum,
+        price_size_results = await self._session.exec(price_size_statement)
+        min_price, max_price, width_minimum, width_maximum, height_minimum, height_maximum = price_size_results.one_or_none()
+
+        medium_statement = (
+            select(Medium.id, Medium.name, func.count(Product.medium_id).label("count"))
+            .select_from(Medium)
+            .join(Product, Medium.id == Product.medium_id, isouter=True)
+            .where(Product.storefront_id == storefront_id)
+            .group_by(Medium.id, Medium.name)
         )
+        medium_results = await self._session.exec(medium_statement)
+        medium_counts = [
+            MediumCount(id=medium_count[0], name=medium_count[1], count=medium_count[2])
+            for medium_count in medium_results.all()
+        ] 
 
-    @staticmethod
-    def apply_query_params(statement: Select, query_params: ProductQueryParams | None) -> Select:
-        if query_params.medium:
-            statement = statement.where(col(Medium.name).in_(query_params.medium))
-        if query_params.min_price:
-            statement = statement.where(Product.price >= query_params.min_price)
-        if query_params.max_price:
-            statement = statement.where(Product.price <= query_params.max_price)
-        if query_params.min_width:
-            statement = statement.where(Product.width >= query_params.min_width)
-        if query_params.max_width:
-            statement = statement.where(Product.width <= query_params.max_width)
-        if query_params.min_height:
-            statement = statement.where(Product.height >= query_params.min_height)
-        if query_params.max_height:
-            statement = statement.where(Product.height <= query_params.max_height)
-        if query_params.sort:
-            if query_params.sort == ProductSortParams.OLDEST:
-                statement = statement.order_by(Product.date_added)
-            elif query_params.sort == ProductSortParams.NEWEST:
-                statement = statement.order_by(Product.date_added.desc())
-            elif query_params.sort == ProductSortParams.PRICE_ASC:
-                statement = statement.order_by(Product.price)
-            elif query_params.sort == ProductSortParams.PRICE_DESC:
-                statement = statement.order_by(Product.price.desc())
-            elif query_params.sort == ProductSortParams.SIZE_ASC:
-                statement = statement.order_by(Product.height, Product.width)
-            elif query_params.sort == ProductSortParams.SIZE_DESC:
-                statement = statement.order_by(
-                    Product.height.desc(), Product.width.desc()
-                )
-            else:
-                statement = statement
-        return statement
-
+        return ProductMetadata(
+            price_range=PriceRange(minimum=min_price, maximum=max_price),
+            medium_counts=medium_counts,
+            size_ranges=SizeRanges(width_minimum=width_minimum, width_maximum=width_maximum, height_minimum=height_minimum, height_maximum=height_maximum)
+        )

@@ -1,12 +1,15 @@
+from typing import Annotated
+from fastapi import Depends
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.database import get_async_session
 from src.decorators import with_payment_processor
 from src.models.account_settings import AccountSettings
 from src.enums.payment_processor import PaymentProcessorEnum
+from src.models.order import OrdersOut
 from src.models.payment_processor import PaymentProcessor
 from src.schemas.create_order_out import CreateOrderOut
-from src.schemas.order import OrdersOut
 from src.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
 from src.schemas.paypal.capture_payment_response import CapturePaymentResponse
 from src.schemas.paypal.order_details import OrderDetails
@@ -21,17 +24,13 @@ from src.services.factories.payment_processor_factory import PaymentProcessorFac
 class OrdersService:
     def __init__(
         self, 
-        session: AsyncSession,
-        order_repository: OrderRepository,
-        payment_processor_factory: PaymentProcessorFactory
+        session: Annotated[AsyncSession, Depends(get_async_session)],
+        order_repository: Annotated[OrderRepository, Depends()],
+        payment_processor_factory: Annotated[PaymentProcessorFactory, Depends()] 
     ):
         self._session: AsyncSession = session
         self._order_repository: OrderRepository = order_repository
         self._payment_processor_factory: PaymentProcessorFactory = payment_processor_factory
-
-    async def get_orders(self, storefront_id: int) -> list[OrdersOut]:
-        orders = await self._order_repository.get_all(storefront_id)
-        return [OrdersOut(**order.model_dump()) for order in orders]
     
     @with_payment_processor
     async def get_order(

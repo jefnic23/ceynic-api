@@ -1,12 +1,13 @@
 import base64
 import json
-from typing import Optional, Type, TypeVar
+from typing import Annotated, Optional, Type, TypeVar
 
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.config import Settings
+from src.config import Settings, get_settings
+from src.database import get_async_session
 from src.http_client import HttpClient
 from src.models.paypal_settings import PayPalSettings
 from src.schemas.create_order_out import CreateOrderOut
@@ -35,10 +36,10 @@ class PayPalService(PaymentProcessorBase):
 
     def __init__(
         self, 
-        session: AsyncSession, 
-        settings: Settings, 
-        http_client: HttpClient,
-        order_repository: OrderRepository
+        session: Annotated[AsyncSession, Depends(get_async_session)], 
+        settings: Annotated[Settings, Depends(get_settings)], 
+        http_client: Annotated[HttpClient, Depends()],
+        order_repository: Annotated[OrderRepository, Depends()]
     ):
         self._session: AsyncSession = session
         self._settings: Settings = settings

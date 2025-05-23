@@ -4,16 +4,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 
-from src.dependencies import AUTH_SERVICE_DEPENDENCY
 from src.schemas.token import Token
 from src.schemas.token_refresh_request import TokenRefreshRequest
+from src.services.auth_service import AuthService
 
 router = APIRouter()
 
 
 @router.post("/login")
 async def login(
-    auth_service: AUTH_SERVICE_DEPENDENCY,
+    auth_service: Annotated[AuthService, Depends()],
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
     user = await auth_service.authenticate_user(
@@ -34,7 +34,7 @@ async def login(
 
 @router.post("/refresh")
 async def refresh_access(
-    auth_service: AUTH_SERVICE_DEPENDENCY,
+    auth_service: Annotated[AuthService, Depends()],
     body: TokenRefreshRequest,
 ) -> Token:
     payload = auth_service.verify_token(body.refresh_token)

@@ -1,11 +1,13 @@
 from datetime import datetime, timedelta, timezone
+from typing import Annotated
 
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.config import Settings
+from src.config import Settings, get_settings
+from src.database import get_async_session
 from src.exceptions import credentials_exception
 from src.models.refresh_token import RefreshToken
 from src.models.user import User
@@ -18,18 +20,18 @@ class AuthService:
 
     def __init__(
         self,
-        session: AsyncSession,
-        settings: Settings,
-        users_service: UsersService,
-        refresh_tokens_service: RefreshTokensService,
+        session: Annotated[AsyncSession, Depends(get_async_session)], 
+        settings: Annotated[Settings, Depends(get_settings)], 
+        users_service: Annotated[UsersService, Depends()],
+        refresh_tokens_service: Annotated[RefreshTokensService, Depends()],
     ):
-        self.session = session
-        self.settings = settings
-        self.users_service = users_service
-        self.refresh_tokens_service = refresh_tokens_service
+        self._session = session
+        self._settings = settings
+        self._users_service = users_service
+        self._refresh_tokens_service = refresh_tokens_service
 
     async def authenticate_user(self, email: str, password: str) -> User | bool:
-        user = await self.users_service.get_user_by_email(email=email)
+        user = await self._users_service.get_user_by_email(email=email)
         if not user:
             return False
         if not AuthService.verify_password(secret=password, hash=user.password):
@@ -44,7 +46,7 @@ class AuthService:
         }
         return jwt.encode(
             claims=claims,
-            key=self.settings.SECRET_KEY,
+            key=self._settings.SECRET_KEY,
             algorithm="HS256",
         )
 
@@ -58,24 +60,24 @@ class AuthService:
         }
         token = jwt.encode(
             claims=claims,
-            key=self.settings.SECRET_KEY,
+            key=self._settings.SECRET_KEY,
             algorithm="HS256",
         )
-        refresh_token = await self.refresh_tokens_service.get_refresh_token(user_id=sub)
+        refresh_token = await self._refresh_tokens_service.get_refresh_token(user_id=sub)
         if not refresh_token:
             refresh_token = RefreshToken(token=token, expiry_time=exp, user_id=sub)
-            self.session.add(refresh_token)
+            self._session.add(refresh_token)
         else:
             refresh_token.token = token
             refresh_token.expiry_time = exp
-        await self.session.commit()
+        await self._session.commit()
         return token
 
     def verify_token(
         self, token: str, exception: HTTPException = credentials_exception
     ) -> dict[str, any]:
         try:
-            payload = jwt.decode(token, self.settings.SECRET_KEY, algorithms=["HS256"])
+            payload = jwt.decode(token, self._settings.SECRET_KEY, algorithms=["HS256"])
             user_id: str | None = payload.get("sub")
             if user_id is None:
                 raise exception

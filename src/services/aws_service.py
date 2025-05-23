@@ -1,14 +1,21 @@
+from typing import Annotated
 import aioboto3
+from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.config import Settings
+from src.config import Settings, get_settings
+from src.database import get_async_session
 from src.models.product import Product
 
 
 class AwsService:
-    def __init__(self, session: AsyncSession, settings: Settings):
-        self.session = session
-        self.s3 = aioboto3.Session(
+    def __init__(
+        self, 
+        session: Annotated[AsyncSession, Depends(get_async_session)], 
+        settings: Annotated[Settings, Depends(get_settings)],
+    ):
+        self._session = session
+        self._s3 = aioboto3.Session(
             aws_access_key_id=settings.BUCKETEER_AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.BUCKETEER_AWS_SECRET_ACCESS_KEY,
         )
@@ -16,7 +23,7 @@ class AwsService:
         self._bucket_name = settings.BUCKETEER_BUCKET_NAME
 
     async def get_product_images(self, product: Product) -> list[str]:
-        async with self.s3.resource(
+        async with self._s3.resource(
             service_name="s3", region_name=self._region
         ) as resource:
             bucket = await resource.Bucket(self._bucket_name)

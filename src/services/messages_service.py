@@ -1,12 +1,14 @@
 from pathlib import Path
+from typing import Annotated
 
+from fastapi import Depends
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 
-from src.config import Settings
+from src.config import Settings, get_settings
 
 
 class MessagesService:
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Annotated[Settings, Depends(get_settings)]):
         self.server = settings.MAILGUN_SMTP_SERVER
         self.port = settings.MAILGUN_SMTP_PORT
         self.login = settings.MAILGUN_SMTP_LOGIN

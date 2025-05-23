@@ -1,17 +1,20 @@
 from datetime import datetime
+from typing import Annotated
+from fastapi import Depends
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.models.order import Order
+from src.database import get_async_session
+from src.models.order import Order, OrdersOut
 from src.models.order_product import OrderProduct
 from src.schemas.order_update import OrderUpdate
 
 
 class OrderRepository:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: Annotated[AsyncSession, Depends(get_async_session)]):
         self._session: AsyncSession = session
 
-    async def get_all(self, storefront_id: int) -> list[Order]:
+    async def get_all(self, storefront_id: int) -> list[OrdersOut]:
         statement = select(Order).where(Order.storefront_id == storefront_id).order_by(Order.create_time.desc())
         results = await self._session.exec(statement=statement)
         return results.all()
