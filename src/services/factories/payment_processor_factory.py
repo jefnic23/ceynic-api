@@ -8,7 +8,7 @@ from src.services.base.payment_processor_base import PaymentProcessorBase
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import Settings, get_settings
-from src.http_client import HttpClient
+from src.http_client import HttpClient, get_http_client
 from src.services.base.payment_processor_base import PaymentProcessorBase
 from src.services.paypal_service import PayPalService
 
@@ -17,7 +17,7 @@ class PaymentProcessorFactory:
         self,
         session: Annotated[AsyncSession, Depends(get_async_session)], 
         settings: Annotated[Settings, Depends(get_settings)], 
-        http_client: Annotated[HttpClient, Depends()],
+        http_client: Annotated[HttpClient, Depends(get_http_client)],
         order_repository: Annotated[OrderRepository, Depends()]
     ):
         self._session: AsyncSession = session

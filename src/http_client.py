@@ -17,3 +17,7 @@ class HttpClient:
                 if not res.ok:
                     await res.raise_for_status()
                 return await res.json()
+
+
+def get_http_client():
+    return HttpClient

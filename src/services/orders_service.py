@@ -1,10 +1,13 @@
-from typing import Annotated
+import inspect
+
+from functools import wraps
+from typing import Annotated, TypeVar
+
 from fastapi import Depends
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.database import get_async_session
-from src.decorators import with_payment_processor
 from src.models.account_settings import AccountSettings
 from src.enums.payment_processor import PaymentProcessorEnum
 from src.models.payment_processor import PaymentProcessor
@@ -30,6 +33,28 @@ class OrdersService:
         self._session: AsyncSession = session
         self._order_repository: OrderRepository = order_repository
         self._payment_processor_factory: PaymentProcessorFactory = payment_processor_factory
+
+    def with_payment_processor(func):
+        @wraps(func)
+        async def wrapper(self: "OrdersService", *args, **kwargs):
+            # Get the function signature
+            sig = inspect.signature(func)
+            bound_args = sig.bind(self, *args, **kwargs)
+            bound_args.apply_defaults()
+
+            # Try to find storefront_id in args or kwargs
+            storefront_id = bound_args.arguments.get('storefront_id')
+            if storefront_id is None:
+                raise ValueError(f"'storefront_id' must be provided to {func.__name__}")
+
+            # Fetch payment processor
+            payment_processor = await self._get_payment_processor(storefront_id)
+
+            # Inject payment_processor into kwargs
+            bound_args.arguments['payment_processor'] = payment_processor
+
+            return await func(*bound_args.args, **bound_args.kwargs)
+        return wrapper
     
     @with_payment_processor
     async def get_order(

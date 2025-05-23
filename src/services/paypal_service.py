@@ -1,13 +1,12 @@
 import base64
 import json
-from typing import Annotated, Optional, Type, TypeVar
+from typing import Optional, Type, TypeVar
 
-from fastapi import Depends, HTTPException
+from fastapi import HTTPException
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.config import Settings, get_settings
-from src.database import get_async_session
+from src.config import Settings
 from src.http_client import HttpClient
 from src.models.paypal_settings import PayPalSettings
 from src.schemas.create_order_out import CreateOrderOut
@@ -26,13 +25,34 @@ from src.schemas.product_for_order import ProductForOrder
 from src.repositories.order_repository import OrderRepository
 from src.services.base.payment_processor_base import PaymentProcessorBase
 
-T = TypeVar("T")
-
 
 class PayPalService(PaymentProcessorBase):
+    """
+    Service class for interacting with the PayPal payment API.
+
+    This class provides methods for creating orders, authorizing payments,
+    capturing funds, voiding authorizations, reauthorizing payments, and
+    issuing refunds using the PayPal REST API.
+
+    It supports dynamic configuration per storefront and assumes a one-to-one
+    mapping between a storefront and its associated PayPal credentials.
+
+    Dependencies:
+        - `session`: SQLAlchemy AsyncSession used for querying PayPal settings.
+        - `settings`: Application-wide settings object.
+        - `http_client`: An HTTP client wrapper for sending async requests.
+        - `order_repository`: A repository handling order persistence and updates.
+
+    Note:
+        This class is intended to be instantiated via the `PaymentProcessorFactory`,
+        which injects its required dependencies, including session, settings, and
+        services for making HTTP requests and handling order data persistence.
+    """
+
     BASE_URL_AUTHORIZATIONS = "/v2/payments/authorizations"
     BASE_URL_CAPTURES = "/v2/payments/captures"
     BASE_URL_ORDERS = "/v2/checkout/orders"
+    T = TypeVar("T")
 
     def __init__(
         self, 
@@ -60,6 +80,18 @@ class PayPalService(PaymentProcessorBase):
         order_id: str,
         url: str = BASE_URL_ORDERS
     ) -> OrderDetails:
+        """
+        Retrieve the PayPal order details by ID.
+
+        Args:
+            storefront_id (int): ID of the storefront for scoping credentials.
+            order_id (str): PayPal order ID to fetch.
+            url (str): Base URL segment for order endpoints.
+
+        Returns:
+            OrderDetails: Parsed PayPal order data.
+        """
+
         order_response = await self._send_request(
             storefront_id=storefront_id, 
             method="GET", 
@@ -88,6 +120,18 @@ class PayPalService(PaymentProcessorBase):
         products: list[ProductForOrder], 
         url: str = BASE_URL_ORDERS
     ) -> CreateOrderOut:
+        """
+        Create a new PayPal order based on provided product details.
+
+        Args:
+            storefront_id (int): ID of the storefront for credential scoping.
+            products (list[ProductForOrder]): List of products to include in the purchase.
+            url (str): Base URL segment for order creation.
+
+        Returns:
+            CreateOrderOut: Contains the PayPal order ID.
+        """
+
         data = CreateOrderPayload(
             purchase_units=[
                 PurchaseUnit(
@@ -115,6 +159,22 @@ class PayPalService(PaymentProcessorBase):
         product_ids: list[int], 
         url: str = BASE_URL_ORDERS
     ) -> AuthorizePaymentResponse:
+        """
+        Authorize a PayPal order and persist authorization info.
+
+        Args:
+            storefront_id (int): Storefront ID for access control.
+            order_id (str): PayPal order ID to authorize.
+            product_ids (list[int]): List of internal product IDs associated with the order.
+            url (str): URL segment for the authorization endpoint.
+
+        Returns:
+            AuthorizePaymentResponse: Response containing authorization details.
+
+        Raises:
+            HTTPException: If authorization fails or persistence fails.
+        """
+
         response = await self._send_request(
             storefront_id=storefront_id, 
             method="POST", 
@@ -138,6 +198,18 @@ class PayPalService(PaymentProcessorBase):
             raise HTTPException(status_code=500, detail="Error authorizing payment")
         
     async def reauthorize_payment(self, storefront_id: int, order_id: str, url: str = BASE_URL_AUTHORIZATIONS) -> Authorization:
+        """
+        Reauthorize a PayPal authorization that is close to expiration.
+
+        Args:
+            storefront_id (int): ID of the storefront.
+            order_id (str): ID of the PayPal order to reauthorize.
+            url (str): URL segment for reauthorization endpoint.
+
+        Returns:
+            Authorization: Updated authorization details.
+        """
+
         order = await self._order_repository.get(storefront_id=storefront_id, order_id=order_id)
 
         response = await self._send_request(
@@ -165,6 +237,18 @@ class PayPalService(PaymentProcessorBase):
         order_id: str, 
         url: str = BASE_URL_AUTHORIZATIONS
     ) -> Authorization:
+        """
+        Void a previously authorized PayPal payment.
+
+        Args:
+            storefront_id (int): Storefront ID for credential scoping.
+            order_id (str): Order ID whose authorization should be voided.
+            url (str): URL segment for voiding endpoint.
+
+        Returns:
+            Authorization: Response from PayPal indicating void status.
+        """
+
         order = await self._order_repository.get(storefront_id=storefront_id, order_id=order_id)
 
         response = await self._send_request(
@@ -186,6 +270,18 @@ class PayPalService(PaymentProcessorBase):
     async def capture_payment(
         self, storefront_id: int, order_id: str, url: str = BASE_URL_AUTHORIZATIONS
     ) -> CapturePaymentResponse:
+        """
+        Capture funds for an authorized PayPal order.
+
+        Args:
+            storefront_id (int): Storefront ID for credential access.
+            order_id (str): Order ID whose funds will be captured.
+            url (str): URL segment for the capture endpoint.
+
+        Returns:
+            CapturePaymentResponse: Capture transaction details.
+        """
+
         order = await self._order_repository.get(storefront_id=storefront_id, order_id=order_id)
 
         response = await self._send_request(
@@ -212,6 +308,18 @@ class PayPalService(PaymentProcessorBase):
         order_id: str, 
         url: str = BASE_URL_CAPTURES
     ):
+        """
+        Refund a completed PayPal capture.
+
+        Args:
+            storefront_id (int): Storefront ID to fetch credentials.
+            order_id (str): Order ID whose capture will be refunded.
+            url (str): URL segment for the refund endpoint.
+
+        Returns:
+            None
+        """
+
         # todo: capture response
         order = await self._order_repository.get(storefront_id=storefront_id, order_id=order_id)
 
@@ -231,12 +339,32 @@ class PayPalService(PaymentProcessorBase):
     # region Private Methods
 
     async def _get_credentials(self, storefront_id: int) -> PayPalCredentials:
+        """
+        Retrieve PayPal client credentials for a given storefront.
+
+        Args:
+            storefront_id (int): ID of the storefront.
+
+        Returns:
+            PayPalCredentials: Client ID and secret used for token generation.
+        """
+
         statement = select(PayPalSettings).where(PayPalSettings.storefront_id == storefront_id)
         results = await self._session.exec(statement=statement)
         paypal_settings = results.one_or_none()
         return PayPalCredentials(**paypal_settings.model_dump())
     
     async def _get_access_token(self, storefront_id: int) -> AuthResponse:
+        """
+        Obtain an OAuth2 access token from PayPal.
+
+        Args:
+            storefront_id (int): Storefront ID for credential scoping.
+
+        Returns:
+            AuthResponse: Contains access token and expiration info.
+        """
+
         # todo: error handling
         paypal_credentials = await self._get_credentials(storefront_id)
         
@@ -269,6 +397,22 @@ class PayPalService(PaymentProcessorBase):
         params: dict[str, any] = None,
         response_model: Optional[Type[T]] = None
     ) -> T | dict[str, any]:
+        """
+        Send an authenticated request to the PayPal API.
+
+        Args:
+            storefront_id (int): Storefront ID to retrieve credentials.
+            method (str): HTTP method to use ("GET", "POST").
+            path (str): API endpoint path.
+            headers (dict, optional): Additional headers to include.
+            data (dict, optional): JSON-serializable body data.
+            params (dict, optional): URL query parameters.
+            response_model (Type[T], optional): Pydantic model to deserialize response into.
+
+        Returns:
+            Union[T, dict]: Deserialized response or raw data.
+        """
+        
         # todo: implement redis to cache dict of storefront access_tokens
         if not self._access_token:
             auth_response = await self._get_access_token(storefront_id)
