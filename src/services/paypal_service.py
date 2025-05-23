@@ -36,10 +36,10 @@ class PayPalService(PaymentProcessorBase):
 
     def __init__(
         self, 
-        session: Annotated[AsyncSession, Depends(get_async_session)], 
-        settings: Annotated[Settings, Depends(get_settings)], 
-        http_client: Annotated[HttpClient, Depends()],
-        order_repository: Annotated[OrderRepository, Depends()]
+        session: AsyncSession, 
+        settings: Settings, 
+        http_client: HttpClient,
+        order_repository: OrderRepository
     ):
         self._session: AsyncSession = session
         self._settings: Settings = settings
