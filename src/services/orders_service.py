@@ -7,7 +7,6 @@ from src.database import get_async_session
 from src.decorators import with_payment_processor
 from src.models.account_settings import AccountSettings
 from src.enums.payment_processor import PaymentProcessorEnum
-from src.models.order import OrdersOut
 from src.models.payment_processor import PaymentProcessor
 from src.schemas.create_order_out import CreateOrderOut
 from src.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
