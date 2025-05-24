@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship
 
+from src.decorators import frontend
 from src.models.base import BaseModel
 
 if TYPE_CHECKING:
@@ -25,6 +26,7 @@ class SocialMediaLink(SocialMediaLinkBase, table=True):
     storefront: "Storefront" = Relationship(back_populates="social_media_links")
 
 
+@frontend
 class SocialMediaLinkOut(SocialMediaLinkBase):
     id: int
     name: str

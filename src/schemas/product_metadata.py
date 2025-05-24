@@ -1,4 +1,5 @@
 from decimal import Decimal
+from src.decorators import frontend
 from src.schemas.base import BaseSchema
 
 
@@ -20,6 +21,7 @@ class SizeRanges(BaseSchema):
     height_maximum: int
 
 
+@frontend
 class ProductMetadata(BaseSchema):
     price_range: PriceRange
     medium_counts: list[MediumCount]

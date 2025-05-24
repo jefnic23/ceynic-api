@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship
 
+from src.decorators import frontend
 from src.models.base import BaseModel
 from src.models.medium import MediumOut
 
@@ -40,7 +41,8 @@ class Product(ProductBase, table=True):
     storefront: "Storefront" = Relationship(back_populates="products")
     orders: list["OrderProduct"] = Relationship(back_populates="product")
 
-    
+
+@frontend    
 class ProductsOut(ProductBase):
     id: int
     image_url: str | None = None # todo: maybe the full thumbnail url should be stored in the db?
@@ -55,6 +57,7 @@ class ProductsOut(ProductBase):
         )
 
 
+@frontend  
 class ProductOut(ProductBase):
     id: int
     images: list[str] = []

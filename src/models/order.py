@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from sqlmodel import Column, DateTime, Field, Relationship
 
+from src.decorators import frontend
 from src.models.base import BaseModel
 
 if TYPE_CHECKING:
@@ -32,5 +33,6 @@ class Order(OrderBase, table=True):
     products: list["OrderProduct"] = Relationship(back_populates="order")
 
 
+@frontend
 class OrdersOut(OrderBase):
     id: str

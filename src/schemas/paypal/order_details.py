@@ -1,11 +1,13 @@
 from datetime import datetime
 from src.database import BaseSchema
+from src.decorators import frontend
 from src.schemas.paypal.base import Link
 from src.schemas.paypal.payer import Payer
 from src.schemas.paypal.payment_source import PaymentSource
 from src.schemas.paypal.purchase_unit import PurchaseUnit
 
 
+@frontend
 class OrderDetails(BaseSchema):
     id: str
     status: str
