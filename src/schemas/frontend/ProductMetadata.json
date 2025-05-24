@@ -1,0 +1,95 @@
+{
+    "$defs": {
+        "MediumCount": {
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "count"
+            ],
+            "type": "object"
+        },
+        "PriceRange": {
+            "properties": {
+                "minimum": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "maximum": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "minimum",
+                "maximum"
+            ],
+            "type": "object"
+        },
+        "SizeRanges": {
+            "properties": {
+                "widthMinimum": {
+                    "type": "integer"
+                },
+                "widthMaximum": {
+                    "type": "integer"
+                },
+                "heightMinimum": {
+                    "type": "integer"
+                },
+                "heightMaximum": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "widthMinimum",
+                "widthMaximum",
+                "heightMinimum",
+                "heightMaximum"
+            ],
+            "type": "object"
+        }
+    },
+    "properties": {
+        "priceRange": {
+            "$ref": "#/$defs/PriceRange"
+        },
+        "mediumCounts": {
+            "items": {
+                "$ref": "#/$defs/MediumCount"
+            },
+            "type": "array"
+        },
+        "sizeRanges": {
+            "$ref": "#/$defs/SizeRanges"
+        }
+    },
+    "required": [
+        "priceRange",
+        "mediumCounts",
+        "sizeRanges"
+    ],
+    "type": "object"
+}

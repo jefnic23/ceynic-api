@@ -1,7 +1,7 @@
 import inspect
 
 from functools import wraps
-from typing import Annotated, TypeVar
+from typing import Annotated
 
 from fastapi import Depends
 from sqlmodel import select

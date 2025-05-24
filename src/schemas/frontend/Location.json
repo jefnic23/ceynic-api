@@ -1,0 +1,22 @@
+{
+    "properties": {
+        "city": {
+            "anyOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "state": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "city",
+        "state"
+    ],
+    "type": "object"
+}

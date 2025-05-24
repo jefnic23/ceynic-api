@@ -1,0 +1,23 @@
+{
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "url": {
+            "type": "string"
+        },
+        "storefrontId": {
+            "type": "integer"
+        },
+        "id": {
+            "type": "integer"
+        }
+    },
+    "required": [
+        "name",
+        "url",
+        "storefrontId",
+        "id"
+    ],
+    "type": "object"
+}

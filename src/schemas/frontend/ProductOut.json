@@ -1,0 +1,101 @@
+{
+    "$defs": {
+        "MediumOut": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "name",
+                "id"
+            ],
+            "type": "object"
+        }
+    },
+    "properties": {
+        "title": {
+            "type": "string"
+        },
+        "price": {
+            "anyOf": [
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "height": {
+            "type": "integer"
+        },
+        "width": {
+            "type": "integer"
+        },
+        "description": {
+            "anyOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "enabled": {
+            "type": "boolean"
+        },
+        "thumbnail": {
+            "type": "string"
+        },
+        "dateAdded": {
+            "format": "date-time",
+            "type": "string"
+        },
+        "mediumId": {
+            "type": "integer"
+        },
+        "storefrontId": {
+            "type": "integer"
+        },
+        "id": {
+            "type": "integer"
+        },
+        "images": {
+            "default": [],
+            "items": {
+                "type": "string"
+            },
+            "type": "array"
+        },
+        "medium": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/MediumOut"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": null
+        }
+    },
+    "required": [
+        "title",
+        "price",
+        "height",
+        "width",
+        "description",
+        "enabled",
+        "thumbnail",
+        "dateAdded",
+        "mediumId",
+        "storefrontId",
+        "id"
+    ],
+    "type": "object"
+}

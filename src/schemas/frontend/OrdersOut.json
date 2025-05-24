@@ -1,0 +1,32 @@
+{
+    "properties": {
+        "createTime": {
+            "format": "date-time",
+            "type": "string"
+        },
+        "authorizationId": {
+            "type": "string"
+        },
+        "captureId": {
+            "type": "string"
+        },
+        "status": {
+            "type": "string"
+        },
+        "storefrontId": {
+            "type": "integer"
+        },
+        "id": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "createTime",
+        "authorizationId",
+        "captureId",
+        "status",
+        "storefrontId",
+        "id"
+    ],
+    "type": "object"
+}

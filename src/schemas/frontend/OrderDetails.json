@@ -1,0 +1,612 @@
+{
+    "$defs": {
+        "Address": {
+            "properties": {
+                "addressLine1": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "addressLine2": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "adminArea2": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "adminArea1": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "postalCode": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "countryCode": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            },
+            "type": "object"
+        },
+        "Amount": {
+            "properties": {
+                "currencyCode": {
+                    "default": "USD",
+                    "type": "string"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "type": "object"
+        },
+        "Authorization": {
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "amount": {
+                    "$ref": "#/$defs/Amount"
+                },
+                "sellerProtection": {
+                    "$ref": "#/$defs/SellerProtection"
+                },
+                "expirationTime": {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "createTime": {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "updateTime": {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "links": {
+                    "items": {
+                        "$ref": "#/$defs/Link"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "id",
+                "status",
+                "amount",
+                "sellerProtection",
+                "expirationTime",
+                "createTime",
+                "updateTime",
+                "links"
+            ],
+            "type": "object"
+        },
+        "Capture": {
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "amount": {
+                    "$ref": "#/$defs/Amount"
+                },
+                "sellerProtection": {
+                    "$ref": "#/$defs/SellerProtection"
+                },
+                "finalCapture": {
+                    "type": "boolean"
+                },
+                "disbursementMode": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "sellerReceivableBreakdown": {
+                    "$ref": "#/$defs/SellerReceivableBreakdown"
+                },
+                "createTime": {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "updateTime": {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "links": {
+                    "items": {
+                        "$ref": "#/$defs/Link"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "id",
+                "status",
+                "amount",
+                "sellerProtection",
+                "finalCapture",
+                "sellerReceivableBreakdown",
+                "createTime",
+                "updateTime",
+                "links"
+            ],
+            "type": "object"
+        },
+        "GrossAmount": {
+            "properties": {
+                "currencyCode": {
+                    "type": "string"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "currencyCode",
+                "value"
+            ],
+            "type": "object"
+        },
+        "Link": {
+            "properties": {
+                "href": {
+                    "type": "string"
+                },
+                "rel": {
+                    "type": "string"
+                },
+                "method": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "href",
+                "rel",
+                "method"
+            ],
+            "type": "object"
+        },
+        "Name": {
+            "properties": {
+                "givenName": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "surname": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            },
+            "type": "object"
+        },
+        "NetAmount": {
+            "properties": {
+                "currencyCode": {
+                    "type": "string"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "currencyCode",
+                "value"
+            ],
+            "type": "object"
+        },
+        "Payee": {
+            "properties": {
+                "emailAddress": {
+                    "format": "email",
+                    "type": "string"
+                },
+                "merchantId": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "emailAddress",
+                "merchantId"
+            ],
+            "type": "object"
+        },
+        "Payer": {
+            "properties": {
+                "name": {
+                    "$ref": "#/$defs/Name"
+                },
+                "emailAddress": {
+                    "format": "email",
+                    "type": "string"
+                },
+                "payerId": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "emailAddress",
+                "payerId"
+            ],
+            "type": "object"
+        },
+        "PaymentSource": {
+            "properties": {
+                "paypal": {
+                    "$ref": "#/$defs/Paypal"
+                }
+            },
+            "required": [
+                "paypal"
+            ],
+            "type": "object"
+        },
+        "Payments": {
+            "properties": {
+                "authorizations": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "$ref": "#/$defs/Authorization"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "captures": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "$ref": "#/$defs/Capture"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            },
+            "type": "object"
+        },
+        "Paypal": {
+            "properties": {
+                "name": {
+                    "$ref": "#/$defs/Name"
+                },
+                "emailAddress": {
+                    "anyOf": [
+                        {
+                            "format": "email",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "accountId": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "accountStatus": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "address": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Address"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "type": "object"
+        },
+        "PaypalFee": {
+            "properties": {
+                "currencyCode": {
+                    "type": "string"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "currencyCode",
+                "value"
+            ],
+            "type": "object"
+        },
+        "PurchaseUnit": {
+            "properties": {
+                "referenceId": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "payee": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Payee"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "description": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "shipping": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Shipping"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "payments": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Payments"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "amount": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Amount"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            },
+            "type": "object"
+        },
+        "SellerProtection": {
+            "properties": {
+                "status": {
+                    "type": "string"
+                },
+                "disputeCategories": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "status",
+                "disputeCategories"
+            ],
+            "type": "object"
+        },
+        "SellerReceivableBreakdown": {
+            "properties": {
+                "grossAmount": {
+                    "$ref": "#/$defs/GrossAmount"
+                },
+                "paypalFee": {
+                    "$ref": "#/$defs/PaypalFee"
+                },
+                "netAmount": {
+                    "$ref": "#/$defs/NetAmount"
+                }
+            },
+            "required": [
+                "grossAmount",
+                "paypalFee",
+                "netAmount"
+            ],
+            "type": "object"
+        },
+        "Shipping": {
+            "properties": {
+                "address": {
+                    "$ref": "#/$defs/Address"
+                }
+            },
+            "required": [
+                "address"
+            ],
+            "type": "object"
+        }
+    },
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "status": {
+            "type": "string"
+        },
+        "intent": {
+            "type": "string"
+        },
+        "paymentSource": {
+            "$ref": "#/$defs/PaymentSource"
+        },
+        "purchaseUnits": {
+            "items": {
+                "$ref": "#/$defs/PurchaseUnit"
+            },
+            "type": "array"
+        },
+        "payer": {
+            "$ref": "#/$defs/Payer"
+        },
+        "createTime": {
+            "format": "date-time",
+            "type": "string"
+        },
+        "links": {
+            "items": {
+                "$ref": "#/$defs/Link"
+            },
+            "type": "array"
+        }
+    },
+    "required": [
+        "id",
+        "status",
+        "intent",
+        "paymentSource",
+        "purchaseUnits",
+        "payer",
+        "createTime",
+        "links"
+    ],
+    "type": "object"
+}
