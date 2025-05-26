@@ -14,6 +14,29 @@
                 "id"
             ],
             "type": "object"
+        },
+        "ProductImageOut": {
+            "properties": {
+                "publicId": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "publicId",
+                "position",
+                "productId",
+                "id"
+            ],
+            "type": "object"
         }
     },
     "properties": {
@@ -68,7 +91,7 @@
         "images": {
             "default": [],
             "items": {
-                "type": "string"
+                "$ref": "#/$defs/ProductImageOut"
             },
             "type": "array"
         },

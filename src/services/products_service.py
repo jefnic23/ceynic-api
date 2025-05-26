@@ -9,7 +9,7 @@ from src.database import get_async_session
 from src.models.medium import Medium
 from src.models.product import Product
 from src.repositories.product_repository import ProductRepository
-from src.models.product import ProductOut, ProductsOut
+from src.models.product import ProductOut
 from src.schemas.product_for_order import ProductForOrder
 from src.schemas.product_metadata import MediumCount, PriceRange, ProductMetadata, SizeRanges
 from src.schemas.product_query_params import ProductQueryParams
@@ -32,9 +32,9 @@ class ProductsService:
 
     async def get_all(
         self, storefront_id: int, query_params: ProductQueryParams | None = None
-    ) -> list[ProductsOut]:
+    ) -> list[ProductOut]:
         products = await self._repository.get_all(storefront_id=storefront_id, query_params=query_params)
-        return [ProductsOut.from_product(product, bucket_name=self._settings.BUCKETEER_BUCKET_NAME) for product in products]
+        return products
 
     async def get(self, storefront_id: int, product_id: int) -> ProductOut:
         product = await self._repository.get(storefront_id=storefront_id, product_id=product_id)
@@ -43,8 +43,7 @@ class ProductsService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Product not found",
             )
-        images = await self._aws.get_product_images(product)
-        return ProductOut.from_product(product, images)
+        return product
     
     async def get_for_order(self, storefront_id: int, product_ids: list[int]) -> list[ProductForOrder]:
         statement = (

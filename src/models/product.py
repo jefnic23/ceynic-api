@@ -7,10 +7,12 @@ from sqlmodel import Field, Relationship
 from src.decorators import frontend
 from src.models.base import BaseModel
 from src.models.medium import MediumOut
+from src.models.product_image import ProductImageOut
 
 if TYPE_CHECKING:
     from src.models.medium import Medium
     from src.models.order_product import OrderProduct
+    from src.models.product_image import ProductImage
     from src.models.storefront import Storefront
 
 
@@ -21,15 +23,12 @@ class ProductBase(BaseModel):
     width: int
     description: str | None
     enabled: bool
-    thumbnail: str
+    thumbnail: str # todo: deprecate
     date_added: datetime
+    # quantity: int
 
     medium_id: int = Field(foreign_key="mediums.id")
     storefront_id: int = Field(foreign_key="storefronts.id")
-
-    @property
-    def formatted_title(self) -> str:
-        return self.title.replace(' ', '_')
 
 
 class Product(ProductBase, table=True):
@@ -39,34 +38,13 @@ class Product(ProductBase, table=True):
 
     medium: "Medium" = Relationship(back_populates="products")
     storefront: "Storefront" = Relationship(back_populates="products")
+    
+    images: list["ProductImage"] = Relationship(back_populates="product")
     orders: list["OrderProduct"] = Relationship(back_populates="product")
-
-
-@frontend    
-class ProductsOut(ProductBase):
-    id: int
-    image_url: str | None = None # todo: maybe the full thumbnail url should be stored in the db?
-    medium: MediumOut | None = None
-
-    @classmethod
-    def from_product(cls, product: ProductBase, bucket_name: str) -> "ProductsOut":
-        return cls(
-            **product.model_dump(),
-            medium=MediumOut.model_validate(product.medium) if product.medium else None,
-            image_url=f"https://{bucket_name}.s3.amazonaws.com/public/{product.formatted_title}/{product.thumbnail}",
-        )
 
 
 @frontend  
 class ProductOut(ProductBase):
     id: int
-    images: list[str] = []
+    images: list[ProductImageOut] = []
     medium: MediumOut | None = None
-
-    @classmethod
-    def from_product(cls, product: ProductBase, images: list[str]) -> "ProductOut":
-        return cls(
-            **product.model_dump(),
-            medium=MediumOut.model_validate(product.medium) if product.medium else None,
-            images=images,
-        )

@@ -8,7 +8,8 @@ from sqlmodel.sql.expression import SelectOfScalar
 from src.database import get_async_session
 from src.enums.product_sort_params import ProductSortParams
 from src.models.medium import Medium
-from src.models.product import Product, ProductOut, ProductsOut
+from src.models.product import Product, ProductOut
+from src.models.product_image import ProductImage
 from src.schemas.product_query_params import ProductQueryParams
 
 
@@ -20,12 +21,13 @@ class ProductRepository:
         self, 
         storefront_id: int, 
         query_params: ProductQueryParams | None = None
-    ) -> list[ProductsOut]:
+    ) -> list[ProductOut]:
         statement = (
             select(Product)
+            .join(ProductImage)
             .where(Product.storefront_id == storefront_id)
-            .where(Product.thumbnail != None)
-            .options(selectinload(Product.medium))
+            .where(ProductImage.position == 1)
+            .options(selectinload(Product.medium), selectinload(Product.images))
         )
         if query_params:
             statement = self._apply_query_params(statement, query_params)
@@ -37,7 +39,7 @@ class ProductRepository:
             select(Product)
             .where(Product.storefront_id == storefront_id)
             .where(Product.id == product_id)
-            .options(selectinload(Product.medium))
+            .options(selectinload(Product.medium), selectinload(Product.images))
         )
         results = await self._session.exec(statement=statement)
         return results.one_or_none()

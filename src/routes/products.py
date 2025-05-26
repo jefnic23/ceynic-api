@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
 from src.dependencies import CURRENT_USER_DEPENDENCY, STOREFRONT_ID_DEPENDENCY
-from src.models.product import ProductOut, ProductsOut
+from src.models.product import ProductOut
 from src.schemas.product_metadata import ProductMetadata
 from src.schemas.product_query_params import ProductQueryParams
 from src.services.products_service import ProductsService
@@ -16,7 +16,7 @@ async def get_all_products(
     products_service: Annotated[ProductsService, Depends()],
     query_params: Annotated[ProductQueryParams, Query()],
     response: Response
-) -> list[ProductsOut]:
+) -> list[ProductOut]:
     response.headers["cache-control"] = "max-age=3600"
     return await products_service.get_all(storefront_id=storefront_id, query_params=query_params)
 
