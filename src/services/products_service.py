@@ -14,20 +14,17 @@ from src.schemas.product_for_order import ProductForOrder
 from src.schemas.product_metadata import MediumCount, PriceRange, ProductMetadata, SizeRanges
 from src.schemas.product_query_params import ProductQueryParams
 from src.models.storefront import Storefront
-from src.services.aws_service import AwsService
 
 
 class ProductsService:
     def __init__(
         self, 
         session: Annotated[AsyncSession, Depends(get_async_session)], 
-        settings: Annotated[Settings, Depends(get_settings)], 
-        aws: Annotated[AwsService, Depends()],
+        settings: Annotated[Settings, Depends(get_settings)],
         repository: Annotated[ProductRepository, Depends()] 
     ):
         self._session = session
         self._settings = settings
-        self._aws = aws
         self._repository = repository
 
     async def get_all(

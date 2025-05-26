@@ -17,10 +17,6 @@ class Settings(BaseSettings):
     MAILGUN_DOMAIN: str
     MAILGUN_PUBLIC_KEY: str
     RECIPIENT_EMAIL: str
-    BUCKETEER_AWS_ACCESS_KEY_ID: str
-    BUCKETEER_AWS_REGION: str
-    BUCKETEER_AWS_SECRET_ACCESS_KEY: str
-    BUCKETEER_BUCKET_NAME: str
     PAYPAL_BASE_URL: str
     RECAPTCHA_SECRET_KEY: str
     FASTAPI_ENV: str = "production"
