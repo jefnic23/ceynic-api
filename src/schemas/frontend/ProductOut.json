@@ -23,6 +23,12 @@
                 "position": {
                     "type": "integer"
                 },
+                "width": {
+                    "type": "integer"
+                },
+                "height": {
+                    "type": "integer"
+                },
                 "productId": {
                     "type": "integer"
                 },
@@ -33,6 +39,8 @@
             "required": [
                 "publicId",
                 "position",
+                "width",
+                "height",
                 "productId",
                 "id"
             ],

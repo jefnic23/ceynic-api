@@ -9,6 +9,8 @@ if TYPE_CHECKING:
 class ProductImageBase(BaseModel):
     public_id: str
     position: int
+    width: int
+    height: int
 
     product_id: int = Field(foreign_key="products.id")
 
