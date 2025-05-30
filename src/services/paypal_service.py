@@ -13,10 +13,11 @@ from src.schemas.create_order_out import CreateOrderOut
 from src.schemas.order_update import OrderUpdate
 from src.schemas.paypal.auth_response import AuthResponse
 from src.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
-from src.schemas.paypal.base import Amount
+from src.schemas.paypal.base import Amount, Breakdown, UnitAmount
 from src.schemas.paypal.capture_payment_response import CapturePaymentResponse
 from src.schemas.paypal.create_order_payload import CreateOrderPayload
 from src.schemas.paypal.create_order_response import CreateOrderResponse
+from src.schemas.paypal.item import Item
 from src.schemas.paypal.order_details import OrderDetails
 from src.schemas.paypal.payments import Authorization
 from src.schemas.paypal.purchase_unit import PurchaseUnit
@@ -132,13 +133,25 @@ class PayPalService(PaymentProcessorBase):
             CreateOrderOut: Contains the PayPal order ID.
         """
 
+        value = str(sum(product.price for product in products))
+
         data = CreateOrderPayload(
             purchase_units=[
                 PurchaseUnit(
-                    description=product.title, 
-                    amount=Amount(value=product.price)
-                ) 
-                for product in products
+                    amount=Amount(
+                        value=value,
+                        breakdown=Breakdown(item_total=UnitAmount(value=value))
+                    ),
+                    items=[
+                        Item(
+                            name=product.title, 
+                            description=product.description, 
+                            unit_amount=UnitAmount(value=str(product.price)),
+                            quantity="1" # todo: add cart product quantity
+                            # todo: add image_url
+                        ) for product in products
+                    ]
+                )
             ]
         )
 
@@ -192,6 +205,7 @@ class PayPalService(PaymentProcessorBase):
                 product_ids=product_ids
             )
             return response
+            # todo: also subtract quantity from product
         except Exception:
             # todo: log and void order
             await self.void_payment(storefront_id, order_id)

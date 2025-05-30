@@ -1,6 +1,6 @@
-from src.database import BaseSchema
+from pydantic import BaseModel
 from src.schemas.paypal.base import Address
 
 
-class Shipping(BaseSchema):
+class Shipping(BaseModel):
     address: Address

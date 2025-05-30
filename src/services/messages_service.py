@@ -9,14 +9,11 @@ from src.config import Settings, get_settings
 
 class MessagesService:
     def __init__(self, settings: Annotated[Settings, Depends(get_settings)]):
-        self.server = settings.MAILGUN_SMTP_SERVER
-        self.port = settings.MAILGUN_SMTP_PORT
-        self.login = settings.MAILGUN_SMTP_LOGIN
-        self.password = settings.MAILGUN_SMTP_PASSWORD
-        self.api_key = settings.MAILGUN_API_KEY
-        self.domain = settings.MAILGUN_DOMAIN
-        self.public_key = settings.MAILGUN_PUBLIC_KEY
-        self.recipient_email = settings.RECIPIENT_EMAIL
+        self._settings: Settings = settings
+
+        # self.api_key = settings.MAILGUN_API_KEY
+        # self.domain = settings.MAILGUN_DOMAIN
+        # self.public_key = settings.MAILGUN_PUBLIC_KEY
 
     def get_fast_mail(self, from_name: str, from_email) -> FastMail:
         connection_config = self._get_connection_config(
@@ -28,7 +25,7 @@ class MessagesService:
     def build_message(self, from_name: str, message: str) -> MessageSchema:
         return MessageSchema(
             subject=f"[TraceyNicholasArt] Message from {from_name}",
-            recipients=[self.recipient_email],
+            recipients=[self._settings.RECIPIENT_EMAIL],
             template_body={"message": message},
             subtype=MessageType.html,
         )
@@ -37,10 +34,10 @@ class MessagesService:
         self, from_name: str, from_email: str
     ) -> ConnectionConfig:
         return ConnectionConfig(
-            MAIL_USERNAME=self.login,
-            MAIL_PASSWORD=self.password,
-            MAIL_PORT=self.port,
-            MAIL_SERVER=self.server,
+            MAIL_USERNAME=self._settings.MAILGUN_SMTP_LOGIN,
+            MAIL_PASSWORD=self._settings.MAILGUN_SMTP_PASSWORD,
+            MAIL_PORT=self._settings.MAILGUN_SMTP_PORT,
+            MAIL_SERVER=self._settings.MAILGUN_SMTP_SERVER,
             MAIL_FROM=from_email,
             MAIL_FROM_NAME=from_name,
             MAIL_STARTTLS=True,
