@@ -8,11 +8,11 @@ from src.schemas.paypal.seller_receivable_breakdown import SellerReceivableBreak
 class Authorization(BaseModel):
     id: str
     status: str
-    UnitAmount: UnitAmount
+    amount: UnitAmount
     seller_protection: SellerProtection
-    expiration_time: datetime
-    create_time: datetime
-    update_time: datetime
+    expiration_time: datetime | None = None
+    create_time: datetime | None = None
+    update_time: datetime | None = None
     links: list[Link]
 
 
@@ -24,8 +24,8 @@ class Capture(BaseModel):
     final_capture: bool
     disbursement_mode: str | None = None
     seller_receivable_breakdown: SellerReceivableBreakdown
-    create_time: datetime
-    update_time: datetime
+    create_time: datetime | None = None
+    update_time: datetime | None = None
     links: list[Link]
 
 

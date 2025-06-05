@@ -206,8 +206,9 @@ class PayPalService(PaymentProcessorBase):
             )
             return response
             # todo: also subtract quantity from product
-        except Exception:
+        except Exception as e:
             # todo: log and void order
+            print(e)
             await self.void_payment(storefront_id, order_id)
             raise HTTPException(status_code=500, detail="Error authorizing payment")
         
