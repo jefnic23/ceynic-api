@@ -1,5 +1,5 @@
 from pydantic import EmailStr
-from src.database import BaseSchema
+from src.schemas.base import BaseSchema
 from src.schemas.paypal.base import Address, Name
 
 

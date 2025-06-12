@@ -1,11 +1,11 @@
-from pydantic import BaseModel
+from src.schemas.base import BaseSchema
 from src.schemas.paypal.base import Amount, Payee
 from src.schemas.paypal.item import Item
 from src.schemas.paypal.payments import Payments
 from src.schemas.paypal.shipping import Shipping
 
 
-class PurchaseUnit(BaseModel):
+class PurchaseUnit(BaseSchema):
     reference_id: str | None = None
     payee: Payee | None = None
     description: str | None = None

@@ -78,18 +78,15 @@
                     "type": "string"
                 },
                 "value": {
-                    "anyOf": [
-                        {
-                            "type": "number"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ]
+                    "type": "string"
+                },
+                "breakdown": {
+                    "$ref": "#/$defs/Breakdown"
                 }
             },
             "required": [
-                "value"
+                "value",
+                "breakdown"
             ],
             "type": "object"
         },
@@ -102,22 +99,46 @@
                     "type": "string"
                 },
                 "amount": {
-                    "$ref": "#/$defs/Amount"
+                    "$ref": "#/$defs/UnitAmount"
                 },
                 "sellerProtection": {
                     "$ref": "#/$defs/SellerProtection"
                 },
                 "expirationTime": {
-                    "format": "date-time",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "format": "date-time",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
                 },
                 "createTime": {
-                    "format": "date-time",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "format": "date-time",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
                 },
                 "updateTime": {
-                    "format": "date-time",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "format": "date-time",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
                 },
                 "links": {
                     "items": {
@@ -131,10 +152,29 @@
                 "status",
                 "amount",
                 "sellerProtection",
-                "expirationTime",
-                "createTime",
-                "updateTime",
                 "links"
+            ],
+            "type": "object"
+        },
+        "Breakdown": {
+            "properties": {
+                "itemTotal": {
+                    "$ref": "#/$defs/UnitAmount"
+                },
+                "shipping": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/UnitAmount"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            },
+            "required": [
+                "itemTotal"
             ],
             "type": "object"
         },
@@ -146,8 +186,8 @@
                 "status": {
                     "type": "string"
                 },
-                "amount": {
-                    "$ref": "#/$defs/Amount"
+                "unitamount": {
+                    "$ref": "#/$defs/UnitAmount"
                 },
                 "sellerProtection": {
                     "$ref": "#/$defs/SellerProtection"
@@ -170,12 +210,28 @@
                     "$ref": "#/$defs/SellerReceivableBreakdown"
                 },
                 "createTime": {
-                    "format": "date-time",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "format": "date-time",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
                 },
                 "updateTime": {
-                    "format": "date-time",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "format": "date-time",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
                 },
                 "links": {
                     "items": {
@@ -187,13 +243,33 @@
             "required": [
                 "id",
                 "status",
-                "amount",
+                "unitamount",
                 "sellerProtection",
                 "finalCapture",
                 "sellerReceivableBreakdown",
-                "createTime",
-                "updateTime",
                 "links"
+            ],
+            "type": "object"
+        },
+        "DiscountAmount": {
+            "properties": {
+                "amount": {
+                    "$ref": "#/$defs/UnitAmount"
+                }
+            },
+            "required": [
+                "amount"
+            ],
+            "type": "object"
+        },
+        "DiscountPercent": {
+            "properties": {
+                "percent": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "percent"
             ],
             "type": "object"
         },
@@ -216,6 +292,72 @@
             "required": [
                 "currencyCode",
                 "value"
+            ],
+            "type": "object"
+        },
+        "Item": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "string"
+                },
+                "unitAmount": {
+                    "$ref": "#/$defs/UnitAmount"
+                },
+                "tax": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Tax"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "discount": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/DiscountPercent"
+                        },
+                        {
+                            "$ref": "#/$defs/DiscountAmount"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "description": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "unitOfMeasure": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            },
+            "required": [
+                "name",
+                "quantity",
+                "unitAmount"
             ],
             "type": "object"
         },
@@ -512,6 +654,20 @@
                         }
                     ],
                     "default": null
+                },
+                "items": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "$ref": "#/$defs/Item"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
                 }
             },
             "type": "object"
@@ -561,6 +717,47 @@
             },
             "required": [
                 "address"
+            ],
+            "type": "object"
+        },
+        "Tax": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "percent": {
+                    "type": "string"
+                },
+                "taxNote": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            },
+            "required": [
+                "name",
+                "percent"
+            ],
+            "type": "object"
+        },
+        "UnitAmount": {
+            "properties": {
+                "currencyCode": {
+                    "default": "USD",
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "value"
             ],
             "type": "object"
         }

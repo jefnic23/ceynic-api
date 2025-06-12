@@ -50,6 +50,7 @@ class PayPalService(PaymentProcessorBase):
         services for making HTTP requests and handling order data persistence.
     """
 
+    # todo: place these in config
     BASE_URL_AUTHORIZATIONS = "/v2/payments/authorizations"
     BASE_URL_CAPTURES = "/v2/payments/captures"
     BASE_URL_ORDERS = "/v2/checkout/orders"
@@ -86,7 +87,7 @@ class PayPalService(PaymentProcessorBase):
 
         Args:
             storefront_id (int): ID of the storefront for scoping credentials.
-            order_id (str): PayPal order ID to fetch.
+            order_id (int): PayPal order ID to fetch.
             url (str): Base URL segment for order endpoints.
 
         Returns:
@@ -147,7 +148,7 @@ class PayPalService(PaymentProcessorBase):
                             name=product.title, 
                             description=product.description, 
                             unit_amount=UnitAmount(value=str(product.price)),
-                            quantity="1" # todo: add cart product quantity
+                            quantity=str(product.quantity) # todo: add cart product quantity
                             # todo: add image_url
                         ) for product in products
                     ]
@@ -177,7 +178,7 @@ class PayPalService(PaymentProcessorBase):
 
         Args:
             storefront_id (int): Storefront ID for access control.
-            order_id (str): PayPal order ID to authorize.
+            order_id (int): PayPal order ID to authorize.
             product_ids (list[int]): List of internal product IDs associated with the order.
             url (str): URL segment for the authorization endpoint.
 
@@ -188,6 +189,8 @@ class PayPalService(PaymentProcessorBase):
             HTTPException: If authorization fails or persistence fails.
         """
 
+        # todo: add error handling
+
         response = await self._send_request(
             storefront_id=storefront_id, 
             method="POST", 
@@ -195,30 +198,24 @@ class PayPalService(PaymentProcessorBase):
             response_model=AuthorizePaymentResponse
         )
 
-        try:
-            await self._order_repository.create(
-                order_id=order_id,
-                create_time=response.create_time,
-                storefront_id=storefront_id,
-                authorization_id=response.authorization_id,
-                status="PENDING", # todo: make this an enum
-                product_ids=product_ids
-            )
-            return response
-            # todo: also subtract quantity from product
-        except Exception as e:
-            # todo: log and void order
-            print(e)
-            await self.void_payment(storefront_id, order_id)
-            raise HTTPException(status_code=500, detail="Error authorizing payment")
+        await self._order_repository.create(
+            order_id=order_id,
+            create_time=response.create_time,
+            storefront_id=storefront_id,
+            authorization_id=response.authorization_id,
+            status="PENDING", # todo: make this an enum
+            product_ids=product_ids
+        )
         
-    async def reauthorize_payment(self, storefront_id: int, order_id: str, url: str = BASE_URL_AUTHORIZATIONS) -> Authorization:
+        return response
+        
+    async def reauthorize_payment(self, storefront_id: int, order_id: int, url: str = BASE_URL_AUTHORIZATIONS) -> Authorization:
         """
         Reauthorize a PayPal authorization that is close to expiration.
 
         Args:
             storefront_id (int): ID of the storefront.
-            order_id (str): ID of the PayPal order to reauthorize.
+            order_id (int): ID of the PayPal order to reauthorize.
             url (str): URL segment for reauthorization endpoint.
 
         Returns:
@@ -249,7 +246,7 @@ class PayPalService(PaymentProcessorBase):
     async def void_payment(
         self, 
         storefront_id: int, 
-        order_id: str, 
+        order_id: int, 
         url: str = BASE_URL_AUTHORIZATIONS
     ) -> Authorization:
         """
@@ -257,7 +254,7 @@ class PayPalService(PaymentProcessorBase):
 
         Args:
             storefront_id (int): Storefront ID for credential scoping.
-            order_id (str): Order ID whose authorization should be voided.
+            order_id (int): Order ID whose authorization should be voided.
             url (str): URL segment for voiding endpoint.
 
         Returns:
@@ -283,14 +280,14 @@ class PayPalService(PaymentProcessorBase):
         return response
     
     async def capture_payment(
-        self, storefront_id: int, order_id: str, url: str = BASE_URL_AUTHORIZATIONS
+        self, storefront_id: int, order_id: int, url: str = BASE_URL_AUTHORIZATIONS
     ) -> CapturePaymentResponse:
         """
         Capture funds for an authorized PayPal order.
 
         Args:
             storefront_id (int): Storefront ID for credential access.
-            order_id (str): Order ID whose funds will be captured.
+            order_id (int): Order ID whose funds will be captured.
             url (str): URL segment for the capture endpoint.
 
         Returns:
@@ -320,7 +317,7 @@ class PayPalService(PaymentProcessorBase):
     async def refund_payment(
         self, 
         storefront_id: int, 
-        order_id: str, 
+        order_id: int, 
         url: str = BASE_URL_CAPTURES
     ):
         """
@@ -328,7 +325,7 @@ class PayPalService(PaymentProcessorBase):
 
         Args:
             storefront_id (int): Storefront ID to fetch credentials.
-            order_id (str): Order ID whose capture will be refunded.
+            order_id (int): Order ID whose capture will be refunded.
             url (str): URL segment for the refund endpoint.
 
         Returns:

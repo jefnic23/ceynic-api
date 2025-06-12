@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from src.schemas.base import BaseSchema
 from src.schemas.paypal.base import UnitAmount, Link, SellerProtection
 from src.schemas.paypal.seller_receivable_breakdown import SellerReceivableBreakdown
 
 
-class Authorization(BaseModel):
+class Authorization(BaseSchema):
     id: str
     status: str
     amount: UnitAmount
@@ -16,10 +16,10 @@ class Authorization(BaseModel):
     links: list[Link]
 
 
-class Capture(BaseModel):
+class Capture(BaseSchema):
     id: str
     status: str
-    UnitAmount: UnitAmount
+    amount: UnitAmount
     seller_protection: SellerProtection
     final_capture: bool
     disbursement_mode: str | None = None
@@ -29,6 +29,6 @@ class Capture(BaseModel):
     links: list[Link]
 
 
-class Payments(BaseModel):
+class Payments(BaseSchema):
     authorizations: list[Authorization] | None = None
     captures: list[Capture] | None = None

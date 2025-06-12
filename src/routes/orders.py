@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.dependencies import CURRENT_USER_DEPENDENCY, STOREFRONT_ID_DEPENDENCY
-from src.models.order import OrdersOut
+from src.models.order import OrderOut
 from src.repositories.order_repository import OrderRepository
 from src.schemas.create_order_out import CreateOrderOut
 from src.schemas.create_order_request import CreateOrderRequest
@@ -20,19 +20,21 @@ router = APIRouter()
 async def get_orders(
     current_user: CURRENT_USER_DEPENDENCY,
     order_repository: Annotated[OrderRepository, Depends()]
-) -> list[OrdersOut]:
+) -> list[OrderOut]:
     orders = await order_repository.get_all(current_user.storefront_id)
     return orders
 
 
-@router.get("/orders/{order_id:str}")
+@router.get("/orders/{id:int}")
 async def get_order(
-    order_id: str,
+    id: int,
     current_user: CURRENT_USER_DEPENDENCY,
+    order_repository: Annotated[OrderRepository, Depends()],
     orders_service: Annotated[OrdersService, Depends()]
 ) -> OrderDetails:
-    order = await orders_service.get_order(storefront_id=current_user.storefront_id, order_id=order_id)
-    return order
+    order = await order_repository.get(current_user.storefront_id, order_id=id)
+    order_details = await orders_service.get_order(storefront_id=current_user.storefront_id, order_id=order.order_id)
+    return order_details
 
 
 @router.post("/orders")
@@ -65,39 +67,39 @@ async def authorize_payment(
     )
     return response
 
-@router.post("/orders/{order_id:str}/void")
+@router.post("/orders/{id:int}/void")
 async def void_authorized_payment(
-    order_id: str,
+    id: int,
     orders_service: Annotated[OrdersService, Depends()],
     storefront_id: STOREFRONT_ID_DEPENDENCY
 ) -> Authorization:
     response = await orders_service.void_payment(
         storefront_id=storefront_id,
-        order_id=order_id,
+        order_id=id,
     )
     return response
 
 
-@router.post("/orders/{order_id:str}/capture")
+@router.post("/orders/{id:int}/capture")
 async def capture_payment(
-    order_id: str,
+    id: int,
     orders_service: Annotated[OrdersService, Depends()],
     storefront_id: STOREFRONT_ID_DEPENDENCY
 ) -> CapturePaymentResponse:
     response = await orders_service.capture_payment(
         storefront_id=storefront_id,
-        order_id=order_id
+        order_id=id
     )
     return response
 
-@router.post("/orders/{order_id:str}/refund")
+@router.post("/orders/{id:int}/refund")
 async def refund_payment(
-    order_id: str,
+    id: int,
     orders_service: Annotated[OrdersService, Depends()],
     storefront_id: STOREFRONT_ID_DEPENDENCY
 ):
     response = await orders_service.refund_payment(
         storefront_id=storefront_id,
-        order_id=order_id
+        order_id=id
     )
     return response

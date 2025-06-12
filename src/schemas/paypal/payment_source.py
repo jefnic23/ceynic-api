@@ -1,4 +1,4 @@
-from src.database import BaseSchema
+from src.schemas.base import BaseSchema
 from src.schemas.paypal.paypal import Paypal
 
 

@@ -1,6 +1,6 @@
 from datetime import datetime
-from src.database import BaseSchema
 from src.decorators import frontend
+from src.schemas.base import BaseSchema
 from src.schemas.paypal.base import Link
 from src.schemas.paypal.payer import Payer
 from src.schemas.paypal.payment_source import PaymentSource

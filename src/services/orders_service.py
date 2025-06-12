@@ -60,7 +60,7 @@ class OrdersService:
     async def get_order(
         self, 
         storefront_id: int, 
-        order_id: str, 
+        order_id: int, 
         payment_processor: PaymentProcessorBase = None
     ) -> OrderDetails:
         return await payment_processor.get_order(storefront_id=storefront_id, order_id=order_id)
@@ -78,7 +78,7 @@ class OrdersService:
     async def authorize_payment(
         self, 
         storefront_id: int, 
-        order_id: str, 
+        order_id: int, 
         product_ids: list[int], 
         payment_processor: PaymentProcessorBase = None
     ) -> AuthorizePaymentResponse:
@@ -92,7 +92,7 @@ class OrdersService:
     async def reauthorize_payment(
         self, 
         storefront_id: int, 
-        order_id: str,
+        order_id: int,
         payment_processor: PaymentProcessorBase = None
     ) -> AuthorizePaymentResponse:
         return await payment_processor.reauthorize_payment(
@@ -104,7 +104,7 @@ class OrdersService:
     async def void_payment(
         self, 
         storefront_id: int, 
-        order_id: str, 
+        order_id: int, 
         payment_processor: PaymentProcessorBase = None
     ) -> Authorization:
         return await payment_processor.void_payment(storefront_id=storefront_id, order_id=order_id)
@@ -113,7 +113,7 @@ class OrdersService:
     async def capture_payment(
         self, 
         storefront_id: int, 
-        order_id: str, 
+        order_id: int, 
         payment_processor: PaymentProcessorBase = None
     ) -> CapturePaymentResponse:
         return await payment_processor.capture_payment(storefront_id, order_id=order_id)
@@ -122,7 +122,7 @@ class OrdersService:
     async def refund_payment(
         self, 
         storefront_id: int, 
-        order_id: str, 
+        order_id: int, 
         payment_processor: PaymentProcessorBase = None
     ) -> CapturePaymentResponse:
         return await payment_processor.refund_payment(storefront_id, order_id=order_id)

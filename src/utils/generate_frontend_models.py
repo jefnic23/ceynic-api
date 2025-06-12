@@ -48,7 +48,7 @@ def main():
             schema_path = SCHEMA_DIR / f"{class_name}.json"
             ts_path = TYPES_DIR / f"{class_name}.d.ts"
             updated = export_json_schema(py_file, class_name, schema_path)
-            if updated or not ts_path.exists():
+            if updated or not ts_path.exists(): # todo: if ts_path exists, remove it and remake it
                 convert_schema_to_ts(schema_path, ts_path)
 
 if __name__ == "__main__":

@@ -1,0 +1,50 @@
+{
+    "properties": {
+        "orderId": {
+            "type": "string"
+        },
+        "authorizationId": {
+            "anyOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "captureId": {
+            "anyOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "status": {
+            "type": "string"
+        },
+        "createTime": {
+            "format": "date-time",
+            "type": "string"
+        },
+        "storefrontId": {
+            "type": "integer"
+        },
+        "id": {
+            "type": "integer"
+        }
+    },
+    "required": [
+        "orderId",
+        "authorizationId",
+        "captureId",
+        "status",
+        "createTime",
+        "storefrontId",
+        "id"
+    ],
+    "type": "object"
+}

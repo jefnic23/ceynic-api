@@ -7,7 +7,7 @@ from src.schemas.product_for_order import ProductForOrder
 
 class PaymentProcessorBase(ABC):
     @abstractmethod
-    async def get_order(self, storefront_id: int, order_id: str) -> OrderDetails:
+    async def get_order(self, storefront_id: int, order_id: int) -> OrderDetails:
         pass
 
     @abstractmethod
@@ -15,21 +15,21 @@ class PaymentProcessorBase(ABC):
         pass
 
     @abstractmethod
-    async def authorize_payment(self, storefront_id: int, order_id: str, product_ids: list[int], **kwargs):
+    async def authorize_payment(self, storefront_id: int, order_id: int, product_ids: list[int], **kwargs):
         pass
 
     @abstractmethod
-    async def reauthorize_payment(self, storefront_id: int, order_id: str, **kwargs):
+    async def reauthorize_payment(self, storefront_id: int, order_id: int, **kwargs):
         pass
 
     @abstractmethod
-    async def void_payment(self, storefront_id: int, order_id: str, **kwargs):
+    async def void_payment(self, storefront_id: int, order_id: int, **kwargs):
         pass
 
     @abstractmethod
-    async def capture_payment(self, storefront_id: int, order_id: str, **kwargs) -> dict:
+    async def capture_payment(self, storefront_id: int, order_id: int, **kwargs) -> dict:
         pass
 
     @abstractmethod
-    async def refund_payment(self, storefront_id: int, order_id: str, **kwargs) -> dict:
+    async def refund_payment(self, storefront_id: int, order_id: int, **kwargs) -> dict:
         pass

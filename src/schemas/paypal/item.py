@@ -13,7 +13,7 @@ class DiscountAmount(BaseSchema):
 class Item(BaseSchema):
     name: str
     quantity: str
-    unit_amount: UnitAmount
+    unit_amount: UnitAmount | None = None
     tax: Tax | None = None
     discount: DiscountPercent | DiscountAmount | None = None
     description: str | None = None

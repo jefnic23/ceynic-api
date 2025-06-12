@@ -12,10 +12,11 @@ if TYPE_CHECKING:
 
 
 class OrderBase(BaseModel):
-    create_time: datetime = Field(sa_column=Column(DateTime(timezone=True)))
-    authorization_id: str
-    capture_id: str
+    order_id: str
+    authorization_id: str | None
+    capture_id: str | None
     status: str
+    create_time: datetime = Field(sa_column=Column(DateTime(timezone=True)))
 
     storefront_id: int = Field(foreign_key='storefronts.id')
 
@@ -23,16 +24,12 @@ class OrderBase(BaseModel):
 class Order(OrderBase, table=True):
     __tablename__ = "orders"
 
-    id: str = Field(primary_key=True)
-    create_time: datetime = Field(sa_column=Column(DateTime(timezone=True)))
-    authorization_id: str
-    capture_id: str
-    status: str
+    id: int = Field(primary_key=True) 
     
     storefront: "Storefront" = Relationship(back_populates="orders")
     products: list["OrderProduct"] = Relationship(back_populates="order")
 
 
 @frontend
-class OrdersOut(OrderBase):
-    id: str
+class OrderOut(OrderBase):
+    id: int
