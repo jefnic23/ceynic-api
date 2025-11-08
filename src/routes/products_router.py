@@ -1,10 +1,11 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, Response, status
 
 from src.dependencies import CURRENT_USER_DEPENDENCY, STOREFRONT_ID_DEPENDENCY
-from src.models.product import ProductOut
+from src.models.product import ProductIn, ProductOut
 from src.schemas.product_metadata import ProductMetadata
 from src.schemas.product_query_params import ProductQueryParams
+from src.services.product_images_service import ProductImagesService
 from src.services.products_service import ProductsService
 
 router = APIRouter()
@@ -17,7 +18,7 @@ async def get_all_products(
     query_params: Annotated[ProductQueryParams, Query()],
     response: Response
 ) -> list[ProductOut]:
-    response.headers["cache-control"] = "max-age=3600"
+    # response.headers["cache-control"] = "max-age=3600"
     return await products_service.get_all(storefront_id=storefront_id, query_params=query_params)
 
 
@@ -34,7 +35,7 @@ async def get_product(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found",
         )
-    response.headers["cache-control"] = "max-age=3600"
+    # response.headers["cache-control"] = "max-age=3600"
     return product
 
 
@@ -42,15 +43,21 @@ async def get_product(
 async def update_product(
     current_user: CURRENT_USER_DEPENDENCY,
     products_service: Annotated[ProductsService, Depends()],
+    product_images_service: Annotated[ProductImagesService, Depends()],
     id: int,
-    product: ProductOut,
+    product: Annotated[ProductIn, Form()],
 ) -> None:
     if not id == product.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Mismatching product id.",
         )
-    await products_service.update(storefront_id=current_user.storefront_id, product=product)
+    storefront_id = current_user.storefront_id
+    await products_service.update(storefront_id=storefront_id, product=product)
+    await product_images_service.update(
+        storefront_id=storefront_id,
+        product_id=id,
+        files=product.images)
     return None
 
 

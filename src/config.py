@@ -7,6 +7,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     SECRET_KEY: str
+    CLOUDINARY_CLOUD_NAME: str
+    CLOUDINARY_API_KEY: str
+    CLOUDINARY_API_SECRET: str
     DATABASE_URL: str
     SQLALCHEMY_TRACK_MODIFICATIONS: bool = False
     MAILGUN_SMTP_SERVER: str

@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
+from fastapi import Form, UploadFile
 from sqlmodel import Field, Relationship
 
 from src.decorators import frontend
@@ -48,3 +49,16 @@ class ProductOut(ProductBase):
     id: int
     images: list[ProductImageOut] = []
     medium: MediumOut | None = None
+
+
+# todo: should this be a frontend model?
+class ProductIn(BaseModel):
+    id: int
+    title: str
+    description: str | None
+    price: Decimal
+    medium_id: int
+    height: int
+    width: int
+    enabled: bool
+    images: list[UploadFile] = []

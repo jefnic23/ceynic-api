@@ -8,8 +8,9 @@ from sqlmodel.sql.expression import SelectOfScalar
 from src.database import get_async_session
 from src.enums.product_sort_params import ProductSortParams
 from src.models.medium import Medium
-from src.models.product import Product, ProductOut
+from src.models.product import Product, ProductIn, ProductOut
 from src.models.product_image import ProductImage
+from src.schemas.product_for_order import ProductForOrder
 from src.schemas.product_query_params import ProductQueryParams
 
 
@@ -35,6 +36,7 @@ class ProductRepository:
         return results.all()
     
     async def get(self, storefront_id: int, product_id: int) -> ProductOut | None:
+        # should this and the method above return the base Product? And let the routers/service determine what the return type should be?
         statement = (
             select(Product)
             .where(Product.storefront_id == storefront_id)
@@ -43,6 +45,35 @@ class ProductRepository:
         )
         results = await self._session.exec(statement=statement)
         return results.one_or_none()
+    
+    async def get_many(self, storefront_id: int, product_ids: list[int]) -> list[ProductForOrder]:
+        statement = (
+            select(Product)
+            .where(Product.storefront_id == storefront_id)
+            .where(col(Product.id).in_(product_ids))
+            .options(selectinload(Product.medium), selectinload(Product.images))
+        )
+        results = await self._session.exec(statement=statement)
+        return results.all()
+    
+    async def update(self, storefront_id: int, product_id: int, updates: ProductIn) -> Product | None:
+        statement = select(Product).where(Product.storefront_id == storefront_id).where(Product.id == product_id)
+        results = await self._session.exec(statement=statement)
+        product = results.one_or_none()
+        if not product:
+            return
+        
+        update_data = updates.model_dump(exclude_unset=True, exclude={"images"})
+        if not update_data:
+            return
+        
+        for key, value in update_data.items():
+            setattr(product, key, value)
+
+        await self._session.commit()
+        await self._session.refresh(product)
+
+        return product
 
     @staticmethod
     def _apply_query_params(statement: SelectOfScalar, query_params: ProductQueryParams | None) -> SelectOfScalar:
@@ -76,5 +107,5 @@ class ProductRepository:
                     Product.height.desc(), Product.width.desc()
                 )
             else:
-                statement = statement
+                statement = statement.order_by(Product.id)
         return statement

@@ -1,19 +1,20 @@
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import func
-from sqlmodel import col, select
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import Settings, get_settings
 from src.database import get_async_session
 from src.models.medium import Medium
-from src.models.product import Product
+from src.models.product import Product, ProductIn
 from src.repositories.product_repository import ProductRepository
 from src.models.product import ProductOut
 from src.schemas.product_for_order import ProductForOrder
 from src.schemas.product_metadata import MediumCount, PriceRange, ProductMetadata, SizeRanges
 from src.schemas.product_query_params import ProductQueryParams
 from src.models.storefront import Storefront
+from src.services.product_images_service import ProductImagesService
 
 
 class ProductsService:
@@ -21,7 +22,7 @@ class ProductsService:
         self, 
         session: Annotated[AsyncSession, Depends(get_async_session)], 
         settings: Annotated[Settings, Depends(get_settings)],
-        repository: Annotated[ProductRepository, Depends()] 
+        repository: Annotated[ProductRepository, Depends()]
     ):
         self._session = session
         self._settings = settings
@@ -43,23 +44,29 @@ class ProductsService:
         return product
     
     async def get_for_order(self, storefront_id: int, product_ids: list[int]) -> list[ProductForOrder]:
-        statement = (
-            select(Product)
-            .join(Storefront, Product.storefront_id == Storefront.id)
-            .where(Storefront.id == storefront_id)
-            .where(col(Product.id).in_(product_ids))
-        )
-        results = await self._session.exec(statement=statement)
-        products = results.all()
-        return [ProductForOrder(**product.model_dump()) for product in products]
+        products = await self._repository.get_many(storefront_id, product_ids)
+        return products
 
-    async def update(self, storefront_id: int, product: ProductOut) -> None:
-        # todo: implement
-        statement = select(Product).where(Product.id == product.id).where(Storefront.id == storefront_id)
-        results = await self._session.exec(statement=statement)
-        product_to_update = results.one()
+    async def update(self, storefront_id: int, product: ProductIn) -> ProductOut:
+        product = await self._repository.update(storefront_id, product.id, product)
+        return product
 
     async def get_product_metadata(self, storefront_id: int) -> ProductMetadata:
+        """
+        Retrieve metadata for products associated with a given storefront ID.
+
+        This function asynchronously fetches the following metadata for products linked to a specified `storefront_id`:
+        - The minimum and maximum price of the products.
+        - The minimum and maximum dimensions (width and height) of the products.
+        - The count of each medium type used in the products.
+
+        Args:
+            storefront_id (int): The identifier for the storefront whose product metadata is to be retrieved.
+
+        Returns:
+            ProductMetadata: An object containing the price range, size ranges, and counts of mediums used in products.
+        """
+        # these could probably all be views
         price_size_statement = (
             select(
                 func.min(Product.price).label("minimum"),

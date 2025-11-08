@@ -3,7 +3,7 @@ from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.database import database
-from src.routes import auth, messages, orders, products, settings, social_media_links, storefronts, users
+from src.routes import auth, messages, orders, products_router, settings, social_media_links, storefronts, users
 
 
 def create_app():
@@ -26,7 +26,7 @@ def create_app():
     app.include_router(auth.router)
     app.include_router(messages.router)
     app.include_router(orders.router)
-    app.include_router(products.router)
+    app.include_router(products_router.router)
     app.include_router(settings.router)
     app.include_router(social_media_links.router)
     app.include_router(storefronts.router)
