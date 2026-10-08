@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import Settings, get_settings
-from src.database import get_async_session
+from src.database import ASYNC_SESSION_DEPENDENCY
 from src.exceptions import credentials_exception
 from src.models.refresh_token import RefreshToken
 from src.models.user import User
@@ -20,7 +20,7 @@ class AuthService:
 
     def __init__(
         self,
-        session: Annotated[AsyncSession, Depends(get_async_session)], 
+        session: ASYNC_SESSION_DEPENDENCY, 
         settings: Annotated[Settings, Depends(get_settings)], 
         users_service: Annotated[UsersService, Depends()],
         refresh_tokens_service: Annotated[RefreshTokensService, Depends()],

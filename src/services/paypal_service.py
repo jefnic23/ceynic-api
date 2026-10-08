@@ -1,8 +1,7 @@
 import base64
 import json
-from typing import Optional, Type, TypeVar
+from typing import TypeVar
 
-from fastapi import HTTPException
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -10,7 +9,6 @@ from src.config import Settings
 from src.http_client import HttpClient
 from src.models.paypal_settings import PayPalSettings
 from src.schemas.create_order_out import CreateOrderOut
-from src.schemas.order_update import OrderUpdate
 from src.schemas.paypal.auth_response import AuthResponse
 from src.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
 from src.schemas.paypal.base import Amount, Breakdown, UnitAmount
@@ -23,7 +21,8 @@ from src.schemas.paypal.payments import Authorization
 from src.schemas.paypal.purchase_unit import PurchaseUnit
 from src.schemas.paypal_credentials import PayPalCredentials
 from src.schemas.product_for_order import ProductForOrder
-from src.repositories.order_repository import OrderRepository
+
+# from src.repositories.order_repository import OrderRepository
 from src.services.base.payment_processor_base import PaymentProcessorBase
 
 
@@ -56,17 +55,10 @@ class PayPalService(PaymentProcessorBase):
     BASE_URL_ORDERS = "/v2/checkout/orders"
     T = TypeVar("T")
 
-    def __init__(
-        self, 
-        session: AsyncSession, 
-        settings: Settings, 
-        http_client: HttpClient,
-        order_repository: OrderRepository
-    ):
+    def __init__(self, session: AsyncSession, settings: Settings, http_client: HttpClient):
         self._session: AsyncSession = session
         self._settings: Settings = settings
         self._http_client: HttpClient = http_client
-        self._order_repository: OrderRepository = order_repository
 
         # todo: cache paypal access tokens in redis using dict[storefront_id, token]
         # token should have expiration time, so use that to determine when to get a new token
@@ -75,19 +67,14 @@ class PayPalService(PaymentProcessorBase):
     @property
     def _paypal_url(self) -> str:
         return self._settings.PAYPAL_BASE_URL
-    
-    async def get_order(
-        self,
-        storefront_id: int,
-        order_id: str,
-        url: str = BASE_URL_ORDERS
-    ) -> OrderDetails:
+
+    async def get_order(self, storefront_id: int, order_id: str, url: str = BASE_URL_ORDERS) -> OrderDetails:
         """
         Retrieve the PayPal order details by ID.
 
         Args:
             storefront_id (int): ID of the storefront for scoping credentials.
-            order_id (int): PayPal order ID to fetch.
+            order_id (str): PayPal order ID to fetch.
             url (str): Base URL segment for order endpoints.
 
         Returns:
@@ -95,10 +82,7 @@ class PayPalService(PaymentProcessorBase):
         """
 
         order_response = await self._send_request(
-            storefront_id=storefront_id, 
-            method="GET", 
-            path=f"{url}/{order_id}",
-            response_model=OrderDetails
+            storefront_id=storefront_id, method="GET", path=f"{url}/{order_id}", response_model=OrderDetails
         )
 
         # todo: also get authorization details
@@ -109,18 +93,14 @@ class PayPalService(PaymentProcessorBase):
 
         # authorization_response = await self._send_request(
         #     storefront_id=storefront_id,
-        #     method="GET", 
+        #     method="GET",
         #     path=f"{url}/{authorization_id}",
         #     response_model=OrderDetails)
 
         return order_response
-        
-    
+
     async def create_order(
-        self, 
-        storefront_id: int, 
-        products: list[ProductForOrder], 
-        url: str = BASE_URL_ORDERS
+        self, storefront_id: int, products: list[ProductForOrder], url: str = BASE_URL_ORDERS
     ) -> CreateOrderOut:
         """
         Create a new PayPal order based on provided product details.
@@ -139,42 +119,36 @@ class PayPalService(PaymentProcessorBase):
         data = CreateOrderPayload(
             purchase_units=[
                 PurchaseUnit(
-                    amount=Amount(
-                        value=value,
-                        breakdown=Breakdown(item_total=UnitAmount(value=value))
-                    ),
+                    amount=Amount(value=value, breakdown=Breakdown(item_total=UnitAmount(value=value))),
                     items=[
                         Item(
-                            name=product.title, 
-                            description=product.description, 
+                            name=product.title,
+                            description=product.description,
                             unit_amount=UnitAmount(value=str(product.price)),
-                            quantity=str(product.quantity) # todo: add cart product quantity
+                            quantity=str(1),  # todo: add cart product quantity
                             # todo: add image_url
-                        ) for product in products
-                    ]
+                        )
+                        for product in products
+                    ],
                 )
             ]
         )
 
         response = await self._send_request(
-            storefront_id=storefront_id, 
-            method="POST", 
-            path=url, 
+            storefront_id=storefront_id,
+            method="POST",
+            path=url,
             data=data.model_dump(mode="json"),
-            response_model=CreateOrderResponse
+            response_model=CreateOrderResponse,
         )
 
         return CreateOrderOut(order_id=response.id)
-    
+
     async def authorize_payment(
-        self, 
-        storefront_id: int, 
-        order_id: str, 
-        product_ids: list[int], 
-        url: str = BASE_URL_ORDERS
+        self, storefront_id: int, order_id: str, url: str = BASE_URL_ORDERS
     ) -> AuthorizePaymentResponse:
         """
-        Authorize a PayPal order and persist authorization info.
+        Authorize a PayPal order.
 
         Args:
             storefront_id (int): Storefront ID for access control.
@@ -192,24 +166,17 @@ class PayPalService(PaymentProcessorBase):
         # todo: add error handling
 
         response = await self._send_request(
-            storefront_id=storefront_id, 
-            method="POST", 
+            storefront_id=storefront_id,
+            method="POST",
             path=f"{url}/{order_id}/authorize",
-            response_model=AuthorizePaymentResponse
+            response_model=AuthorizePaymentResponse,
         )
 
-        await self._order_repository.create(
-            order_id=order_id,
-            create_time=response.create_time,
-            storefront_id=storefront_id,
-            authorization_id=response.authorization_id,
-            status="PENDING", # todo: make this an enum
-            product_ids=product_ids
-        )
-        
         return response
-        
-    async def reauthorize_payment(self, storefront_id: int, order_id: int, url: str = BASE_URL_AUTHORIZATIONS) -> Authorization:
+
+    async def reauthorize_payment(
+        self, storefront_id: int, authorization_id: str, url: str = BASE_URL_AUTHORIZATIONS
+    ) -> Authorization:
         """
         Reauthorize a PayPal authorization that is close to expiration.
 
@@ -221,33 +188,18 @@ class PayPalService(PaymentProcessorBase):
         Returns:
             Authorization: Updated authorization details.
         """
-
-        order = await self._order_repository.get(storefront_id=storefront_id, order_id=order_id)
-
         response = await self._send_request(
-            storefront_id=storefront_id, 
-            method="POST", 
-            path=f"{url}/{order.authorization_id}/reauthorize",
-            headers={"Prefer": "return=representation"},
-            response_model=Authorization
-        )
-
-        await self._order_repository.update(
             storefront_id=storefront_id,
-            order_id=order_id,
-            updates=OrderUpdate(
-                status="PENDING", 
-                authorization_id=response.id
-            )
+            method="POST",
+            path=f"{url}/{authorization_id}/reauthorize",
+            headers={"Prefer": "return=representation"},
+            response_model=Authorization,
         )
 
         return response
-        
+
     async def void_payment(
-        self, 
-        storefront_id: int, 
-        order_id: int, 
-        url: str = BASE_URL_AUTHORIZATIONS
+        self, storefront_id: int, authorization_id: str, url: str = BASE_URL_AUTHORIZATIONS
     ) -> Authorization:
         """
         Void a previously authorized PayPal payment.
@@ -260,27 +212,18 @@ class PayPalService(PaymentProcessorBase):
         Returns:
             Authorization: Response from PayPal indicating void status.
         """
-
-        order = await self._order_repository.get(storefront_id=storefront_id, order_id=order_id)
-
         response = await self._send_request(
-            storefront_id=storefront_id, 
-            method="POST", 
-            path=f"{url}/{order.authorization_id}/void",
-            headers={"Prefer": "return=representation"},
-            response_model=Authorization
-        )
-
-        await self._order_repository.update(
             storefront_id=storefront_id,
-            order_id=order_id,
-            updates=OrderUpdate(status=response.status)
+            method="POST",
+            path=f"{url}/{authorization_id}/void",
+            headers={"Prefer": "return=representation"},
+            response_model=Authorization,
         )
 
         return response
-    
+
     async def capture_payment(
-        self, storefront_id: int, order_id: int, url: str = BASE_URL_AUTHORIZATIONS
+        self, storefront_id: int, authorization_id: str, url: str = BASE_URL_AUTHORIZATIONS
     ) -> CapturePaymentResponse:
         """
         Capture funds for an authorized PayPal order.
@@ -293,33 +236,19 @@ class PayPalService(PaymentProcessorBase):
         Returns:
             CapturePaymentResponse: Capture transaction details.
         """
-
-        order = await self._order_repository.get(storefront_id=storefront_id, order_id=order_id)
-
         response = await self._send_request(
-            storefront_id=storefront_id, 
-            method="POST", 
-            path=f"{url}/{order.authorization_id}/capture",
+            storefront_id=storefront_id,
+            method="POST",
+            path=f"{url}/{authorization_id}/capture",
             headers={"Prefer": "return=representation"},
-            response_model=CapturePaymentResponse
+            response_model=CapturePaymentResponse,
         )
 
         # todo: handle reauthorization here
 
-        await self._order_repository.update(
-            storefront_id=storefront_id,
-            order_id=order_id,
-            updates=OrderUpdate(capture_id=response.id, status="COMPLETED")
-        )
-
         return response
-    
-    async def refund_payment(
-        self, 
-        storefront_id: int, 
-        order_id: int, 
-        url: str = BASE_URL_CAPTURES
-    ):
+
+    async def refund_payment(self, storefront_id: int, capture_id: str, url: str = BASE_URL_CAPTURES):
         """
         Refund a completed PayPal capture.
 
@@ -331,23 +260,14 @@ class PayPalService(PaymentProcessorBase):
         Returns:
             None
         """
-
         # todo: capture response
-        order = await self._order_repository.get(storefront_id=storefront_id, order_id=order_id)
-
         await self._send_request(
-            storefront_id=storefront_id, 
-            method="POST", 
-            path=f"{url}/{order.capture_id}/refund",
-            headers={"Prefer": "return=representation"}
-        )
-    
-        await self._order_repository.update(
             storefront_id=storefront_id,
-            order_id=order_id,
-            updates=OrderUpdate(status="REFUNDED")
+            method="POST",
+            path=f"{url}/{capture_id}/refund",
+            headers={"Prefer": "return=representation"},
         )
-    
+
     # region Private Methods
 
     async def _get_credentials(self, storefront_id: int) -> PayPalCredentials:
@@ -365,7 +285,7 @@ class PayPalService(PaymentProcessorBase):
         results = await self._session.exec(statement=statement)
         paypal_settings = results.one_or_none()
         return PayPalCredentials(**paypal_settings.model_dump())
-    
+
     async def _get_access_token(self, storefront_id: int) -> AuthResponse:
         """
         Obtain an OAuth2 access token from PayPal.
@@ -379,10 +299,8 @@ class PayPalService(PaymentProcessorBase):
 
         # todo: error handling
         paypal_credentials = await self._get_credentials(storefront_id)
-        
-        auth = base64.b64encode(
-            f"{paypal_credentials.client_id}:{paypal_credentials.client_secret}".encode()
-        ).decode()
+
+        auth = base64.b64encode(f"{paypal_credentials.client_id}:{paypal_credentials.client_secret}".encode()).decode()
 
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -398,16 +316,16 @@ class PayPalService(PaymentProcessorBase):
         )
 
         return AuthResponse(**response)
-    
+
     async def _send_request(
-        self, 
+        self,
         storefront_id: int,
-        method: str, 
-        path: str, 
-        headers: dict[str, any] = None,
-        data: dict[str, any] = None, 
-        params: dict[str, any] = None,
-        response_model: Optional[Type[T]] = None
+        method: str,
+        path: str,
+        headers: dict[str, any] | None = None,
+        data: dict[str, any] | None = None,
+        params: dict[str, any] | None = None,
+        response_model: type[T] | None = None,
     ) -> T | dict[str, any]:
         """
         Send an authenticated request to the PayPal API.
@@ -424,7 +342,7 @@ class PayPalService(PaymentProcessorBase):
         Returns:
             Union[T, dict]: Deserialized response or raw data.
         """
-        
+
         # todo: implement redis to cache dict of storefront access_tokens
         if not self._access_token:
             auth_response = await self._get_access_token(storefront_id)
@@ -433,13 +351,15 @@ class PayPalService(PaymentProcessorBase):
         request_headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._access_token}",
-            **(headers if isinstance(headers, dict) else {})
+            **(headers if isinstance(headers, dict) else {}),
         }
 
         url = f"{self._paypal_url}{path}"
 
         if method.upper() == "GET":
-            response_data = await self._http_client.get_async(url=url, headers=request_headers, params=json.dumps(params))
+            response_data = await self._http_client.get_async(
+                url=url, headers=request_headers, params=json.dumps(params)
+            )
         elif method.upper() == "POST":
             response_data = await self._http_client.post_async(
                 url=url,
@@ -448,7 +368,7 @@ class PayPalService(PaymentProcessorBase):
             )
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")
-        
+
         try:
             if response_model:
                 return response_model(**response_data)

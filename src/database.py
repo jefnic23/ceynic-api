@@ -1,6 +1,6 @@
-
+from collections.abc import AsyncGenerator
 from decimal import Decimal
-from typing import Annotated, AsyncGenerator, AsyncIterator
+from typing import Annotated
 
 from fastapi import Depends
 from fastapi.concurrency import asynccontextmanager
@@ -10,16 +10,16 @@ from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import get_settings
-from src.models.content import Content # noqa: F401
-from src.models.medium import Medium # noqa: F401
-from src.models.order import Order # noqa: F401
-from src.models.order_product import OrderProduct # noqa: F401
-from src.models.product import Product # noqa: F401
-from src.models.product_image import ProductImage # noqa: F401
-from src.models.refresh_token import RefreshToken # noqa: F401
-from src.models.social_media_link import SocialMediaLink # noqa: F401
-from src.models.storefront import Storefront # noqa: F401
-from src.models.user import User # noqa: F401
+from src.models.content import Content  # noqa: F401
+from src.models.medium import Medium  # noqa: F401
+from src.models.order import Order  # noqa: F401
+from src.models.order_product import OrderProduct  # noqa: F401
+from src.models.product import Product  # noqa: F401
+from src.models.product_image import ProductImage  # noqa: F401
+from src.models.refresh_token import RefreshToken  # noqa: F401
+from src.models.social_media_link import SocialMediaLink  # noqa: F401
+from src.models.storefront import Storefront  # noqa: F401
+from src.models.user import User  # noqa: F401
 
 
 class BaseSchema(BaseModel):
@@ -27,7 +27,7 @@ class BaseSchema(BaseModel):
         alias_generator=to_camel,
         populate_by_name=True,
         from_attributes=True,
-        ser_json_encoders={Decimal: lambda v: str(v)}
+        ser_json_encoders={Decimal: lambda v: str(v)},
     )
 
 
@@ -50,7 +50,7 @@ class Database:
         self._async_session = None
 
     @asynccontextmanager
-    async def async_session(self) -> AsyncIterator[AsyncSession]:
+    async def async_session(self) -> AsyncGenerator[AsyncSession, None]:
         if self._engine is None:
             raise Exception("Database is not initialized")
         async_session = self._async_session()
@@ -62,11 +62,13 @@ class Database:
         finally:
             await async_session.close()
 
+
 database = Database(get_settings().DATABASE_URL)
+
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with database.async_session() as async_session:
-        yield async_session 
+        yield async_session
 
 
 ASYNC_SESSION_DEPENDENCY = Annotated[AsyncSession, Depends(get_async_session)]

@@ -1,8 +1,9 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
-from fastapi import Form, UploadFile
+from fastapi import File, Form, UploadFile
+from sqlalchemy import Column, DateTime, func
 from sqlmodel import Field, Relationship
 
 from src.decorators import frontend
@@ -22,11 +23,16 @@ class ProductBase(BaseModel):
     price: Decimal
     height: int
     width: int
-    description: str | None
+    description: str | None = None
     enabled: bool
-    thumbnail: str # todo: deprecate
-    date_added: datetime
-    # quantity: int
+    date_added: datetime | None = Field(
+        default=None,
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default=func.now(),
+        ),
+    )
 
     medium_id: int = Field(foreign_key="mediums.id")
     storefront_id: int = Field(foreign_key="storefronts.id")
@@ -39,26 +45,40 @@ class Product(ProductBase, table=True):
 
     medium: "Medium" = Relationship(back_populates="products")
     storefront: "Storefront" = Relationship(back_populates="products")
-    
-    images: list["ProductImage"] = Relationship(back_populates="product")
+
+    images: list["ProductImage"] = Relationship(
+        back_populates="product", sa_relationship_kwargs={"order_by": "ProductImage.position"}
+    )
     orders: list["OrderProduct"] = Relationship(back_populates="product")
 
 
-@frontend  
+@frontend
 class ProductOut(ProductBase):
     id: int
-    images: list[ProductImageOut] = []
+    images: list[ProductImageOut] = None
     medium: MediumOut | None = None
 
 
-# todo: should this be a frontend model?
-class ProductIn(BaseModel):
-    id: int
-    title: str
-    description: str | None
-    price: Decimal
-    medium_id: int
-    height: int
-    width: int
-    enabled: bool
-    images: list[UploadFile] = []
+@frontend
+class ProductForCreate(BaseModel):
+    title: Annotated[str, Form()]
+    description: Annotated[str | None, Form()] = None
+    price: Annotated[Decimal, Form()]
+    medium_id: Annotated[int, Form()]
+    height: Annotated[int, Form()]
+    width: Annotated[int, Form()]
+    enabled: Annotated[bool, Form()]
+    images: Annotated[list[UploadFile], File(min_length=1)]
+
+
+@frontend
+class ProductForUpdate(BaseModel):
+    id: Annotated[int, Form()]
+    title: Annotated[str, Form()]
+    description: Annotated[str | None, Form()] = None
+    price: Annotated[Decimal, Form()]
+    medium_id: Annotated[int, Form()]
+    height: Annotated[int, Form()]
+    width: Annotated[int, Form()]
+    enabled: Annotated[bool, Form()]
+    images: Annotated[list[UploadFile] | None, File()] = None

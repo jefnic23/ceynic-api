@@ -1,9 +1,9 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.dependencies import CURRENT_USER_DEPENDENCY, STOREFRONT_ID_DEPENDENCY
 from src.models.order import OrderOut
-from src.repositories.order_repository import OrderRepository
 from src.schemas.create_order_out import CreateOrderOut
 from src.schemas.create_order_request import CreateOrderRequest
 from src.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
@@ -18,21 +18,17 @@ router = APIRouter()
 
 @router.get("/orders")
 async def get_orders(
-    current_user: CURRENT_USER_DEPENDENCY,
-    order_repository: Annotated[OrderRepository, Depends()]
+    current_user: CURRENT_USER_DEPENDENCY, orders_service: Annotated[OrdersService, Depends()]
 ) -> list[OrderOut]:
-    orders = await order_repository.get_all(current_user.storefront_id)
+    orders = await orders_service.get_all(current_user.storefront_id)
     return orders
 
 
 @router.get("/orders/{id:int}")
 async def get_order(
-    id: int,
-    current_user: CURRENT_USER_DEPENDENCY,
-    order_repository: Annotated[OrderRepository, Depends()],
-    orders_service: Annotated[OrdersService, Depends()]
+    id: int, current_user: CURRENT_USER_DEPENDENCY, orders_service: Annotated[OrdersService, Depends()]
 ) -> OrderDetails:
-    order = await order_repository.get(current_user.storefront_id, order_id=id)
+    order = await orders_service.get(current_user.storefront_id, order_id=id)
     order_details = await orders_service.get_order(storefront_id=current_user.storefront_id, order_id=order.order_id)
     return order_details
 
@@ -40,16 +36,15 @@ async def get_order(
 @router.post("/orders")
 async def create_order(
     create_order_request: CreateOrderRequest,
-    storefront_id: STOREFRONT_ID_DEPENDENCY, 
+    storefront_id: STOREFRONT_ID_DEPENDENCY,
     products_service: Annotated[ProductsService, Depends()],
-    orders_service: Annotated[OrdersService, Depends()]
+    orders_service: Annotated[OrdersService, Depends()],
 ) -> CreateOrderOut:
     products = await products_service.get_for_order(
-        storefront_id=storefront_id,
-        product_ids=create_order_request.product_ids
+        storefront_id=storefront_id, product_ids=create_order_request.product_ids
     )
     if len(products) == 0:
-        raise HTTPException(status_code=404, detail="Product(s) not found") 
+        raise HTTPException(status_code=404, detail="Product(s) not found")
     return await orders_service.create_order(storefront_id=storefront_id, products=products)
 
 
@@ -58,20 +53,19 @@ async def authorize_payment(
     order_id: str,
     create_order_request: CreateOrderRequest,
     orders_service: Annotated[OrdersService, Depends()],
-    storefront_id: STOREFRONT_ID_DEPENDENCY
+    storefront_id: STOREFRONT_ID_DEPENDENCY,
 ) -> AuthorizePaymentResponse:
     response = await orders_service.authorize_payment(
         storefront_id=storefront_id,
-        order_id=order_id, 
+        order_id=order_id,
         product_ids=create_order_request.product_ids,
     )
     return response
 
+
 @router.post("/orders/{id:int}/void")
 async def void_authorized_payment(
-    id: int,
-    orders_service: Annotated[OrdersService, Depends()],
-    storefront_id: STOREFRONT_ID_DEPENDENCY
+    id: int, orders_service: Annotated[OrdersService, Depends()], storefront_id: STOREFRONT_ID_DEPENDENCY
 ) -> Authorization:
     response = await orders_service.void_payment(
         storefront_id=storefront_id,
@@ -82,24 +76,15 @@ async def void_authorized_payment(
 
 @router.post("/orders/{id:int}/capture")
 async def capture_payment(
-    id: int,
-    orders_service: Annotated[OrdersService, Depends()],
-    storefront_id: STOREFRONT_ID_DEPENDENCY
+    id: int, orders_service: Annotated[OrdersService, Depends()], storefront_id: STOREFRONT_ID_DEPENDENCY
 ) -> CapturePaymentResponse:
-    response = await orders_service.capture_payment(
-        storefront_id=storefront_id,
-        order_id=id
-    )
+    response = await orders_service.capture_payment(storefront_id=storefront_id, order_id=id)
     return response
+
 
 @router.post("/orders/{id:int}/refund")
 async def refund_payment(
-    id: int,
-    orders_service: Annotated[OrdersService, Depends()],
-    storefront_id: STOREFRONT_ID_DEPENDENCY
+    id: int, orders_service: Annotated[OrdersService, Depends()], storefront_id: STOREFRONT_ID_DEPENDENCY
 ):
-    response = await orders_service.refund_payment(
-        storefront_id=storefront_id,
-        order_id=id
-    )
+    response = await orders_service.refund_payment(storefront_id=storefront_id, order_id=id)
     return response

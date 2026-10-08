@@ -4,7 +4,7 @@ import aiohttp
 from fastapi import Depends, Form, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 
-from src.config import SETTINGS_DEPENDENCY
+from src.config import Settings, get_settings
 from src.exceptions import credentials_exception
 from src.schemas.recaptcha import ReCaptchaResponse
 from src.models.user import User
@@ -15,6 +15,9 @@ from src.services.users_service import UsersService
 
 OAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl="login")
 OAUTH_DEPENDENCY = Annotated[str, Depends(OAUTH2_SCHEME)]
+
+
+SETTINGS_DEPENDENCY = Annotated[Settings, Depends(get_settings)]
 
 
 async def verify_recaptcha(

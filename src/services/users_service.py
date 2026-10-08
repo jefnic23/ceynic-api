@@ -3,13 +3,13 @@ from fastapi import Depends
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.database import get_async_session
+from src.database import ASYNC_SESSION_DEPENDENCY
 from src.models.storefront import Storefront
 from src.models.user import User
 
 
 class UsersService:
-    def __init__(self, session: Annotated[AsyncSession, Depends(get_async_session)]):
+    def __init__(self, session: ASYNC_SESSION_DEPENDENCY):
         self._session = session
 
     async def get_user_by_id(self, id: int) -> User | None:

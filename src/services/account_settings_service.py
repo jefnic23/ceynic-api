@@ -1,16 +1,14 @@
-from typing import Annotated
-from fastapi import Depends
 from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.database import get_async_session
-from src.models.account_settings import AccountSettings
+from src.database import ASYNC_SESSION_DEPENDENCY
 from src.enums.payment_processor import PaymentProcessorEnum
+from src.models.account_settings import AccountSettings
 from src.models.payment_processor import PaymentProcessor
 from src.models.storefront import Storefront
 
+
 class AccountSettingsService:
-    def __init__(self, session: Annotated[AsyncSession, Depends(get_async_session)]):
+    def __init__(self, session: ASYNC_SESSION_DEPENDENCY):
         self._session = session
 
     async def get_payment_processor(self, subdomain: str) -> PaymentProcessorEnum:

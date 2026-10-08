@@ -36,3 +36,16 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+## Backend CLI
+
+Install the Poetry environment, then generate JSON schemas and TypeScript models
+for classes marked with `@frontend`:
+
+```bash
+poetry install
+poetry run ceynic generate-frontend-models
+```
+
+The command requires `json-schema-to-typescript`'s `json2ts` executable to be
+available on `PATH`.

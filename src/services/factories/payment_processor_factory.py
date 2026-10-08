@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 from src.database import get_async_session
 from src.enums.payment_processor import PaymentProcessorEnum
-from src.repositories.order_repository import OrderRepository
+# from src.repositories.order_repository import OrderRepository
 from src.services.base.payment_processor_base import PaymentProcessorBase
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -17,21 +17,18 @@ class PaymentProcessorFactory:
         self,
         session: Annotated[AsyncSession, Depends(get_async_session)], 
         settings: Annotated[Settings, Depends(get_settings)], 
-        http_client: Annotated[HttpClient, Depends(get_http_client)],
-        order_repository: Annotated[OrderRepository, Depends()]
+        http_client: Annotated[HttpClient, Depends(get_http_client)]
     ):
         self._session: AsyncSession = session
         self._settings: Settings = settings
         self._http_client: HttpClient = http_client
-        self._order_repository: OrderRepository = order_repository
 
     def get_payment_processor(self, payment_processor: PaymentProcessorEnum) -> PaymentProcessorBase:
         if payment_processor == PaymentProcessorEnum.PAYPAL:
             return PayPalService(
                 session=self._session, 
                 settings=self._settings, 
-                http_client=self._http_client,
-                order_repository=self._order_repository
+                http_client=self._http_client
             )
         # elif merchant.payment_provider == "stripe":
         #     return StripeProcessor()

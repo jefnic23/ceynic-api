@@ -15,21 +15,21 @@ class PaymentProcessorBase(ABC):
         pass
 
     @abstractmethod
-    async def authorize_payment(self, storefront_id: int, order_id: int, product_ids: list[int], **kwargs):
+    async def authorize_payment(self, storefront_id: int, authorization_id: str, **kwargs):
         pass
 
     @abstractmethod
-    async def reauthorize_payment(self, storefront_id: int, order_id: int, **kwargs):
+    async def reauthorize_payment(self, storefront_id: int, authorization_id: str, **kwargs):
         pass
 
     @abstractmethod
-    async def void_payment(self, storefront_id: int, order_id: int, **kwargs):
+    async def void_payment(self, storefront_id: int, authorization_id: str, **kwargs):
         pass
 
     @abstractmethod
-    async def capture_payment(self, storefront_id: int, order_id: int, **kwargs) -> dict:
+    async def capture_payment(self, storefront_id: int, authorization_id: str, **kwargs) -> dict:
         pass
 
     @abstractmethod
-    async def refund_payment(self, storefront_id: int, order_id: int, **kwargs) -> dict:
+    async def refund_payment(self, storefront_id: int, capture_id: str, **kwargs) -> dict:
         pass

@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
-from sqlmodel import Field, Relationship
+
+from sqlmodel import Field, Relationship, UniqueConstraint
+
 from src.models.base import BaseModel
 
 if TYPE_CHECKING:
@@ -7,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class ProductImageBase(BaseModel):
-    public_id: str
+    url: str
     position: int
     width: int
     height: int
@@ -17,6 +19,15 @@ class ProductImageBase(BaseModel):
 
 class ProductImage(ProductImageBase, table=True):
     __tablename__ = "product_images"
+    __table_args__ = (
+        UniqueConstraint(
+            "product_id",
+            "position",
+            name="uq_product_images_product_id_position",
+            deferrable=True,
+            initially="DEFERRED",
+        ),
+    )
 
     id: int = Field(primary_key=True)
 
