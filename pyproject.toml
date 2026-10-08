@@ -1,38 +1,50 @@
-[tool.poetry]
+[project]
 name = "ceynic-api"
 version = "0.1.0"
 description = "Backend infrastructure for ceynic.com"
-authors = ["Jeffrey Nicholas <jefnic23@gmail.com>"]
+authors = [{ name = "Jeffrey Nicholas", email = "jefnic23@gmail.com" }]
+requires-python = ">=3.11,<4"
 readme = "README.md"
-packages = [{ include = "src" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "fastapi>=0.115.7,<0.116",
+    "uvicorn>=0.29.0,<0.30",
+    "fastapi-mail>=1.4.1,<2",
+    "sqlmodel>=0.0.18,<0.0.19",
+    "python-dotenv>=1.0.1,<2",
+    "pydantic-settings>=2.2.1,<3",
+    "psycopg2>=2.9.9,<3",
+    "asyncpg>=0.29.0,<0.30",
+    "sqlalchemy[asyncio]>=2.0.30,<3",
+    "email-validator>=2.1.1,<3",
+    "python-multipart>=0.0.9,<0.0.10",
+    "aiohttp[speedups]>=3.9.5,<4",
+    "python-jose[cryptography]>=3.3.0,<4",
+    "passlib[bcrypt]>=1.7.4,<2",
+    "stripe>=12.0.1,<13",
+    "python-slugify>=8.0.4,<9",
+    "pillow>=11.3.0,<12",
+    "ruff>=0.12.7,<0.13",
+    "pre-commit>=4.2.0,<5",
+    "typer>=0.27.2,<0.28",
+    "alembic>=1.13,<2",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-fastapi = "^0.115.7"
-uvicorn = "^0.29.0"
-fastapi-mail = "^1.4.1"
-sqlmodel = "^0.0.18"
-python-dotenv = "^1.0.1"
-pydantic-settings = "^2.2.1"
-psycopg2 = "^2.9.9"
-asyncpg = "^0.29.0"
-sqlalchemy = {extras = ["asyncio"], version = "^2.0.30"}
-email-validator = "^2.1.1"
-python-multipart = "^0.0.9"
-aiohttp = {extras = ["speedups"], version = "^3.9.5"}
-python-jose = {extras = ["cryptography"], version = "^3.3.0"}
-passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-stripe = "^12.0.1"
-python-slugify = "^8.0.4"
-pillow = "^11.3.0"
-ruff = "^0.12.7"
-pre-commit = "^4.2.0"
-typer = "^0.27.2"
-
-[tool.poetry.scripts]
+[project.scripts]
 ceynic = "src.cli:app"
 
+[tool.uv]
+
+[tool.uv.build-backend]
+module-name = ["src"]
+module-root = ""
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.9.25,<0.10.0"]
+build-backend = "uv_build"
