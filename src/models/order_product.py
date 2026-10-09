@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from sqlalchemy import Column, ForeignKey, Integer
 from sqlmodel import Field, Relationship
 
 from src.models.base import BaseModel
@@ -10,8 +11,16 @@ if TYPE_CHECKING:
 
 
 class OrderProductBase(BaseModel):
-    order_id: int = Field(foreign_key="orders.id")
-    product_id: int = Field(foreign_key="products.id")
+    order_id: int = Field(
+        sa_column=Column(
+            Integer, ForeignKey("orders.id", ondelete="CASCADE"), nullable=False
+        )
+    )
+    product_id: int = Field(
+        sa_column=Column(
+            Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False
+        )
+    )
 
 
 class OrderProduct(OrderProductBase, table=True):

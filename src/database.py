@@ -9,17 +9,8 @@ from pydantic.alias_generators import to_camel
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+import src.models.registry  # noqa: F401
 from src.config import get_settings
-from src.models.content import Content  # noqa: F401
-from src.models.medium import Medium  # noqa: F401
-from src.models.order import Order  # noqa: F401
-from src.models.order_product import OrderProduct  # noqa: F401
-from src.models.product import Product  # noqa: F401
-from src.models.product_image import ProductImage  # noqa: F401
-from src.models.refresh_token import RefreshToken  # noqa: F401
-from src.models.social_media_link import SocialMediaLink  # noqa: F401
-from src.models.storefront import Storefront  # noqa: F401
-from src.models.user import User  # noqa: F401
 
 
 class BaseSchema(BaseModel):

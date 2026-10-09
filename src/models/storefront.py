@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship
 
+from src.models.base import BaseModel
 
 if TYPE_CHECKING:
     from src.models.account_settings import AccountSettings
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
     from src.models.user import User
 
 
-class Storefront(SQLModel, table=True):
+class Storefront(BaseModel, table=True):
     __tablename__ = "storefronts"
 
     id: int = Field(primary_key=True)
@@ -22,15 +23,13 @@ class Storefront(SQLModel, table=True):
     state: str = Field(nullable=False)
     subdomain: str = Field(unique=True)
 
-    content: Optional["Content"] = Relationship(
-        back_populates="storefront", sa_relationship_kwargs={"uselist": False}
-    )
+    content: Optional["Content"] = Relationship(back_populates="storefront", sa_relationship_kwargs={"uselist": False})
     paypal_settings: Optional["PayPalSettings"] = Relationship(
         back_populates="storefront", sa_relationship_kwargs={"uselist": False}
     )
 
     account_settings: list["AccountSettings"] = Relationship(back_populates="storefront")
-    orders: list["Order"] = Relationship(back_populates="storefront") 
+    orders: list["Order"] = Relationship(back_populates="storefront")
     products: list["Product"] = Relationship(back_populates="storefront")
     social_media_links: list["SocialMediaLink"] = Relationship(back_populates="storefront")
     users: list["User"] = Relationship(back_populates="storefront")

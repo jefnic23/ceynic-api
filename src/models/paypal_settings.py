@@ -1,18 +1,27 @@
 from typing import TYPE_CHECKING
 
-from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import Column, ForeignKey, Integer, UniqueConstraint
+from sqlmodel import Field, Relationship
+
+from src.models.base import BaseModel
 
 if TYPE_CHECKING:
-    from src.models.account_settings import AccountSettings
     from src.models.storefront import Storefront
 
 
-class PayPalSettings(SQLModel, table=True):
+class PayPalSettings(BaseModel, table=True):
     __tablename__ = "paypal_settings"
+    __table_args__ = (
+        UniqueConstraint("storefront_id", name="uq_paypal_settings_storefront_id"),
+    )
 
-    id: str = Field(primary_key=True)
+    id: int = Field(primary_key=True)
     client_id: str
     client_secret: str
 
-    storefront_id: int = Field(foreign_key='storefronts.id')
+    storefront_id: int = Field(
+        sa_column=Column(
+            Integer, ForeignKey("storefronts.id", ondelete="CASCADE"), nullable=False
+        )
+    )
     storefront: "Storefront" = Relationship(back_populates="paypal_settings")

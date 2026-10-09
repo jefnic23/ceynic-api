@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import File, Form, UploadFile
-from sqlalchemy import Column, DateTime, func
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, func
 from sqlmodel import Field, Relationship
 
 from src.decorators import frontend
@@ -28,14 +28,18 @@ class ProductBase(BaseModel):
     date_added: datetime | None = Field(
         default=None,
         sa_column=Column(
-            DateTime(timezone=True),
+            DateTime(timezone=False),
             nullable=False,
             server_default=func.now(),
         ),
     )
 
     medium_id: int = Field(foreign_key="mediums.id")
-    storefront_id: int = Field(foreign_key="storefronts.id")
+    storefront_id: int = Field(
+        sa_column=Column(
+            Integer, ForeignKey("storefronts.id", ondelete="CASCADE"), nullable=False
+        )
+    )
 
 
 class Product(ProductBase, table=True):

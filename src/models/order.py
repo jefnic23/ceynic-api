@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlmodel import Column, DateTime, Field, Relationship
+from sqlalchemy import Column, DateTime, ForeignKey, Integer
+from sqlmodel import Field, Relationship
 
 from src.decorators import frontend
 from src.models.base import BaseModel
@@ -16,9 +17,15 @@ class OrderBase(BaseModel):
     authorization_id: str | None
     capture_id: str | None
     status: str
-    create_time: datetime = Field(sa_column=Column(DateTime(timezone=True)))
+    create_time: datetime = Field(
+        sa_column=Column(DateTime(timezone=True), nullable=False)
+    )
 
-    storefront_id: int = Field(foreign_key='storefronts.id')
+    storefront_id: int = Field(
+        sa_column=Column(
+            Integer, ForeignKey("storefronts.id", ondelete="CASCADE"), nullable=False
+        )
+    )
 
 
 class Order(OrderBase, table=True):

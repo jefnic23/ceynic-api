@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from sqlalchemy import Column, ForeignKey, Integer
 from sqlmodel import Field, Relationship
 
 from src.decorators import frontend
@@ -13,7 +14,11 @@ class SocialMediaLinkBase(BaseModel):
     name: str
     url: str
 
-    storefront_id: int = Field(foreign_key='storefronts.id')
+    storefront_id: int = Field(
+        sa_column=Column(
+            Integer, ForeignKey("storefronts.id", ondelete="CASCADE"), nullable=False
+        )
+    )
 
 
 class SocialMediaLink(SocialMediaLinkBase, table=True):

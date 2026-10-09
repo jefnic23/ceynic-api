@@ -2,8 +2,9 @@ from sqlmodel import select
 
 from src.database import ASYNC_SESSION_DEPENDENCY
 from src.models.content import Content
-from src.schemas.location import Location
 from src.models.storefront import Storefront
+from src.schemas.location import Location
+
 
 class StorefrontsService:
     def __init__(self, session: ASYNC_SESSION_DEPENDENCY):
@@ -14,21 +15,18 @@ class StorefrontsService:
         result = await self._session.exec(statement)
         storefront = result.one()
         return Location(city=storefront.city, state=storefront.state)
-    
 
     async def get_about(self, subdomain: str) -> str:
         statement = select(Content).join(Content.storefront).where(Storefront.subdomain == subdomain)
         result = await self._session.exec(statement)
         content = result.one()
         return content.about
-    
 
     async def get_id_from_subdomain(self, subdomain: str) -> int:
         statement = select(Storefront).where(Storefront.subdomain == subdomain)
         result = await self._session.exec(statement)
         storefront = result.one()
         return storefront.id
-    
 
     async def get_name(self, subdomain: str) -> str:
         statement = select(Storefront).where(Storefront.subdomain == subdomain)

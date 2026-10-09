@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from sqlalchemy import Column, ForeignKey, Integer
 from sqlmodel import Field, Relationship, UniqueConstraint
 
 from src.models.base import BaseModel
@@ -14,7 +15,11 @@ class ProductImageBase(BaseModel):
     width: int
     height: int
 
-    product_id: int = Field(foreign_key="products.id")
+    product_id: int = Field(
+        sa_column=Column(
+            Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False
+        )
+    )
 
 
 class ProductImage(ProductImageBase, table=True):
