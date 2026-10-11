@@ -1,23 +1,24 @@
 from typing import Annotated
 
 from fastapi import Depends
-from src.database import get_async_session
-from src.enums.payment_processor import PaymentProcessorEnum
-# from src.repositories.order_repository import OrderRepository
-from src.services.base.payment_processor_base import PaymentProcessorBase
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import Settings, get_settings
+from src.database import get_async_session
+from src.enums.payment_processor import PaymentProcessorEnum
 from src.http_client import HttpClient, get_http_client
+
+# from src.repositories.order_repository import OrderRepository
 from src.services.base.payment_processor_base import PaymentProcessorBase
 from src.services.paypal_service import PayPalService
+
 
 class PaymentProcessorFactory:
     def __init__(
         self,
-        session: Annotated[AsyncSession, Depends(get_async_session)], 
-        settings: Annotated[Settings, Depends(get_settings)], 
-        http_client: Annotated[HttpClient, Depends(get_http_client)]
+        session: Annotated[AsyncSession, Depends(get_async_session)],
+        settings: Annotated[Settings, Depends(get_settings)],
+        http_client: Annotated[HttpClient, Depends(get_http_client)],
     ):
         self._session: AsyncSession = session
         self._settings: Settings = settings
@@ -25,11 +26,7 @@ class PaymentProcessorFactory:
 
     def get_payment_processor(self, payment_processor: PaymentProcessorEnum) -> PaymentProcessorBase:
         if payment_processor == PaymentProcessorEnum.PAYPAL:
-            return PayPalService(
-                session=self._session, 
-                settings=self._settings, 
-                http_client=self._http_client
-            )
+            return PayPalService(session=self._session, settings=self._settings, http_client=self._http_client)
         # elif merchant.payment_provider == "stripe":
         #     return StripeProcessor()
         # elif merchant.payment_provider == "amazon_pay":
