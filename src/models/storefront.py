@@ -8,7 +8,6 @@ if TYPE_CHECKING:
     from src.models.account_settings import AccountSettings
     from src.models.content import Content
     from src.models.order import Order
-    from src.models.paypal_settings import PayPalSettings
     from src.models.product import Product
     from src.models.social_media_link import SocialMediaLink
     from src.models.user import User
@@ -24,10 +23,6 @@ class Storefront(BaseModel, table=True):
     subdomain: str = Field(unique=True)
 
     content: Optional["Content"] = Relationship(back_populates="storefront", sa_relationship_kwargs={"uselist": False})
-    paypal_settings: Optional["PayPalSettings"] = Relationship(
-        back_populates="storefront", sa_relationship_kwargs={"uselist": False}
-    )
-
     account_settings: list["AccountSettings"] = Relationship(back_populates="storefront")
     orders: list["Order"] = Relationship(back_populates="storefront")
     products: list["Product"] = Relationship(back_populates="storefront")

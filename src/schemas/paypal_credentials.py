@@ -1,5 +1,10 @@
-from src.database import BaseSchema
+from pydantic import ConfigDict, Field
+
+from src.schemas.base import BaseSchema
+
 
 class PayPalCredentials(BaseSchema):
-    client_id: str
-    client_secret: str
+    model_config = ConfigDict(extra="forbid")
+
+    client_id: str = Field(min_length=1)
+    client_secret: str = Field(min_length=1)

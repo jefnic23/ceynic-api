@@ -6,8 +6,9 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.config import Settings
+from src.enums.payment_processor import PaymentProcessorEnum
 from src.http_client import HttpClient
-from src.models.paypal_settings import PayPalSettings
+from src.models.account_settings import AccountSettings
 from src.schemas.create_order_out import CreateOrderOut
 from src.schemas.paypal.auth_response import AuthResponse
 from src.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
@@ -281,10 +282,18 @@ class PayPalService(PaymentProcessorBase):
             PayPalCredentials: Client ID and secret used for token generation.
         """
 
-        statement = select(PayPalSettings).where(PayPalSettings.storefront_id == storefront_id)
+        statement = select(AccountSettings.payment_processor_settings).where(
+            AccountSettings.storefront_id == storefront_id
+        ).order_by(AccountSettings.id).limit(1)
         results = await self._session.exec(statement=statement)
-        paypal_settings = results.one_or_none()
-        return PayPalCredentials(**paypal_settings.model_dump())
+        processor_settings = results.one_or_none()
+        if processor_settings is None:
+            raise ValueError(f"Account settings not found for storefront {storefront_id}")
+
+        credentials = processor_settings.processors.get(PaymentProcessorEnum.PAYPAL.value)
+        if credentials is None:
+            raise ValueError(f"PayPal credentials not configured for storefront {storefront_id}")
+        return PayPalCredentials.model_validate(credentials)
 
     async def _get_access_token(self, storefront_id: int) -> AuthResponse:
         """

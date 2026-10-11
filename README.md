@@ -70,6 +70,19 @@ Alembic was introduced. `0002_align_model_constraints` brings that schema into
 line with the models, including unique storefront content/PayPal settings and
 deferred uniqueness for image positions.
 
+Revision `0005_move_payment_settings` copies PayPal credentials
+from `paypal_settings` into `settings.payment_processor_settings` and drops the
+old table. The JSONB column stores a `processors` map so inactive processors
+retain their credentials; `settings.payment_processor` selects the active one.
+Revision `0007_payment_processor_enum` replaces the `payment_processors` lookup
+table with a PostgreSQL `payment_processor` enum on `settings` and `orders`.
+The migration requires PayPal to be the only processor in the lookup table.
+To support another processor, add its credentials schema to
+`PROCESSOR_CREDENTIALS` in `src/schemas/payment_processor_settings.py`, add its
+enum member and service implementation, migrate the PostgreSQL enum to include
+the new label, and read its configuration from the map.
+Keep this credentials column out of public settings responses.
+
 ### Adopting an existing database
 
 1. Back up the database and compare its actual schema with
