@@ -9,3 +9,4 @@ class SiteSettings(BaseSchema):
     model_config = ConfigDict(extra="forbid")
 
     pinterest_enabled: bool = False
+    sort_and_filter_enabled: bool = True
