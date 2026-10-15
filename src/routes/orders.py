@@ -24,12 +24,11 @@ async def get_orders(
     return orders
 
 
-@router.get("/orders/{id:int}")
+@router.get("/orders/{order_id:str}")
 async def get_order(
-    id: int, current_user: CURRENT_USER_DEPENDENCY, orders_service: Annotated[OrdersService, Depends()]
+    order_id: str, storefront_id: STOREFRONT_ID_DEPENDENCY, orders_service: Annotated[OrdersService, Depends()]
 ) -> OrderDetails:
-    order = await orders_service.get(current_user.storefront_id, order_id=id)
-    order_details = await orders_service.get_order(storefront_id=current_user.storefront_id, order_id=order.order_id)
+    order_details = await orders_service.get_order(storefront_id, order_id)
     return order_details
 
 
