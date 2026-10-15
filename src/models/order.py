@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, UniqueConstraint
 from sqlmodel import Field, Relationship
 
 from src.decorators import frontend
@@ -31,6 +31,7 @@ class OrderBase(BaseModel):
 
 class Order(OrderBase, table=True):
     __tablename__ = "orders"
+    __table_args__ = (UniqueConstraint("storefront_id", "order_id", name="uq_orders_storefront_order_id"),)
 
     id: int = Field(primary_key=True) 
     payment_processor: str = Field(

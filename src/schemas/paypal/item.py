@@ -12,6 +12,7 @@ class DiscountAmount(BaseSchema):
 
 class Item(BaseSchema):
     name: str
+    sku: str | None = None
     quantity: str
     unit_amount: UnitAmount | None = None
     tax: Tax | None = None

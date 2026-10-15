@@ -124,6 +124,7 @@ class PayPalService(PaymentProcessorBase):
                     items=[
                         Item(
                             name=product.title,
+                            sku=str(product.id),
                             description=product.description,
                             unit_amount=UnitAmount(value=str(product.price)),
                             quantity=str(1),  # todo: add cart product quantity

@@ -1,9 +1,12 @@
 import inspect
-from datetime import datetime, timezone
+from collections import Counter
+from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from functools import wraps
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
 from src.database import ASYNC_SESSION_DEPENDENCY
@@ -44,17 +47,21 @@ class OrdersService:
             if storefront_id is None:
                 raise ValueError(f"'storefront_id' must be provided to {func.__name__}")
 
-            # Only new checkouts use the storefront's current selection. All later
-            # actions use the processor recorded when the external order was created.
-            is_new_order = func.__name__ == "create_order"
-            payment_processor, processor_name = await self._get_payment_processor(
-                storefront_id,
-                None if is_new_order else bound_args.arguments.get("order_id"),
-            )
+            # Authorization receives a PayPal order ID before there is a local
+            # order, so it must use PayPal even if the storefront has since
+            # changed its selected processor.
+            if func.__name__ == "authorize_payment":
+                processor_name = PaymentProcessorEnum.PAYPAL.value
+                payment_processor = self._payment_processor_factory.get_payment_processor(PaymentProcessorEnum.PAYPAL)
+            else:
+                payment_processor, processor_name = await self._get_payment_processor(
+                    storefront_id,
+                    None if func.__name__ == "create_order" else bound_args.arguments.get("order_id"),
+                )
 
             # Inject payment_processor into kwargs
             bound_args.arguments["payment_processor"] = payment_processor
-            if is_new_order:
+            if func.__name__ == "authorize_payment":
                 bound_args.arguments["processor_name"] = processor_name
 
             return await func(*bound_args.args, **bound_args.kwargs)
@@ -109,49 +116,66 @@ class OrdersService:
         storefront_id: int,
         products: list[ProductForOrder],
         payment_processor: PaymentProcessorBase = None,
-        processor_name: str | None = None,
     ) -> CreateOrderOut:
-        response = await payment_processor.create_order(storefront_id, products)
-        self._session.add(
-            Order(
-                order_id=response.order_id,
-                authorization_id=None,
-                capture_id=None,
-                status="CREATED",
-                create_time=datetime.now(timezone.utc),
-                storefront_id=storefront_id,
-                payment_processor=processor_name,
-            )
-        )
-        await self._session.commit()
-        return response
+        return await payment_processor.create_order(storefront_id, products)
 
     @with_payment_processor
     async def authorize_payment(
-        self, storefront_id: int, order_id: str, product_ids: list[int], payment_processor: PaymentProcessorBase = None
+        self,
+        storefront_id: int,
+        order_id: str,
+        products: list[ProductForOrder],
+        payment_processor: PaymentProcessorBase = None,
+        processor_name: str | None = None,
     ) -> AuthorizePaymentResponse:
         existing = await self._session.exec(
-            select(Order.authorization_id).where(Order.storefront_id == storefront_id, Order.order_id == order_id)
+            select(Order.id).where(Order.storefront_id == storefront_id, Order.order_id == order_id)
         )
         if existing.one_or_none() is not None:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Order already authorized")
-        response = await payment_processor.authorize_payment(storefront_id=storefront_id, order_id=order_id)
 
-        result = await self._session.exec(
-            select(Order).where(Order.storefront_id == storefront_id, Order.order_id == order_id).with_for_update()
+        # The product IDs in the approval request are client-controlled. Check the
+        # approved PayPal order against the storefront's products before authorizing.
+        details = await payment_processor.get_order(storefront_id=storefront_id, order_id=order_id)
+        if details.id != order_id or details.status not in ("APPROVED", "COMPLETED"):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Order is not approved")
+
+        if details.status == "COMPLETED":
+            # PayPal may have authorized successfully even if our previous DB
+            # commit failed. Recover the authorization without posting twice.
+            payments = details.purchase_units[0].payments
+            if payments is None or not payments.authorizations:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Order has no authorization")
+            response = AuthorizePaymentResponse.model_validate(details)
+        else:
+            response = await payment_processor.authorize_payment(storefront_id=storefront_id, order_id=order_id)
+        if response.id != order_id or response.status != "COMPLETED":
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Order was not authorized")
+
+        order = Order(
+            order_id=order_id,
+            authorization_id=response.authorization_id,
+            capture_id=None,
+            status="PENDING",
+            create_time=response.create_time or datetime.now(UTC),
+            storefront_id=storefront_id,
+            payment_processor=processor_name,
         )
-        order = result.one_or_none()
-        if order is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
-        if order.authorization_id is not None:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Order already authorized")
-
-        order.authorization_id = response.authorization_id
-        order.create_time = response.create_time
-        order.status = "PENDING"  # todo: make this an enum
-        for product_id in product_ids:
-            self._session.add(OrderProduct(order_id=order.id, product_id=product_id))
-        await self._session.commit()
+        try:
+            self._session.add(order)
+            await self._session.flush()
+            for product in products:
+                self._session.add(OrderProduct(order_id=order.id, product_id=product.id))
+            await self._session.commit()
+        except IntegrityError as error:
+            await self._session.rollback()
+            existing = await self._session.exec(
+                select(Order.id).where(Order.storefront_id == storefront_id, Order.order_id == order_id)
+            )
+            if existing.one_or_none() is not None:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Order already authorized") from error
+            raise
+        return response
 
     @with_payment_processor
     async def reauthorize_payment(
@@ -226,9 +250,7 @@ class OrdersService:
     ) -> tuple[PaymentProcessorBase, str]:
         if order_id is None:
             result = await self._session.exec(
-                select(AccountSettings.payment_processor).where(
-                    AccountSettings.storefront_id == storefront_id
-                )
+                select(AccountSettings.payment_processor).where(AccountSettings.storefront_id == storefront_id)
             )
             processor_name = result.one_or_none()
             if processor_name is None:
@@ -245,7 +267,9 @@ class OrdersService:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
             processor_name = order.payment_processor
             if processor_name is None:
-                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Order has no recorded payment processor")
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT, detail="Order has no recorded payment processor"
+                )
 
         try:
             processor = PaymentProcessorEnum(processor_name)
