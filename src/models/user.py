@@ -15,6 +15,8 @@ class User(BaseModel, table=True):
 
     id: int = Field(primary_key=True)
     email: str = Field(unique=True)
+    first_name: str | None = None
+    last_name: str | None = None
     password: str
 
     storefront_id: int = Field(
