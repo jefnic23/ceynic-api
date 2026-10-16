@@ -1,14 +1,15 @@
 from pydantic import BaseModel
-from typing import Optional
 
 from src.enums.product_sort_params import ProductSortParams
 
+
 class ProductQueryParams(BaseModel):
-    sort: Optional[ProductSortParams] = None
-    medium: Optional[list[str]] = None
-    min_price: Optional[int] = None
-    max_price: Optional[int] = None
-    min_width: Optional[int] = None
-    max_width: Optional[int] = None
-    min_height: Optional[int] = None
-    max_height: Optional[int] = None
+    sort: ProductSortParams | None = None
+    medium: list[str] | None = None
+    min_price: int | None = None
+    max_price: int | None = None
+    min_width: int | None = None
+    max_width: int | None = None
+    min_height: int | None = None
+    max_height: int | None = None
+    sold: bool = False

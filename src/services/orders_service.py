@@ -7,13 +7,15 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import select
+from sqlmodel import col, select
 
 from src.database import ASYNC_SESSION_DEPENDENCY
+from src.enums.order_status import SOLD_ORDER_STATUSES
 from src.enums.payment_processor import PaymentProcessorEnum
 from src.models.account_settings import AccountSettings
 from src.models.order import Order, OrderOut
 from src.models.order_product import OrderProduct
+from src.models.product import Product
 from src.schemas.create_order_out import CreateOrderOut
 from src.schemas.order_update import OrderUpdate
 from src.schemas.paypal.authorize_payment_response import AuthorizePaymentResponse
@@ -134,11 +136,21 @@ class OrdersService:
         if existing.one_or_none() is not None:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Order already authorized")
 
+        await self._lock_available_products(storefront_id, [product.id for product in products])
+
         # The product IDs in the approval request are client-controlled. Check the
         # approved PayPal order against the storefront's products before authorizing.
         details = await payment_processor.get_order(storefront_id=storefront_id, order_id=order_id)
         if details.id != order_id or details.status not in ("APPROVED", "COMPLETED"):
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Order is not approved")
+
+        items = [item for unit in details.purchase_units for item in (unit.items or [])]
+        if (
+            len(items) != len(products)
+            or {item.sku for item in items} != {str(product.id) for product in products}
+            or any(item.quantity != "1" for item in items)
+        ):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Order products do not match")
 
         if details.status == "COMPLETED":
             # PayPal may have authorized successfully even if our previous DB
@@ -181,6 +193,8 @@ class OrdersService:
     async def reauthorize_payment(
         self, storefront_id: int, order_id: int, payment_processor: PaymentProcessorBase = None
     ) -> AuthorizePaymentResponse:
+        product_ids = await self._session.exec(select(OrderProduct.product_id).where(OrderProduct.order_id == order_id))
+        await self._lock_available_products(storefront_id, product_ids.all(), excluded_order_id=order_id)
         authorization_id = await self.get_authorization_id(storefront_id=storefront_id, order_id=order_id)
 
         response = await payment_processor.reauthorize_payment(
@@ -244,6 +258,34 @@ class OrdersService:
         return response
 
     # region Private Methods
+
+    async def _lock_available_products(
+        self, storefront_id: int, product_ids: list[int], excluded_order_id: int | None = None
+    ) -> None:
+        if not product_ids:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid products")
+        # Lock rows in a stable order and hold them until the status change is
+        # committed, preventing concurrent authorizations from selling twice.
+        for product_id in sorted(product_ids):
+            locked = await self._session.exec(
+                select(Product.id)
+                .where(Product.id == product_id, Product.storefront_id == storefront_id)
+                .with_for_update()
+            )
+            if locked.one_or_none() is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product(s) not found")
+
+        statement = (
+            select(OrderProduct.product_id)
+            .join(Order, Order.id == OrderProduct.order_id)
+            .where(col(OrderProduct.product_id).in_(product_ids))
+            .where(Order.storefront_id == storefront_id, col(Order.status).in_(SOLD_ORDER_STATUSES))
+        )
+        if excluded_order_id is not None:
+            statement = statement.where(Order.id != excluded_order_id)
+        sold = await self._session.exec(statement.limit(1))
+        if sold.first() is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Product is sold")
 
     async def _get_payment_processor(
         self, storefront_id: int, order_id: str | int | None = None

@@ -4,14 +4,17 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
+from sqlalchemy.sql import Select
 from sqlmodel import col, select
-from sqlmodel.sql.expression import SelectOfScalar
 
 from src.database import ASYNC_SESSION_DEPENDENCY
 from src.dependencies import SETTINGS_DEPENDENCY
+from src.enums.order_status import SOLD_ORDER_STATUSES
 from src.enums.product_sort_params import ProductSortParams
 from src.models.medium import Medium
-from src.models.product import Product, ProductForCreate, ProductForUpdate
+from src.models.order import Order
+from src.models.order_product import OrderProduct
+from src.models.product import Product, ProductForCreate, ProductForUpdate, ProductOut
 from src.models.product_image import ProductImage
 from src.schemas.product_for_order import ProductForOrder
 from src.schemas.product_metadata import MediumCount, PriceRange, ProductMetadata, SizeRanges
@@ -30,34 +33,43 @@ class ProductsService:
         self._settings = settings
         self._product_images_service = product_images_service
 
-    async def get_all(self, storefront_id: int, query_params: ProductQueryParams | None = None) -> list[Product]:
+    async def get_all(self, storefront_id: int, query_params: ProductQueryParams | None = None) -> list[ProductOut]:
         statement = (
-            select(Product)
+            select(Product, self.sold_expression().label("sold"))
             .join(ProductImage)
             .where(Product.storefront_id == storefront_id)
             .where(ProductImage.position == 1)
             .options(selectinload(Product.medium), selectinload(Product.images))
         )
+        if not query_params or not query_params.sold:
+            statement = statement.where(~self.sold_expression())
         if query_params:
             statement = self._apply_query_params(statement, query_params)
         results = await self._session.exec(statement=statement)
-        return results.all()
+        return [self._product_out(product, sold) for product, sold in results.all()]
 
-    async def get(self, storefront_id: int, product_id: int) -> Product:
+    async def get(self, storefront_id: int, product_id: int) -> ProductOut:
         statement = (
-            select(Product)
+            select(Product, self.sold_expression().label("sold"))
             .where(Product.storefront_id == storefront_id)
             .where(Product.id == product_id)
             .options(selectinload(Product.medium), selectinload(Product.images))
         )
         results = await self._session.exec(statement=statement)
-        product = results.one_or_none()
-        if not product:
+        row = results.one_or_none()
+        if row is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Product not found",
             )
-        return product
+        product, sold = row
+        return self._product_out(product, sold)
+
+    @staticmethod
+    def _product_out(product: Product, sold: bool) -> ProductOut:
+        return ProductOut.model_validate(
+            {**product.model_dump(), "medium": product.medium, "images": product.images, "sold": sold}
+        )
 
     async def get_for_order(self, storefront_id: int, product_ids: list[int]) -> list[ProductForOrder]:
         # todo: consolidate this method with `get` above
@@ -68,7 +80,17 @@ class ProductsService:
             .options(selectinload(Product.medium), selectinload(Product.images))
         )
         results = await self._session.exec(statement=statement)
-        return results.all()
+        products = results.all()
+        if products:
+            sold_results = await self._session.exec(
+                select(Product.id)
+                .where(Product.storefront_id == storefront_id)
+                .where(col(Product.id).in_([product.id for product in products]))
+                .where(self.sold_expression())
+            )
+            if sold_results.first() is not None:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Product is sold")
+        return products
 
     async def create(self, storefront_id: int, product_in: ProductForCreate) -> None:
         product = Product(**product_in.model_dump(exclude_unset=True), storefront_id=storefront_id)
@@ -216,7 +238,7 @@ class ProductsService:
         )
 
     @staticmethod
-    def _apply_query_params(statement: SelectOfScalar, query_params: ProductQueryParams | None) -> SelectOfScalar:
+    def _apply_query_params(statement: Select, query_params: ProductQueryParams) -> Select:
         if query_params.medium:
             statement = statement.where(col(Medium.name).in_(query_params.medium))
         if query_params.min_price:
@@ -247,6 +269,17 @@ class ProductsService:
             else:
                 statement = statement.order_by(Product.id)
         return statement
+
+    @staticmethod
+    def sold_expression():
+        """Whether a product belongs to any pending or completed order."""
+        return (
+            select(OrderProduct.id)
+            .join(Order, Order.id == OrderProduct.order_id)
+            .where(OrderProduct.product_id == Product.id)
+            .where(col(Order.status).in_(SOLD_ORDER_STATUSES))
+            .exists()
+        )
 
     # async def _get_product_images(self, storefront_id: int, product_id: int) -> list[ProductImage]:
     #     statement = (

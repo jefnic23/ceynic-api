@@ -8,4 +8,9 @@ class OrderStatus(Enum):
     VOIDED = "VOIDED"
     COMPLETED = "COMPLETED"
     PAYER_ACTION_REQUIRED = "PAYER_ACTION_REQUIRED"
+    PENDING = "PENDING"
+    REFUNDED = "REFUNDED"
+
+
+SOLD_ORDER_STATUSES = (OrderStatus.PENDING.value, OrderStatus.COMPLETED.value)
     

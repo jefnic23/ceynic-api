@@ -59,6 +59,7 @@ class Product(ProductBase, table=True):
 @frontend
 class ProductOut(ProductBase):
     id: int
+    sold: bool
     images: list[ProductImageOut] = None
     medium: MediumOut | None = None
 
